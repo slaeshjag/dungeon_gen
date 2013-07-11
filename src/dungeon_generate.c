@@ -96,16 +96,18 @@ static void generate_dungeon_layout_adjust(unsigned int *data, int w, int h) {
 
 
 void dungeon_layout_new(unsigned int *data, int w, int h, int max_room, int min_room, int boss_s) {
-	int n, boss;
+	int n, boss, middle;
+
+	middle = w / 2 + h / 2 * w;
 
 	do {
 		n = 0;
 		boss = !boss_s;
 		memset(data, 0, w * h * 4);
-		generate_layout(&n, 72, &boss, data, w, h, min_room, max_room);
+		generate_layout(&n, middle, &boss, data, w, h, min_room, max_room);
 	} while (n < min_room || !boss);
 	
-	data[72] = 2;
+	data[middle] = 2;
 
 	generate_dungeon_layout_adjust(data, w, h);
 
