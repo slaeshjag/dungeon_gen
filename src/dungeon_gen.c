@@ -12,6 +12,7 @@ int main(int argc, char **argv) {
 	tm = d_tilemap_new(0xFFF, ts, 0xFFF, 16, 15);
 
 	dungeon_layout_new(tm->data, tm->w, tm->h, 24, 16, 1);
+	dungeon_layout_spawn_keylocks(tm->data, tm->w, tm->h, 5, 1);
 	d_tilemap_recalc(tm);
 
 	for (;;) {
@@ -19,6 +20,7 @@ int main(int argc, char **argv) {
 		if (d_keys_get().start) {
 			d_keys_set(d_keys_get());
 			dungeon_layout_new(tm->data, tm->w, tm->h, 24, 16, 1);
+			dungeon_layout_spawn_keylocks(tm->data, tm->w, tm->h, 5, 1);
 			d_tilemap_recalc(tm);
 		}
 		

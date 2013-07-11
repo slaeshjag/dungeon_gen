@@ -114,3 +114,88 @@ void dungeon_layout_new(unsigned int *data, int w, int h, int max_room, int min_
 
 	return;
 }
+
+
+static void layout_spawn_keylock(unsigned int *data, int w, int h, int i, int *keys, int kcnt, int *step, int *key) {
+	int order[4], dir, l;
+
+	if (i < 0 || i >= w * h)
+		return;
+	if (!(data[i] & 0xFF))
+		return;
+	if (data[i] & MAP_ROOM_TMP_VISIT)
+		return;
+	if ((data[i] & 0xFF) == MAP_ROOM_TYPE_BOSS_ROOM)
+		return;
+	data[i] |= MAP_ROOM_TMP_VISIT;
+
+	(*step)++;
+
+	if ((*step / kcnt != (*step - 1) / kcnt || *step == 1) && *key) {
+		(*keys)++;
+		(*key)--;
+		data[i] |= MAP_ROOM_HAS_KEY;
+	}
+
+	if ((data[i] & 0xFF) == MAP_ROOM_TYPE_ROOM) {
+		if (*keys == 2) {
+			data[i] |= MAP_ROOM_HAS_LOCK;
+			(*keys)--;
+		} else if (*keys)
+			if (!(rand() % kcnt)) {
+				data[i] |= MAP_ROOM_HAS_LOCK;
+				(*keys)--;
+			}
+	} 
+	
+	util_order_randomize(order, 4);
+
+	for (l = 0; l < 4; l++) {
+		dir = dir_conv(i, order[l], w, h);
+		layout_spawn_keylock(data, w, h, dir, keys, kcnt, step, key);
+	}
+
+	return;
+}
+
+
+void dungeon_layout_spawn_keylocks(unsigned int *data, int w, int h, int keylocks, int boss) {
+	int start, keys, step, rooms, boss_loc, i, key;
+
+	if (!keylocks)
+		return;
+	for (i = rooms = 0; i < w * h; i++)
+		if (data[i] & 0xFF)
+			rooms++;
+
+	for (i = 0; i < w * h; i++)
+		if ((data[i] & 0xFF) == MAP_ROOM_TYPE_ENTRANCE) {
+			start = i;
+			break;
+		}
+	
+	step = keys = 0;
+	key = keylocks;
+	layout_spawn_keylock(data, w, h, start, &keys, rooms / keylocks, &step, &key);
+
+	for (i = 0; i < w * h; i++)
+		data[i] = (data[i] & (~0 ^ MAP_ROOM_TMP_VISIT));
+	
+	if (boss) {
+		boss_loc = (rand() % (rooms - 1));
+		for (i = 0; i < w * h; i++) {
+			if (!(data[i] & 0xFF))
+				continue;
+			if ((data[i] & 0xFF) == MAP_ROOM_TYPE_BOSS_ROOM)
+				continue;
+			if (!boss_loc) {
+				data[i] |= MAP_ROOM_HAS_BOSSKEY;
+				break;
+			}
+
+			boss_loc--;
+		}
+	}
+	
+	return;
+}
