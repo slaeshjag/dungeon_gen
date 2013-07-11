@@ -5,26 +5,6 @@
 #include "dungeon_generate.h"
 #include "util.h"
 
-static int index_conv(int i, int w, int h, int dx, int dy) {
-	if ((i + dx) / w != i / w || (i % w) + dx < 0 || (i % w) + dx >= w)
-		return i;
-	if ((i / w + dy) < 0 || (i / w + dy) >= h)
-		return i;
-	return (i + dx + dy * w);
-}
-
-
-static int dir_conv(int i, int dir, int w, int h) {
-	int x, y;
-	x = y = 0;
-
-	x = ((dir & 2) ? 1 : -1) * !(dir & 1);
-	y = ((dir & 2) ? 1 : -1) * (dir & 1);;
-
-	return index_conv(i, w, h, x, y);
-}
-
-
 static int generate_layout(int *n, int i, int *boss, unsigned int *data, int w, int h, int mi, int mx) {
 	int branch, order[4], l, dir;
 
@@ -50,7 +30,7 @@ static int generate_layout(int *n, int i, int *boss, unsigned int *data, int w, 
 	util_order_randomize(order, 4);
 
 	for (l = 0; l < 4 && branch; l++) {
-		dir = dir_conv(i, order[l], w, h);
+		dir = util_dir_conv(i, order[l], w, h);
 		branch -= generate_layout(n, dir, boss, data, w, h, mi, mx);
 	}
 	
@@ -168,7 +148,7 @@ static void layout_spawn_keylock(unsigned int *data, int w, int h, int i, int *k
 	util_order_randomize(order, 4);
 
 	for (l = 0; l < 4; l++) {
-		dir = dir_conv(i, order[l], w, h);
+		dir = util_dir_conv(i, order[l], w, h);
 		layout_spawn_keylock(data, w, h, dir, keys, kcnt, step, key);
 	}
 
