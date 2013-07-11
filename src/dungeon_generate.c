@@ -218,7 +218,7 @@ void dungeon_layout_spawn_keylocks(struct dungeon *dungeon, int keylocks, int bo
 }
 
 
-unsigned int *dungeon_generate_room_template(int w, int h, unsigned int type) {
+static unsigned int *dungeon_generate_room_template(int w, int h, unsigned int type) {
 	unsigned int *data;
 	int i, j;
 
@@ -234,4 +234,20 @@ unsigned int *dungeon_generate_room_template(int w, int h, unsigned int type) {
 			data[i + j * w] = ROOM_TILE_WALL;
 	
 	return data;
+}
+
+
+void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h) {
+	int i;
+	
+	dungeon->room_w = room_w;
+	dungeon->room_h = room_h;
+
+	for (i = 0; i < dungeon->w * dungeon->h; i++) {
+		if (!(dungeon->data[i] & 0xFF))
+			continue;
+		dungeon->room_map[i] = dungeon_generate_room_template(dungeon->room_w, dungeon->room_h, dungeon->data[i]);
+	}
+
+	return;
 }

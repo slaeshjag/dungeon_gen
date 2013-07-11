@@ -12,12 +12,14 @@ struct dungeon {
 	int				h;
 	unsigned int			*data;
 	void				**room_map;
+	int				room_w;
+	int				room_h;
 };
 
 
 struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int boss_s);
 void dungeon_layout_spawn_keylocks(struct dungeon *dungeon, int keylocks, int boss);
-unsigned int *dungeon_generate_room_template(int w, int h, unsigned int type);
+void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h);
 
 enum MAP_ROOM_TYPE {
 	MAP_ROOM_TYPE_NOTHING		= 0,

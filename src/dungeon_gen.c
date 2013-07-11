@@ -15,6 +15,7 @@ int main(int argc, char **argv) {
 
 	dungeon = dungeon_layout_new(tm->w, tm->h, 24, 16, 1);
 	dungeon_layout_spawn_keylocks(dungeon, 5, 1);
+	dungeon_init_floor(dungeon, 32, 32);
 
 	util_blt(tm->data, tm->w, tm->h, 0, 0, dungeon->data, dungeon->w, dungeon->h, 0, 0);
 
