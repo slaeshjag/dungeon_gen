@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "dungeon_generate.h"
 
 void util_order_randomize(int *order, int count) {
 	int sw, i, t;
@@ -46,7 +47,7 @@ static int generate_layout(int *n, int i, int *boss, unsigned int *data, int w, 
 	if (data[i])
 		return 0;
 	
-	data[i] = 1;
+	data[i] = MAP_ROOM_TYPE_ROOM;
 	branch = (rand() & 0xF) + 1;
 	(*n)++;
 
@@ -58,7 +59,7 @@ static int generate_layout(int *n, int i, int *boss, unsigned int *data, int w, 
 		if (*boss)
 			return 1;
 		else
-			return ((*boss = data[i] = 3) > 0);
+			return ((*boss = data[i] = MAP_ROOM_TYPE_BOSS_ROOM) > 0);
 	} else
 		branch = 1;
 	
@@ -107,7 +108,7 @@ void dungeon_layout_new(unsigned int *data, int w, int h, int max_room, int min_
 		generate_layout(&n, middle, &boss, data, w, h, min_room, max_room);
 	} while (n < min_room || !boss);
 	
-	data[middle] = 2;
+	data[middle] = MAP_ROOM_TYPE_ENTRANCE;
 
 	generate_dungeon_layout_adjust(data, w, h);
 
