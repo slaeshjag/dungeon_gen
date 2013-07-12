@@ -14,6 +14,7 @@ struct dungeon {
 	unsigned int			**room_map;
 	int				room_w;
 	int				room_h;
+	int				entrance;
 };
 
 

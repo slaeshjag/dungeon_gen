@@ -170,7 +170,8 @@ void dungeon_layout_spawn_keylocks(struct dungeon *dungeon, int keylocks, int bo
 			start = i;
 			break;
 		}
-	
+
+	dungeon->entrance = start;
 	step = keys = 0;
 	key = keylocks;
 	layout_spawn_keylock(dungeon->data, dungeon->w, dungeon->h, start, &keys, rooms / keylocks, &step, &key);
@@ -241,12 +242,12 @@ static void spawn_doors(struct dungeon *dungeon, int i) {
 				break;
 		}
 
-		if (i & 01) {
-			y = (i & 02) ? dungeon->room_h - 01 : 00;
+		if (l & 01) {
+			y = (l & 02) ? dungeon->room_h - 01 : 00;
 			x = dungeon->room_w >> 01;
 		} else {
 			y = dungeon->room_h >> 01;
-			x = (i & 02) ? dungeon->room_w - 01 : 00;
+			x = (l & 02) ? dungeon->room_w - 01 : 00;
 		}
 
 		dungeon->room_map[i][x + y * dungeon->room_w] = door;
