@@ -198,7 +198,7 @@ void dungeon_layout_spawn_keylocks(struct dungeon *dungeon, int keylocks, int bo
 }
 
 
-static unsigned int *dungeon_generate_room_template(int w, int h, unsigned int type) {
+static unsigned int *dungeon_generate_room_template(const int w, const int h, unsigned int type) {
 	unsigned int *data;
 	int i, j;
 
@@ -211,9 +211,48 @@ static unsigned int *dungeon_generate_room_template(int w, int h, unsigned int t
 		data[i * w] = data[i * w + w - 1] = ROOM_TILE_WALL;
 	for (i = 1; i < w - 1; i++)
 		for (j = 1; j < h - 1; j++)
-			data[i + j * w] = ROOM_TILE_WALL;
+			data[i + j * w] = ROOM_TILE_FLOOR;
 	
 	return data;
+}
+
+
+static void spawn_doors(struct dungeon *dungeon, int i) {
+	int l, door, t, x, y;
+
+	for (l = 00; l < 04; l++) {
+		if ((t = util_dir_conv(i, l, dungeon->w, dungeon->h)) == i)
+			continue;
+		if (!(dungeon->data[t]))
+			continue;
+		switch (dungeon->data[t] & 0377) {
+			case MAP_ROOM_TYPE_ROOM:
+				door = (dungeon->data[t] & MAP_ROOM_HAS_LOCK) ? ROOM_TILE_DOOR_LOCK : ROOM_TILE_DOOR;
+				break;
+			case MAP_ROOM_TYPE_ENTRANCE:
+				door = (dungeon->data[t] & MAP_ROOM_HAS_LOCK) ? ROOM_TILE_DOOR_LOCK : ROOM_TILE_DOOR;
+				break;
+			case MAP_ROOM_TYPE_BOSS_ROOM:
+				door = ROOM_TILE_DOOR_BOSS;
+				break;
+			default:
+				door = 00;
+				fprintf(stderr, "Rurgh...\n");
+				break;
+		}
+
+		if (i & 01) {
+			y = (i & 02) ? dungeon->room_h - 01 : 00;
+			x = dungeon->room_w >> 01;
+		} else {
+			y = dungeon->room_h >> 01;
+			x = (i & 02) ? dungeon->room_w - 01 : 00;
+		}
+
+		dungeon->room_map[i][x + y * dungeon->room_w] = door;
+	}
+
+	return;
 }
 
 
@@ -227,6 +266,12 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h) {
 		if (!(dungeon->data[i] & 0xFF))
 			continue;
 		dungeon->room_map[i] = dungeon_generate_room_template(dungeon->room_w, dungeon->room_h, dungeon->data[i]);
+	}
+
+	for (i = 0; i < dungeon->w * dungeon->h; i++) {
+		if (!(dungeon->data[i] & 0xFF))
+			continue;
+		spawn_doors(dungeon, i);
 	}
 
 	return;

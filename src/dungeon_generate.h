@@ -11,7 +11,7 @@ struct dungeon {
 	int				w;
 	int				h;
 	unsigned int			*data;
-	void				**room_map;
+	unsigned int			**room_map;
 	int				room_w;
 	int				room_h;
 };
@@ -34,9 +34,10 @@ enum ROOM_TILE {
 	ROOM_TILE_WALL			= 1,
 	ROOM_TILE_DOOR			= 2,
 	ROOM_TILE_DOOR_LOCK		= 3,
-	ROOM_TILE_KEY_CHEST		= 4,
-	ROOM_TILE_BOSS_KEY_CHEST	= 5,
-	ROOM_TILE_CHEST			= 6,
+	ROOM_TILE_DOOR_BOSS		= 4,
+	ROOM_TILE_KEY_CHEST		= 5,
+	ROOM_TILE_BOSS_KEY_CHEST	= 6,
+	ROOM_TILE_CHEST			= 7,
 	ROOM_TILE_FLOOR			= 10,
 	ROOM_TILE_WATER			= 11,
 };
