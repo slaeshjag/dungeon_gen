@@ -80,8 +80,8 @@ static void dungeon_map_size(unsigned int *data, int w, int h, int *r_w, int *r_
 }
 
 
-struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int boss_s) {
-	int n, boss, middle, i;
+struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int boss_s, int floors) {
+	int n, boss, middle, i, f;
 	unsigned int *tmp_data;
 	struct dungeon *dungeon;
 
@@ -89,113 +89,34 @@ struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int
 		return NULL;
 	tmp_data = malloc(sizeof(unsigned int) * w * h);
 	middle = w / 2 + h / 2 * w;
+	dungeon->data = malloc(sizeof(int *) * floors);
+	dungeon->room_map = malloc(sizeof(int **) * floors);
+	dungeon->w = malloc(sizeof(int) * floors);
+	dungeon->h = malloc(sizeof(int) * floors);
+	dungeon->floors = floors;
 
-	do {
-		n = 0;
-		boss = !boss_s;
-		memset(tmp_data, 0, w * h * 4);
-		generate_layout(&n, middle, &boss, tmp_data, w, h, min_room, max_room);
-	} while (n < min_room || !boss);
+	for (f = 0; f < floors; f++) {
+		do {
+			n = 0;
+			boss = !boss_s;
+			memset(tmp_data, 0, w * h * 4);
+			generate_layout(&n, middle, &boss, tmp_data, w, h, min_room, max_room);
+		} while (n < min_room || !boss);
 	
-	tmp_data[middle] = MAP_ROOM_TYPE_ENTRANCE;
-	generate_dungeon_layout_adjust(tmp_data, w, h);
-	dungeon_map_size(tmp_data, w, h, &dungeon->w, &dungeon->h);
+		generate_dungeon_layout_adjust(tmp_data, w, h);
+		dungeon_map_size(tmp_data, w, h, &dungeon->w[f], &dungeon->h[f]);
+	
+		dungeon->data[f] = malloc(sizeof(unsigned int) * dungeon->w[f] * dungeon->h[f]);
+		dungeon->room_map[f] = malloc(sizeof(void *) * dungeon->w[f] * dungeon->h[f]);
+		memset(dungeon->room_map[f], 0, dungeon->w[f] * dungeon->h[f] * sizeof(void *));
+		
+		for (i = 0; i < dungeon->h[f]; i++)
+			memcpy(&dungeon->data[f][i * dungeon->w[f]], &tmp_data[i * w], dungeon->w[f] * 4);
+	}
 
-	dungeon->data = malloc(sizeof(unsigned int) * dungeon->w * dungeon->h);
-	dungeon->room_map = malloc(sizeof(void *) * dungeon->w * dungeon->h);
-	memset(dungeon->room_map, 0, dungeon->w * dungeon->h * sizeof(void *));
-
-	for (i = 0; i < dungeon->h; i++)
-		memcpy(&dungeon->data[i * dungeon->w], &tmp_data[i * w], dungeon->w * 4);
-	free(tmp_data);
+	dungeon->layout_scratchpad = tmp_data;
 
 	return dungeon;
-}
-
-
-static void layout_spawn_keylock(unsigned int *data, int w, int h, int i, int *keys, int kcnt, int *step, int *key) {
-	int order[4], dir, l;
-
-	if (i < 0 || i >= w * h)
-		return;
-	if (!(data[i] & 0xFF))
-		return;
-	if (data[i] & MAP_ROOM_TMP_VISIT)
-		return;
-	if ((data[i] & 0xFF) == MAP_ROOM_TYPE_BOSS_ROOM)
-		return;
-	data[i] |= MAP_ROOM_TMP_VISIT;
-
-	(*step)++;
-
-	if ((*step / kcnt != (*step - 1) / kcnt || *step == 1) && *key) {
-		(*keys)++;
-		(*key)--;
-		data[i] |= MAP_ROOM_HAS_KEY;
-	}
-
-	if ((data[i] & 0xFF) == MAP_ROOM_TYPE_ROOM) {
-		if (*keys == 2) {
-			data[i] |= MAP_ROOM_HAS_LOCK;
-			(*keys)--;
-		} else if (*keys)
-			if (!(rand() % kcnt)) {
-				data[i] |= MAP_ROOM_HAS_LOCK;
-				(*keys)--;
-			}
-	} 
-	
-	util_order_randomize(order, 4);
-
-	for (l = 0; l < 4; l++) {
-		dir = util_dir_conv(i, order[l], w, h);
-		layout_spawn_keylock(data, w, h, dir, keys, kcnt, step, key);
-	}
-
-	return;
-}
-
-
-void dungeon_layout_spawn_keylocks(struct dungeon *dungeon, int keylocks, int boss) {
-	int start, keys, step, rooms, boss_loc, i, key;
-
-	if (!keylocks)
-		return;
-	for (i = rooms = 0; i < dungeon->w * dungeon->h; i++)
-		if (dungeon->data[i] & 0xFF)
-			rooms++;
-
-	for (i = 0; i < dungeon->w * dungeon->h; i++)
-		if ((dungeon->data[i] & 0xFF) == MAP_ROOM_TYPE_ENTRANCE) {
-			start = i;
-			break;
-		}
-
-	dungeon->entrance = start;
-	step = keys = 0;
-	key = keylocks;
-	layout_spawn_keylock(dungeon->data, dungeon->w, dungeon->h, start, &keys, rooms / keylocks, &step, &key);
-
-	for (i = 0; i < dungeon->w * dungeon->h; i++)
-		dungeon->data[i] = (dungeon->data[i] & (~0 ^ MAP_ROOM_TMP_VISIT));
-	
-	if (boss) {
-		boss_loc = (rand() % (rooms - 1));
-		for (i = 0; i < dungeon->w * dungeon->h; i++) {
-			if (!(dungeon->data[i] & 0xFF))
-				continue;
-			if ((dungeon->data[i] & 0xFF) == MAP_ROOM_TYPE_BOSS_ROOM)
-				continue;
-			if (!boss_loc) {
-				dungeon->data[i] |= MAP_ROOM_HAS_BOSSKEY;
-				break;
-			}
-
-			boss_loc--;
-		}
-	}
-	
-	return;
 }
 
 
@@ -218,20 +139,20 @@ static unsigned int *dungeon_generate_room_template(const int w, const int h, un
 }
 
 
-static void spawn_doors(struct dungeon *dungeon, int i) {
+static void spawn_doors(struct dungeon *dungeon, int i, int floor) {
 	int l, door, t, x, y;
 
 	for (l = 00; l < 04; l++) {
-		if ((t = util_dir_conv(i, l, dungeon->w, dungeon->h)) == i)
+		if ((t = util_dir_conv(i, l, dungeon->w[floor], dungeon->h[floor])) == i)
 			continue;
-		if (!(dungeon->data[t]))
+		if (!(dungeon->data[floor][t]))
 			continue;
-		switch (dungeon->data[t] & 0377) {
+		switch (dungeon->data[floor][t] & 0377) {
 			case MAP_ROOM_TYPE_ROOM:
-				door = (dungeon->data[t] & MAP_ROOM_HAS_LOCK) ? ROOM_TILE_DOOR_LOCK : ROOM_TILE_DOOR;
+				door = (dungeon->data[floor][t] & MAP_ROOM_HAS_LOCK) ? ROOM_TILE_DOOR_LOCK : ROOM_TILE_DOOR;
 				break;
 			case MAP_ROOM_TYPE_ENTRANCE:
-				door = (dungeon->data[t] & MAP_ROOM_HAS_LOCK) ? ROOM_TILE_DOOR_LOCK : ROOM_TILE_DOOR;
+				door = (dungeon->data[floor][t] & MAP_ROOM_HAS_LOCK) ? ROOM_TILE_DOOR_LOCK : ROOM_TILE_DOOR;
 				break;
 			case MAP_ROOM_TYPE_BOSS_ROOM:
 				door = ROOM_TILE_DOOR_BOSS;
@@ -250,30 +171,76 @@ static void spawn_doors(struct dungeon *dungeon, int i) {
 			x = (l & 02) ? dungeon->room_w - 01 : 00;
 		}
 
-		dungeon->room_map[i][x + y * dungeon->room_w] = door;
+		dungeon->room_map[floor][i][x + y * dungeon->room_w] = door;
 	}
 
 	return;
 }
 
 
-void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h) {
-	int i;
+static void spawn_tile(struct dungeon *dungeon, int floor, int room, int tile) {
+	int i, j;
+
+	for (i = j = 00; i < dungeon->room_w * dungeon->room_h; i++)
+		if ((dungeon->room_map[floor][room][i] & 0377) == ROOM_TILE_FLOOR)
+			dungeon->room_scratchpad[j++] = i;
+	if (!j)
+		return;
+	
+	dungeon->room_map[floor][room][dungeon->room_scratchpad[rand() % j]] = tile;
+
+	return;
+}
+
+
+static void spawn_puzzle(struct dungeon *dungeon, int room, int floor) {
+	int complexity;
+
+	complexity = rand() % 2;
+	
+	switch (complexity) {
+		case PUZZLE_TYPE_KILL_ENEMIES:
+			dungeon->data[floor][room] |= MAP_ROOM_LOCK_UNTIL_SAFE;
+			break;
+		default:
+			fprintf(stderr, "TODO: Implement puzzle type %i\n", complexity);
+			break;
+	}
+
+	return;
+}
+
+
+void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max_enemy, int entrance_floor) {
+	int i, j, f, g;
 	
 	dungeon->room_w = room_w;
 	dungeon->room_h = room_h;
+	dungeon->room_scratchpad = malloc(sizeof(unsigned int) * room_w * room_h);
+	dungeon->entrance_floor = entrance_floor;
 
-	for (i = 0; i < dungeon->w * dungeon->h; i++) {
-		if (!(dungeon->data[i] & 0xFF))
-			continue;
-		dungeon->room_map[i] = dungeon_generate_room_template(dungeon->room_w, dungeon->room_h, dungeon->data[i]);
+	for (f = 0; f < dungeon->floors; f++) {
+		for (i = 0; i < dungeon->w[f] * dungeon->h[f]; i++) {
+			if (!(dungeon->data[f][i] & 0xFF))
+				continue;
+			dungeon->room_map[f][i] = dungeon_generate_room_template(dungeon->room_w, dungeon->room_h, dungeon->data[f][i]);
+		}
+
+		for (i = g = 0; i < dungeon->w[f] * dungeon->h[f]; i++) {
+			if (!(dungeon->data[f][i] & 0xFF))
+				continue;
+			if (f == entrance_floor && (dungeon->data[f][i] & 0xFF) == MAP_ROOM_TYPE_ROOM)
+				dungeon->layout_scratchpad[g++] = i;
+			spawn_doors(dungeon, i, f);
+			spawn_puzzle(dungeon, i, f);
+	
+			if ((dungeon->data[f][i] & 0xFF) == MAP_ROOM_TYPE_ROOM)
+				for (j = 0; j < rand() % max_enemy; j++)
+					spawn_tile(dungeon, f, i, ROOM_TILE_ENEMY0 + rand() % 8);
+		}
 	}
 
-	for (i = 0; i < dungeon->w * dungeon->h; i++) {
-		if (!(dungeon->data[i] & 0xFF))
-			continue;
-		spawn_doors(dungeon, i);
-	}
+	dungeon->entrance = dungeon->layout_scratchpad[rand() % g];
 
 	return;
 }
