@@ -11,7 +11,7 @@
 int main(int argc, char **argv) {
 	DARNIT_TILESHEET *ts, *room_ts;
 	DARNIT_TILEMAP *tm, *room_tm;
-	int cam_x, cam_y, room, current_room;
+	int cam_x, cam_y, room, current_room, current_floor;
 	struct dungeon *dungeon;
 
 	d_init("dungeon_gen", "dungeon_gen", NULL);
@@ -25,9 +25,10 @@ int main(int argc, char **argv) {
 	dungeon_init_floor(dungeon, ROOM_W, ROOM_H, 4, FLOORS - 1);
 	memcpy(room_tm->data, dungeon->room_map[FLOORS-1][dungeon->entrance], sizeof(unsigned int) * room_tm->w * room_tm->h);
 	current_room = dungeon->entrance;
+	current_floor = dungeon->entrance_floor;
 	d_tilemap_recalc(room_tm);
 
-	util_blt(tm->data, tm->w, tm->h, 0, 0, dungeon->data[FLOORS-1], dungeon->w[FLOORS-1], dungeon->h[FLOORS-1], 0, 0);
+	util_blt(tm->data, tm->w, tm->h, 0, 0, dungeon->data[current_floor], dungeon->w[current_floor], dungeon->h[current_floor], 0, 0);
 	d_tilemap_recalc(tm);
 
 	for (;;) {
@@ -41,16 +42,16 @@ int main(int argc, char **argv) {
 		if (d_keys_get().down)
 			cam_y += 4;
 		if (d_keys_get().l)
-			room = util_dir_conv(current_room, 0, dungeon->w[FLOORS-1], dungeon->h[FLOORS-1]);
+			room = util_dir_conv(current_room, 0, dungeon->w[current_floor], dungeon->h[current_floor]);
 		if (d_keys_get().r)
-			room = util_dir_conv(current_room, 2, dungeon->w[FLOORS-1], dungeon->h[FLOORS-1]);
+			room = util_dir_conv(current_room, 2, dungeon->w[current_floor], dungeon->h[current_floor]);
 		if (d_keys_get().y)
-			room = util_dir_conv(current_room, 1, dungeon->w[FLOORS-1], dungeon->h[FLOORS-1]);
+			room = util_dir_conv(current_room, 1, dungeon->w[current_floor], dungeon->h[current_floor]);
 		if (d_keys_get().x)
-			room = util_dir_conv(current_room, 3, dungeon->w[FLOORS-1], dungeon->h[FLOORS-1]);
-		if (room != -1 && dungeon->room_map[room]) {
+			room = util_dir_conv(current_room, 3, dungeon->w[current_floor], dungeon->h[current_floor]);
+		if (room != -1 && dungeon->room_map[current_floor][room]) {
 			d_keys_set(d_keys_get());
-			memcpy(room_tm->data, dungeon->room_map[FLOORS-1][room], sizeof(unsigned int) * room_tm->w * room_tm->h);
+			memcpy(room_tm->data, dungeon->room_map[current_floor][room], sizeof(unsigned int) * room_tm->w * room_tm->h);
 			d_tilemap_recalc(room_tm);
 			current_room = room;
 		}

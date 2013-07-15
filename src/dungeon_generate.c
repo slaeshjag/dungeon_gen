@@ -149,10 +149,8 @@ static void spawn_doors(struct dungeon *dungeon, int i, int floor) {
 			continue;
 		switch (dungeon->data[floor][t] & 0377) {
 			case MAP_ROOM_TYPE_ROOM:
-				door = (dungeon->data[floor][t] & MAP_ROOM_HAS_LOCK) ? ROOM_TILE_DOOR_LOCK : ROOM_TILE_DOOR;
-				break;
 			case MAP_ROOM_TYPE_ENTRANCE:
-				door = (dungeon->data[floor][t] & MAP_ROOM_HAS_LOCK) ? ROOM_TILE_DOOR_LOCK : ROOM_TILE_DOOR;
+				door = dungeon->data[floor][t] = ROOM_TILE_DOOR;
 				break;
 			case MAP_ROOM_TYPE_BOSS_ROOM:
 				door = ROOM_TILE_DOOR_BOSS;
@@ -178,18 +176,19 @@ static void spawn_doors(struct dungeon *dungeon, int i, int floor) {
 }
 
 
-static void spawn_tile(struct dungeon *dungeon, int floor, int room, int tile) {
-	int i, j;
+static int spawn_tile(struct dungeon *dungeon, int floor, int room, int tile) {
+	int i, j, spawn;
 
 	for (i = j = 00; i < dungeon->room_w * dungeon->room_h; i++)
 		if ((dungeon->room_map[floor][room][i] & 0377) == ROOM_TILE_FLOOR)
 			dungeon->room_scratchpad[j++] = i;
 	if (!j)
-		return;
+		return -1;
 	
-	dungeon->room_map[floor][room][dungeon->room_scratchpad[rand() % j]] = tile;
+	spawn = dungeon->room_scratchpad[rand() % j];
+	dungeon->room_map[floor][room][spawn] = tile;
 
-	return;
+	return spawn;
 }
 
 
@@ -199,11 +198,7 @@ static void spawn_puzzle(struct dungeon *dungeon, int room, int floor) {
 	complexity = rand() % 2;
 	
 	switch (complexity) {
-		case PUZZLE_TYPE_KILL_ENEMIES:
-			dungeon->data[floor][room] |= MAP_ROOM_LOCK_UNTIL_SAFE;
-			break;
 		default:
-			fprintf(stderr, "TODO: Implement puzzle type %i\n", complexity);
 			break;
 	}
 
@@ -212,35 +207,49 @@ static void spawn_puzzle(struct dungeon *dungeon, int room, int floor) {
 
 
 void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max_enemy, int entrance_floor) {
-	int i, j, f, g;
+	int i, j, f, g, last_room, last_tile, rooms, spawn;
 	
 	dungeon->room_w = room_w;
 	dungeon->room_h = room_h;
 	dungeon->room_scratchpad = malloc(sizeof(unsigned int) * room_w * room_h);
 	dungeon->entrance_floor = entrance_floor;
+	last_room = last_tile = -1;
 
 	for (f = 0; f < dungeon->floors; f++) {
-		for (i = 0; i < dungeon->w[f] * dungeon->h[f]; i++) {
-			if (!(dungeon->data[f][i] & 0xFF))
-				continue;
-			dungeon->room_map[f][i] = dungeon_generate_room_template(dungeon->room_w, dungeon->room_h, dungeon->data[f][i]);
-		}
-
 		for (i = g = 0; i < dungeon->w[f] * dungeon->h[f]; i++) {
 			if (!(dungeon->data[f][i] & 0xFF))
 				continue;
-			if (f == entrance_floor && (dungeon->data[f][i] & 0xFF) == MAP_ROOM_TYPE_ROOM)
-				dungeon->layout_scratchpad[g++] = i;
-			spawn_doors(dungeon, i, f);
-			spawn_puzzle(dungeon, i, f);
-	
+			dungeon->room_map[f][i] = dungeon_generate_room_template(dungeon->room_w, dungeon->room_h, dungeon->data[f][i]);
 			if ((dungeon->data[f][i] & 0xFF) == MAP_ROOM_TYPE_ROOM)
-				for (j = 0; j < rand() % max_enemy; j++)
-					spawn_tile(dungeon, f, i, ROOM_TILE_ENEMY0 + rand() % 8);
+				dungeon->layout_scratchpad[g++] = i;
+		}
+
+		rooms = g;
+		
+		for (i = 0; i < rooms; i++) {
+			spawn_doors(dungeon, dungeon->layout_scratchpad[i], f);
+	
+			for (j = 0; j < rand() % max_enemy; j++)
+				spawn_tile(dungeon, f, dungeon->layout_scratchpad[i], ROOM_TILE_ENEMY0 + rand() % 8);
+		}
+
+		if (f == entrance_floor)
+			dungeon->entrance = dungeon->layout_scratchpad[rand() % rooms];
+		
+		if (f > 0) {
+			spawn = dungeon->layout_scratchpad[rand() % rooms];
+			dungeon->room_map[f-1][last_room][last_tile] |= (spawn << 16);
+			g = spawn;
+			spawn_tile(dungeon, f, spawn, ROOM_TILE_WAY_DOWN | (last_room << 16));
+		}
+		
+		if (f + 1 < dungeon->floors) {
+			spawn = dungeon->layout_scratchpad[rand() % rooms];
+			last_room = spawn;
+			last_tile = spawn_tile(dungeon, f, spawn, ROOM_TILE_WAY_UP);
 		}
 	}
 
-	dungeon->entrance = dungeon->layout_scratchpad[rand() % g];
 
 	return;
 }
