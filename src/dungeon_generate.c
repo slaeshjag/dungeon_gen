@@ -122,19 +122,14 @@ struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int
 
 static unsigned int *dungeon_generate_room_template(const int w, const int h, unsigned int type) {
 	unsigned int *data;
-	int i, j;
+	int i;
 
 	if (!(data = malloc(sizeof(unsigned int) * w * h)))
 		return data;
-	
-	for (i = 0; i < w; i++)
-		data[i] = data[h * w - w + i] = ROOM_TILE_WALL;
-	for (i = 0; i < h; i++)
-		data[i * w] = data[i * w + w - 1] = ROOM_TILE_WALL;
-	for (i = 1; i < w - 1; i++)
-		for (j = 1; j < h - 1; j++)
-			data[i + j * w] = ROOM_TILE_FLOOR;
-	
+
+	for (i = 0; i < w * h; i++) 
+		data[i] = ROOM_TILE_FLOOR;
+
 	return data;
 }
 
@@ -206,6 +201,43 @@ static void spawn_puzzle(struct dungeon *dungeon, int room, int floor) {
 }
 
 
+static void fill_side(struct dungeon *dungeon, int floor, int room, int offset, int dir, int tile) {
+	int i;
+
+	if (!dir) {
+		offset *= (dungeon->room_w * dungeon->room_h - dungeon->room_w);
+		for (i = 0; i < dungeon->room_w; i++)
+			dungeon->room_map[floor][room][i + offset] = tile;
+	} else {
+		offset *= (dungeon->room_w - 1);
+		for (i = 0; i < dungeon->room_h; i++)
+			dungeon->room_map[floor][room][i * dungeon->room_w + offset] = tile;
+	}
+
+	return;
+}
+
+
+static void spawn_walls(struct dungeon *dungeon, int f, int i) {
+	int l, r;
+
+	if (dungeon->data[f][i] & MAP_ROOM_TMP_VISIT)
+		return;
+	dungeon->data[f][i] |= MAP_ROOM_TMP_VISIT;
+
+	for (l = 0; l < 4; l++) {
+		r = util_dir_conv(i, l, dungeon->w[f], dungeon->h[f]);
+		if (!(dungeon->data[f][r] & 0xFF) || r == i)
+			fill_side(dungeon, f, i, (l & 2) >> 1, !(l & 1), ROOM_TILE_WALL);
+		else
+			spawn_walls(dungeon, f, r);
+	}
+
+	return;
+}
+	
+
+
 void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max_enemy, int entrance_floor) {
 	int i, j, f, g, last_room, last_tile, rooms, spawn;
 	
@@ -225,9 +257,12 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 		}
 
 		rooms = g;
-		
+		spawn_walls(dungeon, f, dungeon->layout_scratchpad[0]);
+		for (i = 0; i < rooms; i++)
+			dungeon->data[f][dungeon->layout_scratchpad[i]] = dungeon->data[f][dungeon->layout_scratchpad[i]] & (~MAP_ROOM_TMP_VISIT);
+
 		for (i = 0; i < rooms; i++) {
-			spawn_doors(dungeon, dungeon->layout_scratchpad[i], f);
+//			spawn_doors(dungeon, dungeon->layout_scratchpad[i], f);
 	
 			for (j = 0; j < rand() % max_enemy; j++)
 				spawn_tile(dungeon, f, dungeon->layout_scratchpad[i], ROOM_TILE_ENEMY0 + rand() % 8);
