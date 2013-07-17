@@ -81,7 +81,7 @@ static void dungeon_map_size(unsigned int *data, int w, int h, int *r_w, int *r_
 
 
 struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int boss_s, int floors) {
-	int n, boss, middle, i, f;
+	int n, boss, middle, i, f, boss_floor;
 	unsigned int *tmp_data;
 	struct dungeon *dungeon;
 
@@ -94,11 +94,12 @@ struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int
 	dungeon->w = malloc(sizeof(int) * floors);
 	dungeon->h = malloc(sizeof(int) * floors);
 	dungeon->floors = floors;
+	boss_floor = rand() % floors;
 
 	for (f = 0; f < floors; f++) {
 		do {
 			n = 0;
-			boss = !boss_s;
+			boss = (f == boss_floor) ? !boss_s : 1;
 			memset(tmp_data, 0, w * h * 4);
 			generate_layout(&n, middle, &boss, tmp_data, w, h, min_room, max_room);
 		} while (n < min_room || !boss);
@@ -145,14 +146,11 @@ static void spawn_doors(struct dungeon *dungeon, int i, int floor) {
 		switch (dungeon->data[floor][t] & 0377) {
 			case MAP_ROOM_TYPE_ROOM:
 			case MAP_ROOM_TYPE_ENTRANCE:
-				door = dungeon->data[floor][t] = ROOM_TILE_DOOR;
+			default:
+				door = ((dungeon->data[floor][i] & 0377) == MAP_ROOM_TYPE_BOSS_ROOM) ? ROOM_TILE_DOOR : 00;
 				break;
 			case MAP_ROOM_TYPE_BOSS_ROOM:
 				door = ROOM_TILE_DOOR_BOSS;
-				break;
-			default:
-				door = 00;
-				fprintf(stderr, "Rurgh...\n");
 				break;
 		}
 
@@ -164,7 +162,8 @@ static void spawn_doors(struct dungeon *dungeon, int i, int floor) {
 			x = (l & 02) ? dungeon->room_w - 01 : 00;
 		}
 
-		dungeon->room_map[floor][i][x + y * dungeon->room_w] = door;
+		if (door != 00)
+			dungeon->room_map[floor][i][x + y * dungeon->room_w] = door;
 	}
 
 	return;
@@ -219,7 +218,7 @@ static void fill_side(struct dungeon *dungeon, int floor, int room, int offset, 
 
 
 static void spawn_walls(struct dungeon *dungeon, int f, int i) {
-	int l, r;
+	int l, r, t, t2;
 
 	if (dungeon->data[f][i] & MAP_ROOM_TMP_VISIT)
 		return;
@@ -227,9 +226,14 @@ static void spawn_walls(struct dungeon *dungeon, int f, int i) {
 
 	for (l = 0; l < 4; l++) {
 		r = util_dir_conv(i, l, dungeon->w[f], dungeon->h[f]);
-		if (!(dungeon->data[f][r] & 0xFF) || r == i)
+		t = dungeon->data[f][r] & 0xFF;
+		t2 = dungeon->data[f][i] & 0xFF;
+
+		if (!t || r == i || t == MAP_ROOM_TYPE_BOSS_ROOM || t2 == MAP_ROOM_TYPE_BOSS_ROOM)
 			fill_side(dungeon, f, i, (l & 2) >> 1, !(l & 1), ROOM_TILE_WALL);
 		else
+			spawn_walls(dungeon, f, r);
+		if (t == MAP_ROOM_TYPE_BOSS_ROOM)
 			spawn_walls(dungeon, f, r);
 	}
 
@@ -239,7 +243,7 @@ static void spawn_walls(struct dungeon *dungeon, int f, int i) {
 
 
 void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max_enemy, int entrance_floor) {
-	int i, j, f, g, last_room, last_tile, rooms, spawn;
+	int i, j, f, g, last_room, last_tile, rooms, spawn, boss_room;
 	
 	dungeon->room_w = room_w;
 	dungeon->room_h = room_h;
@@ -248,21 +252,26 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 	last_room = last_tile = -1;
 
 	for (f = 0; f < dungeon->floors; f++) {
+		boss_room = -1;
 		for (i = g = 0; i < dungeon->w[f] * dungeon->h[f]; i++) {
 			if (!(dungeon->data[f][i] & 0xFF))
 				continue;
 			dungeon->room_map[f][i] = dungeon_generate_room_template(dungeon->room_w, dungeon->room_h, dungeon->data[f][i]);
 			if ((dungeon->data[f][i] & 0xFF) == MAP_ROOM_TYPE_ROOM)
 				dungeon->layout_scratchpad[g++] = i;
+			else if ((dungeon->data[f][i] & 0xFF) == MAP_ROOM_TYPE_BOSS_ROOM)
+				boss_room = i;
 		}
 
 		rooms = g;
 		spawn_walls(dungeon, f, dungeon->layout_scratchpad[0]);
 		for (i = 0; i < rooms; i++)
 			dungeon->data[f][dungeon->layout_scratchpad[i]] = dungeon->data[f][dungeon->layout_scratchpad[i]] & (~MAP_ROOM_TMP_VISIT);
-
+	
+		if (boss_room >= 0)
+			spawn_doors(dungeon, boss_room, f);
 		for (i = 0; i < rooms; i++) {
-//			spawn_doors(dungeon, dungeon->layout_scratchpad[i], f);
+			spawn_doors(dungeon, dungeon->layout_scratchpad[i], f);
 	
 			for (j = 0; j < rand() % max_enemy; j++)
 				spawn_tile(dungeon, f, dungeon->layout_scratchpad[i], ROOM_TILE_ENEMY0 + rand() % 8);
