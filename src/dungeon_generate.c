@@ -94,6 +94,7 @@ struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int
 	dungeon->w = malloc(sizeof(int) * floors);
 	dungeon->h = malloc(sizeof(int) * floors);
 	dungeon->floors = floors;
+	dungeon->info = malloc(sizeof(*dungeon->info));
 	boss_floor = rand() % floors;
 
 	for (f = 0; f < floors; f++) {
@@ -121,7 +122,7 @@ struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int
 }
 
 
-static unsigned int *dungeon_generate_room_template(const int w, const int h, unsigned int type) {
+static unsigned int *dungeon_generate_room_template(const int w, const int h) {
 	unsigned int *data;
 	int i;
 
@@ -239,7 +240,6 @@ static void spawn_walls(struct dungeon *dungeon, int f, int i) {
 
 	return;
 }
-	
 
 
 void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max_enemy, int entrance_floor) {
@@ -256,7 +256,7 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 		for (i = g = 0; i < dungeon->w[f] * dungeon->h[f]; i++) {
 			if (!(dungeon->data[f][i] & 0xFF))
 				continue;
-			dungeon->room_map[f][i] = dungeon_generate_room_template(dungeon->room_w, dungeon->room_h, dungeon->data[f][i]);
+			dungeon->room_map[f][i] = dungeon_generate_room_template(dungeon->room_w, dungeon->room_h);
 			if ((dungeon->data[f][i] & 0xFF) == MAP_ROOM_TYPE_ROOM)
 				dungeon->layout_scratchpad[g++] = i;
 			else if ((dungeon->data[f][i] & 0xFF) == MAP_ROOM_TYPE_BOSS_ROOM)
@@ -283,8 +283,9 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 		if (f > 0) {
 			spawn = dungeon->layout_scratchpad[rand() % rooms];
 			dungeon->room_map[f-1][last_room][last_tile] |= (spawn << 16);
+			dungeon->info[f].stair_down = last_tile;
 			g = spawn;
-			spawn_tile(dungeon, f, spawn, ROOM_TILE_WAY_DOWN | (last_room << 16));
+			dungeon->info[f-1].stair_up = spawn_tile(dungeon, f, spawn, ROOM_TILE_WAY_DOWN | (last_room << 16));
 		}
 		
 		if (f + 1 < dungeon->floors) {

@@ -10,12 +10,19 @@ struct dungeon_puzzle_part {
 };
 
 
+struct dungeon_floor_info {
+	int				stair_up;
+	int				stair_down;
+};
+
+
 struct dungeon {
 	int				*w;
 	int				*h;
 	unsigned int			**data;
 	int				floors;
 	struct dungeon_puzzle_part	*puzzle;
+	struct dungeon_floor_info	*info;
 	unsigned int			***room_map;
 	int				room_w;
 	int				room_h;
@@ -47,7 +54,8 @@ enum ROOM_TILE {
 	ROOM_TILE_BOSS_KEY_CHEST	= 6,
 	ROOM_TILE_CHEST			= 7,
 	ROOM_TILE_FLOOR			= 10,
-	ROOM_TILE_WATER			= 11,
+	ROOM_TILE_FLOOR_KEEP		= 11,
+	ROOM_TILE_WATER			= 12,
 
 	ROOM_TILE_ENEMY0		= 32,
 };
