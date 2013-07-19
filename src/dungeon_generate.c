@@ -187,6 +187,7 @@ static int spawn_tile(struct dungeon *dungeon, int floor, int room, int tile) {
 }
 
 
+#if 0
 static void spawn_puzzle(struct dungeon *dungeon, int room, int floor) {
 	int complexity;
 
@@ -199,6 +200,7 @@ static void spawn_puzzle(struct dungeon *dungeon, int room, int floor) {
 
 	return;
 }
+#endif
 
 
 static void fill_side(struct dungeon *dungeon, int floor, int room, int offset, int dir, int tile) {
@@ -265,6 +267,7 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 
 		rooms = g;
 		spawn_walls(dungeon, f, dungeon->layout_scratchpad[0]);
+		
 		for (i = 0; i < rooms; i++)
 			dungeon->data[f][dungeon->layout_scratchpad[i]] = dungeon->data[f][dungeon->layout_scratchpad[i]] & (~MAP_ROOM_TMP_VISIT);
 	
