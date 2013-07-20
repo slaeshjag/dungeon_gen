@@ -30,6 +30,7 @@ struct dungeon {
 	int				entrance_floor;
 	unsigned int			*room_scratchpad;
 	unsigned int			*layout_scratchpad;
+	int				layout_scratchuse;
 };
 
 
@@ -41,6 +42,14 @@ enum MAP_ROOM_TYPE {
 	MAP_ROOM_TYPE_ROOM		= 1,
 	MAP_ROOM_TYPE_ENTRANCE		= 2,
 	MAP_ROOM_TYPE_BOSS_ROOM		= 3,
+};
+
+
+enum MAP_ROOM_BLOCK {
+	MAP_ROOM_BLOCK_SOUTH		= 0x80000000,
+	MAP_ROOM_BLOCK_EAST		= 0x40000000,
+	MAP_ROOM_BLOCK_NORTH		= 0x20000000,
+	MAP_ROOM_BLOCK_WEST		= 0x10000000,
 };
 
 

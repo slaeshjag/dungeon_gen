@@ -5,6 +5,15 @@
 #include "dungeon_generate.h"
 #include "util.h"
 
+static void floor_clear_visit(struct dungeon *dungeon, int f) {
+	int i;
+
+	for (i = 0; i < dungeon->layout_scratchuse; i++)
+		dungeon->data[f][dungeon->layout_scratchpad[i]] = dungeon->data[f][dungeon->layout_scratchpad[i]] & (~MAP_ROOM_TMP_VISIT);
+	return;
+}
+
+
 static int generate_layout(int *n, int i, int *boss, unsigned int *data, int w, int h, int mi, int mx) {
 	int branch, order[4], l, dir;
 
@@ -94,7 +103,7 @@ struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int
 	dungeon->w = malloc(sizeof(int) * floors);
 	dungeon->h = malloc(sizeof(int) * floors);
 	dungeon->floors = floors;
-	dungeon->info = malloc(sizeof(*dungeon->info));
+	dungeon->info = malloc(sizeof(*dungeon->info) * floors);
 	boss_floor = rand() % floors;
 
 	for (f = 0; f < floors; f++) {
@@ -244,6 +253,50 @@ static void spawn_walls(struct dungeon *dungeon, int f, int i) {
 }
 
 
+static int dungeon_room_reachable(struct dungeon *dungeon, int from, int to, int floor) {
+	int i, ret, next, op;
+
+	if (from == to)
+		return 1;
+	if ((dungeon->data[floor][from] & 0377) != MAP_ROOM_TYPE_ROOM)
+		return 0;
+	if (dungeon->data[floor][from] & MAP_ROOM_TMP_VISIT)
+		return 0;
+	dungeon->data[floor][from] |= MAP_ROOM_TMP_VISIT;
+	for (i = ret = 0; i < 4 && !ret; i++) {
+		next = util_dir_conv(from, i, dungeon->w[floor], dungeon->h[floor]);
+		op = ~(i ^ 1);
+		if (!((1 << (28 + i)) & dungeon->data[floor][from]) && !((1 << (28 + op)) & dungeon->data[floor][next]))
+			ret = dungeon_room_reachable(dungeon, util_dir_conv(from, i, dungeon->w[floor], dungeon->h[floor]), to, floor);
+	}
+
+	return ret;
+}
+
+
+static void spawn_walls_inside(struct dungeon *dungeon, int f) {
+	int i, dir, target;
+
+	for (i = 0; i < dungeon->layout_scratchuse; i++) {
+		if (rand() % 4)
+			continue;
+		dir = rand() % 4;
+		target = util_dir_conv(dungeon->layout_scratchpad[i], dir, dungeon->w[f], dungeon->h[f]);
+		if ((dungeon->data[f][target] & 0377) != MAP_ROOM_TYPE_ROOM)
+			continue;
+		dungeon->data[f][dungeon->layout_scratchpad[i]] |= (1 << (28 + dir));
+		if (!dungeon_room_reachable(dungeon, dungeon->layout_scratchpad[i], target, f)) {
+			dungeon->data[f][target] ^= (1 << (28 + dir));
+			continue;
+		}
+
+		fill_side(dungeon, f, dungeon->layout_scratchpad[i], (dir & 2) >> 1, (dir & 1), ROOM_TILE_WALL);
+	}
+
+	return floor_clear_visit(dungeon, f);
+}
+
+
 void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max_enemy, int entrance_floor) {
 	int i, j, f, g, last_room, last_tile, rooms, spawn, boss_room;
 	
@@ -266,11 +319,11 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 		}
 
 		rooms = g;
+		dungeon->layout_scratchuse = rooms;
 		spawn_walls(dungeon, f, dungeon->layout_scratchpad[0]);
+		floor_clear_visit(dungeon, f);
+		spawn_walls_inside(dungeon, f);
 		
-		for (i = 0; i < rooms; i++)
-			dungeon->data[f][dungeon->layout_scratchpad[i]] = dungeon->data[f][dungeon->layout_scratchpad[i]] & (~MAP_ROOM_TMP_VISIT);
-	
 		if (boss_room >= 0)
 			spawn_doors(dungeon, boss_room, f);
 		for (i = 0; i < rooms; i++) {
