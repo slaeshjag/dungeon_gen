@@ -49,3 +49,12 @@ void util_order_randomize(int *order, int count) {
 }
 
 
+int util_local_to_global_coord(int w, int room_w, int room, int tile) {
+	int blah, foo, fred;
+
+	blah = room % w;
+	fred = room / w;
+	foo = blah * room_w + (tile % room_w);
+	foo += (fred * w * room_w + (tile / room_w * w * room_w));
+	return foo;
+}

@@ -5,6 +5,7 @@
 #include "dungeon_generate.h"
 #include "util.h"
 
+
 static void floor_clear_visit(struct dungeon *dungeon, int f) {
 	int i;
 
@@ -286,7 +287,7 @@ static void spawn_walls_inside(struct dungeon *dungeon, int f) {
 			continue;
 		dungeon->data[f][dungeon->layout_scratchpad[i]] |= (1 << (28 + dir));
 		if (!dungeon_room_reachable(dungeon, dungeon->layout_scratchpad[i], target, f)) {
-			dungeon->data[f][target] ^= (1 << (28 + dir));
+			dungeon->data[f][dungeon->layout_scratchpad[i]] ^= (1 << (28 + dir));
 			continue;
 		}
 
@@ -339,9 +340,9 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 		if (f > 0) {
 			spawn = dungeon->layout_scratchpad[rand() % rooms];
 			dungeon->room_map[f-1][last_room][last_tile] |= (spawn << 16);
-			dungeon->info[f].stair_down = last_tile;
-			g = spawn;
-			dungeon->info[f-1].stair_up = spawn_tile(dungeon, f, spawn, ROOM_TILE_WAY_DOWN | (last_room << 16));
+			dungeon->info[f].stair_down = util_local_to_global_coord(dungeon->w[f], dungeon->room_w, spawn, last_tile);
+			g = spawn_tile(dungeon, f, spawn, ROOM_TILE_WAY_DOWN | (last_room << 16));
+			dungeon->info[f-1].stair_down = util_local_to_global_coord(dungeon->w[f], dungeon->room_w, last_room, last_tile);
 		}
 		
 		if (f + 1 < dungeon->floors) {
