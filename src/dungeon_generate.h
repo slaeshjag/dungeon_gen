@@ -22,6 +22,7 @@ struct dungeon {
 	unsigned int			**data;
 	int				floors;
 	struct dungeon_puzzle_part	*puzzle;
+	int				puzzles;
 	struct dungeon_floor_info	*info;
 	unsigned int			***room_map;
 	int				room_w;
@@ -67,6 +68,8 @@ enum ROOM_TILE {
 	ROOM_TILE_WATER			= 12,
 
 	ROOM_TILE_ENEMY0		= 32,
+
+	ROOM_TILE_PUZZLE_BUTTON		= 48,
 };
 
 

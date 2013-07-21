@@ -106,6 +106,8 @@ struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int
 	dungeon->floors = floors;
 	dungeon->info = malloc(sizeof(*dungeon->info) * floors);
 	boss_floor = rand() % floors;
+	dungeon->puzzle = NULL;
+	dungeon->puzzles = 0;
 
 	for (f = 0; f < floors; f++) {
 		do {
@@ -197,20 +199,35 @@ static int spawn_tile(struct dungeon *dungeon, int floor, int room, int tile) {
 }
 
 
-#if 0
-static void spawn_puzzle(struct dungeon *dungeon, int room, int floor) {
-	int complexity;
+static int puzzle_struct_add(struct dungeon *dungeon) {
+	struct dungeon_puzzle_part *tmp;
+
+	if (!(tmp = realloc(dungeon->puzzle, sizeof(*tmp) * (++dungeon->puzzles))))
+		return -1;
+	dungeon->puzzle = tmp;
+	return dungeon->puzzles - 1;
+}
+
+
+static void spawn_puzzle_part(struct dungeon *dungeon, int room, int floor, int depends) {
+	int complexity, spawn, i;
 
 	complexity = rand() % 2;
 	
 	switch (complexity) {
+		case 0:
+			spawn = spawn_tile(dungeon, floor, room, ROOM_TILE_PUZZLE_BUTTON);
+			break;
 		default:
+			return;
 			break;
 	}
 
+	i = puzzle_struct_add(dungeon);
+	dungeon->puzzle[i].room_link = util_local_to_global_coord(dungeon->w[floor], dungeon->room_w, room, spawn);
+
 	return;
 }
-#endif
 
 
 static void fill_side(struct dungeon *dungeon, int floor, int room, int offset, int dir, int tile) {
@@ -329,6 +346,7 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 			spawn_doors(dungeon, boss_room, f);
 		for (i = 0; i < rooms; i++) {
 			spawn_doors(dungeon, dungeon->layout_scratchpad[i], f);
+			spawn_puzzle_part(dungeon, dungeon->layout_scratchpad[i], f, 0);
 	
 			for (j = 0; j < rand() % max_enemy; j++)
 				spawn_tile(dungeon, f, dungeon->layout_scratchpad[i], ROOM_TILE_ENEMY0 + rand() % 8);
