@@ -43,7 +43,7 @@ static int spawn_structure(struct dungeon *dungeon, int floor, int room, int str
 		for (j = 0; j < dungeon->room_h - struct_h; j++) {
 			for (k = i; k < i + struct_w; k++)
 				for (l = j; l < j + struct_h; l++)
-					if (dungeon->room_map[floor][room][i + k + (j + l) * w] != ROOM_TILE_FLOOR) {
+					if (dungeon->room_map[floor][room][k + l * w] != ROOM_TILE_FLOOR) {
 						goto nospawn;
 					}
 			

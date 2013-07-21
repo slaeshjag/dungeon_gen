@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
 	room_ts = d_render_tilesheet_load("res/room_gfx.png", 32, 32, DARNIT_PFORMAT_RGB5A1);
 	tm = d_tilemap_new(0xFFF, ts, 0xFFF, 16, 15);
 	room_tm = d_tilemap_new(0xFFF, room_ts, 0xFFF, ROOM_W, ROOM_H);
+	cam_x = cam_y = 0;
 
 	dungeon = dungeon_layout_new(tm->w, tm->h, 24, 16, 1, FLOORS);
 	dungeon_init_floor(dungeon, ROOM_W, ROOM_H, 4, FLOORS - 1);
