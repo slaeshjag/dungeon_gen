@@ -32,6 +32,19 @@ void util_blt(unsigned int *dest, int dw, int dh, int dx, int dy, unsigned int *
 }
 
 
+void util_blt_trans(unsigned int *dst, int dw, int dh, int dx, int dy, unsigned int *src, int sw, int sh, unsigned int trans) {
+	int i, j, dsti;
+	
+	dsti = dx + dy * dw;
+
+	for (i = 0; i < sh && i + dy < dh; i++)
+		for (j = 0; j < sw; j++)
+			if (src[i * sw + j] != trans)
+				dst[dsti + i * dw + j] = src[i * sw + j];
+	return;
+}
+
+
 void util_order_randomize(int *order, int count) {
 	int sw, i, t;
 	

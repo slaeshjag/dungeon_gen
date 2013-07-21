@@ -5,6 +5,9 @@
 #include "dungeon_generate.h"
 #include "util.h"
 
+static unsigned int structure[256];
+#define	CLEAR_STRUCTURE()		(memset(structure, 0, sizeof(int) * 256));
+
 
 static void floor_clear_visit(struct dungeon *dungeon, int f) {
 	int i;
@@ -29,6 +32,36 @@ static int spawn_tile(struct dungeon *dungeon, int floor, int room, int tile) {
 
 	return spawn;
 }
+
+
+static int spawn_structure(struct dungeon *dungeon, int floor, int room, int struct_w, int struct_h) {
+	int i, j, k, l, m, w, spawn;
+	w = dungeon->room_w;
+
+	/* får får får? */
+	for (i = m = 0; i < dungeon->room_w - struct_w; i++)
+		for (j = 0; j < dungeon->room_h - struct_h; j++) {
+			for (k = i; k < i + struct_w; k++)
+				for (l = j; l < j + struct_h; l++)
+					if (dungeon->room_map[floor][room][i + k + (j + l) * w] != ROOM_TILE_FLOOR) {
+						goto nospawn;
+					}
+			
+			dungeon->room_scratchpad[m++] = i + j * w;
+
+			nospawn:
+				continue;
+		}
+	
+	spawn = dungeon->room_scratchpad[rand() % m];
+	i = spawn % w;
+	j = spawn / w;
+	util_blt_trans(dungeon->room_map[floor][room], dungeon->room_w, dungeon->room_h, i, j, structure, struct_w, struct_h, 0);
+
+	return spawn;
+}
+			
+	
 
 
 static int dungeon_room_reachable(struct dungeon *dungeon, int from, int to, int floor) {
@@ -198,11 +231,14 @@ static int puzzle_struct_add(struct dungeon *dungeon) {
 static void spawn_puzzle_part(struct dungeon *dungeon, int room, int floor, int depends) {
 	int complexity, spawn, i;
 
+	CLEAR_STRUCTURE()
 	complexity = rand() % 2;
 	
 	switch (complexity) {
 		case 0:
-			spawn = spawn_tile(dungeon, floor, room, ROOM_TILE_PUZZLE_BUTTON);
+			structure[0] = ROOM_TILE_FLOOR_KEEP;
+			structure[1] = ROOM_TILE_PUZZLE_BUTTON;
+			spawn = spawn_structure(dungeon, floor, room, 2, 1) + 1;
 			break;
 		default:
 			return;
