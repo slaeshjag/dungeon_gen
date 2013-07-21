@@ -15,6 +15,43 @@ static void floor_clear_visit(struct dungeon *dungeon, int f) {
 }
 
 
+static int spawn_tile(struct dungeon *dungeon, int floor, int room, int tile) {
+	int i, j, spawn;
+
+	for (i = j = 00; i < dungeon->room_w * dungeon->room_h; i++)
+		if ((dungeon->room_map[floor][room][i] & 0377) == ROOM_TILE_FLOOR)
+			dungeon->room_scratchpad[j++] = i;
+	if (!j)
+		return -1;
+	
+	spawn = dungeon->room_scratchpad[rand() % j];
+	dungeon->room_map[floor][room][spawn] = tile;
+
+	return spawn;
+}
+
+
+static int dungeon_room_reachable(struct dungeon *dungeon, int from, int to, int floor) {
+	int i, ret, next, op;
+
+	if (from == to)
+		return 1;
+	if ((dungeon->data[floor][from] & 0377) != MAP_ROOM_TYPE_ROOM)
+		return 0;
+	if (dungeon->data[floor][from] & MAP_ROOM_TMP_VISIT)
+		return 0;
+	dungeon->data[floor][from] |= MAP_ROOM_TMP_VISIT;
+	for (i = ret = 0; i < 4 && !ret; i++) {
+		next = util_dir_conv(from, i, dungeon->w[floor], dungeon->h[floor]);
+		op = ~(i ^ 1);
+		if (!((1 << (28 + i)) & dungeon->data[floor][from]) && !((1 << (28 + op)) & dungeon->data[floor][next]))
+			ret = dungeon_room_reachable(dungeon, util_dir_conv(from, i, dungeon->w[floor], dungeon->h[floor]), to, floor);
+	}
+
+	return ret;
+}
+
+
 static int generate_layout(int *n, int i, int *boss, unsigned int *data, int w, int h, int mi, int mx) {
 	int branch, order[4], l, dir;
 
@@ -148,57 +185,6 @@ static unsigned int *dungeon_generate_room_template(const int w, const int h) {
 }
 
 
-static void spawn_doors(struct dungeon *dungeon, int i, int floor) {
-	int l, door, t, x, y;
-
-	for (l = 00; l < 04; l++) {
-		if ((t = util_dir_conv(i, l, dungeon->w[floor], dungeon->h[floor])) == i)
-			continue;
-		if (!(dungeon->data[floor][t]))
-			continue;
-		switch (dungeon->data[floor][t] & 0377) {
-			case MAP_ROOM_TYPE_ROOM:
-			case MAP_ROOM_TYPE_ENTRANCE:
-			default:
-				door = ((dungeon->data[floor][i] & 0377) == MAP_ROOM_TYPE_BOSS_ROOM) ? ROOM_TILE_DOOR : 00;
-				break;
-			case MAP_ROOM_TYPE_BOSS_ROOM:
-				door = ROOM_TILE_DOOR_BOSS;
-				break;
-		}
-
-		if (l & 01) {
-			y = (l & 02) ? dungeon->room_h - 01 : 00;
-			x = dungeon->room_w >> 01;
-		} else {
-			y = dungeon->room_h >> 01;
-			x = (l & 02) ? dungeon->room_w - 01 : 00;
-		}
-
-		if (door != 00)
-			dungeon->room_map[floor][i][x + y * dungeon->room_w] = door;
-	}
-
-	return;
-}
-
-
-static int spawn_tile(struct dungeon *dungeon, int floor, int room, int tile) {
-	int i, j, spawn;
-
-	for (i = j = 00; i < dungeon->room_w * dungeon->room_h; i++)
-		if ((dungeon->room_map[floor][room][i] & 0377) == ROOM_TILE_FLOOR)
-			dungeon->room_scratchpad[j++] = i;
-	if (!j)
-		return -1;
-	
-	spawn = dungeon->room_scratchpad[rand() % j];
-	dungeon->room_map[floor][room][spawn] = tile;
-
-	return spawn;
-}
-
-
 static int puzzle_struct_add(struct dungeon *dungeon) {
 	struct dungeon_puzzle_part *tmp;
 
@@ -271,27 +257,6 @@ static void spawn_walls(struct dungeon *dungeon, int f, int i) {
 }
 
 
-static int dungeon_room_reachable(struct dungeon *dungeon, int from, int to, int floor) {
-	int i, ret, next, op;
-
-	if (from == to)
-		return 1;
-	if ((dungeon->data[floor][from] & 0377) != MAP_ROOM_TYPE_ROOM)
-		return 0;
-	if (dungeon->data[floor][from] & MAP_ROOM_TMP_VISIT)
-		return 0;
-	dungeon->data[floor][from] |= MAP_ROOM_TMP_VISIT;
-	for (i = ret = 0; i < 4 && !ret; i++) {
-		next = util_dir_conv(from, i, dungeon->w[floor], dungeon->h[floor]);
-		op = ~(i ^ 1);
-		if (!((1 << (28 + i)) & dungeon->data[floor][from]) && !((1 << (28 + op)) & dungeon->data[floor][next]))
-			ret = dungeon_room_reachable(dungeon, util_dir_conv(from, i, dungeon->w[floor], dungeon->h[floor]), to, floor);
-	}
-
-	return ret;
-}
-
-
 static void spawn_walls_inside(struct dungeon *dungeon, int f) {
 	int i, dir, target;
 
@@ -312,6 +277,41 @@ static void spawn_walls_inside(struct dungeon *dungeon, int f) {
 	}
 
 	return floor_clear_visit(dungeon, f);
+}
+
+
+static void spawn_doors(struct dungeon *dungeon, int i, int floor) {
+	int l, door, t, x, y;
+
+	for (l = 00; l < 04; l++) {
+		if ((t = util_dir_conv(i, l, dungeon->w[floor], dungeon->h[floor])) == i)
+			continue;
+		if (!(dungeon->data[floor][t]))
+			continue;
+		switch (dungeon->data[floor][t] & 0377) {
+			case MAP_ROOM_TYPE_ROOM:
+			case MAP_ROOM_TYPE_ENTRANCE:
+			default:
+				door = ((dungeon->data[floor][i] & 0377) == MAP_ROOM_TYPE_BOSS_ROOM) ? ROOM_TILE_DOOR : 00;
+				break;
+			case MAP_ROOM_TYPE_BOSS_ROOM:
+				door = ROOM_TILE_DOOR_BOSS;
+				break;
+		}
+
+		if (l & 01) {
+			y = (l & 02) ? dungeon->room_h - 01 : 00;
+			x = dungeon->room_w >> 01;
+		} else {
+			y = dungeon->room_h >> 01;
+			x = (l & 02) ? dungeon->room_w - 01 : 00;
+		}
+
+		if (door != 00)
+			dungeon->room_map[floor][i][x + y * dungeon->room_w] = door;
+	}
+
+	return;
 }
 
 
