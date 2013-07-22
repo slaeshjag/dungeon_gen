@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "dungeon_generate.h"
+#include "dungeon_generate_structure.h"
 #include "util.h"
 
 static unsigned int structure[256];
@@ -229,16 +230,15 @@ static int puzzle_struct_add(struct dungeon *dungeon) {
 
 
 static void spawn_puzzle_part(struct dungeon *dungeon, int room, int floor, int depends) {
-	int complexity, spawn, i;
+	int complexity, spawn, i, w, h;
 
 	CLEAR_STRUCTURE()
 	complexity = rand() % 2;
 	
 	switch (complexity) {
 		case 0:
-			structure[0] = ROOM_TILE_FLOOR_KEEP;
-			structure[1] = ROOM_TILE_PUZZLE_BUTTON;
-			spawn = spawn_structure(dungeon, floor, room, 2, 1) + 1;
+			dungeon_generate_bslide_puzzle(structure, &w, &h);
+			spawn = spawn_structure(dungeon, floor, room, w, h);
 			break;
 		default:
 			return;
