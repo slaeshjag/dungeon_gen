@@ -78,7 +78,7 @@ static int dungeon_room_reachable(struct dungeon *dungeon, int from, int to, int
 	dungeon->data[floor][from] |= MAP_ROOM_TMP_VISIT;
 	for (i = ret = 0; i < 4 && !ret; i++) {
 		next = util_dir_conv(from, i, dungeon->w[floor], dungeon->h[floor]);
-		op = ~(i ^ 1);
+		op = ((~(i ^ 1)) & 3);
 		if (!((1 << (28 + i)) & dungeon->data[floor][from]) && !((1 << (28 + op)) & dungeon->data[floor][next]))
 			ret = dungeon_room_reachable(dungeon, util_dir_conv(from, i, dungeon->w[floor], dungeon->h[floor]), to, floor);
 	}
@@ -298,7 +298,7 @@ static void spawn_walls_inside(struct dungeon *dungeon, int f) {
 	int i, dir, target;
 
 	for (i = 0; i < dungeon->layout_scratchuse; i++) {
-		if (random_get() % 4)
+		if (random_get() % 2)
 			continue;
 		dir = random_get() % 4;
 		target = util_dir_conv(dungeon->layout_scratchpad[i], dir, dungeon->w[f], dungeon->h[f]);
