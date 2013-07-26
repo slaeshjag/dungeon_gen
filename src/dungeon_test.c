@@ -1,8 +1,10 @@
 #include <darnit/darnit.h>
 #include <string.h>
+#include <time.h>
 
 #include "dungeon_generate.h"
 #include "util.h"
+#include "random.h"
 
 #define	ROOM_W			12
 #define	ROOM_H			12
@@ -15,6 +17,7 @@ int main(int argc, char **argv) {
 	struct dungeon *dungeon;
 
 	d_init("dungeon_gen", "dungeon_gen", NULL);
+	random_seed(time(NULL));
 
 	ts = d_render_tilesheet_load("res/level_gfx.png", 32, 32, DARNIT_PFORMAT_RGB5A1);
 	room_ts = d_render_tilesheet_load("res/room_gfx.png", 32, 32, DARNIT_PFORMAT_RGB5A1);

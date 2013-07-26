@@ -30,17 +30,17 @@ static int dungeon_generate_path(unsigned int *buff, int w, int h, int i, int ti
 void dungeon_generate_bslide_puzzle(unsigned int *buff, int *w, int *h) {
 	int i, x, y, order[4], l, max, t, use;
 
-	*w = 3 + (rand() % 6);
-	*h = 3 + (rand() % 6);
+	*w = 3 + (random_get() % 6);
+	*h = 3 + (random_get() % 6);
 	
-	x = rand() % (*w);
-	y = rand() % (*h);
+	x = random_get() % (*w);
+	y = random_get() % (*h);
 	buff[x + y * (*w)] = ROOM_TILE_PUZZLE_BUTTON;
 
 	i = 0;
 
 	util_order_randomize(order, 4);
-	max = (rand() % 14) + 4;
+	max = (random_get() % 14) + 4;
 	for (l = 0; l < 4; l++)
 		use = ((t = dungeon_generate_path(buff, *w, *h, util_dir_conv(x + y * (*w), order[l], (*w), (*h)), ROOM_TILE_FLOOR_KEEP, &i, max)) == -1) ? use : t;
 	buff[use] = ROOM_TILE_PUZZLE_SLIDEBLOCK;

@@ -1,4 +1,5 @@
 #include "util.h"
+#include "random.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -52,7 +53,7 @@ void util_order_randomize(int *order, int count) {
 		order[i] = i;
 
 	for (i = 0; i < count - 1; i++) {
-		sw = rand() % (count - i) + i;
+		sw = random_get() % (count - i) + i;
 		t = order[i];
 		order[i] = order[sw];
 		order[sw] = t;

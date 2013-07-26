@@ -5,6 +5,7 @@
 #include "dungeon_generate.h"
 #include "dungeon_generate_structure.h"
 #include "util.h"
+#include "random.h"
 
 static unsigned int structure[256];
 #define	CLEAR_STRUCTURE()		(memset(structure, 0, sizeof(int) * 256));
@@ -28,7 +29,7 @@ static int spawn_tile(struct dungeon *dungeon, int floor, int room, int tile) {
 	if (!j)
 		return -1;
 	
-	spawn = dungeon->room_scratchpad[rand() % j];
+	spawn = dungeon->room_scratchpad[random_get() % j];
 	dungeon->room_map[floor][room][spawn] = tile;
 
 	return spawn;
@@ -54,7 +55,7 @@ static int spawn_structure(struct dungeon *dungeon, int floor, int room, int str
 				continue;
 		}
 	
-	spawn = dungeon->room_scratchpad[rand() % m];
+	spawn = dungeon->room_scratchpad[random_get() % m];
 	i = spawn % w;
 	j = spawn / w;
 	util_blt_trans(dungeon->room_map[floor][room], dungeon->room_w, dungeon->room_h, i, j, structure, struct_w, struct_h, 0);
@@ -93,7 +94,7 @@ static int generate_layout(int *n, int i, int *boss, unsigned int *data, int w, 
 		return 0;
 	
 	data[i] = MAP_ROOM_TYPE_ROOM;
-	branch = (rand() & 0xF) + 1;
+	branch = (random_get() & 0xF) + 1;
 	(*n)++;
 
 	if (branch < 12 && mx > *n)
@@ -176,7 +177,7 @@ struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int
 	dungeon->h = malloc(sizeof(int) * floors);
 	dungeon->floors = floors;
 	dungeon->info = malloc(sizeof(*dungeon->info) * floors);
-	boss_floor = rand() % floors;
+	boss_floor = random_get() % floors;
 	dungeon->puzzle = NULL;
 	dungeon->puzzles = 0;
 
@@ -233,7 +234,7 @@ static void spawn_puzzle_part(struct dungeon *dungeon, int room, int floor, int 
 	int complexity, spawn, i, w, h;
 
 	CLEAR_STRUCTURE()
-	complexity = rand() % 2;
+	complexity = random_get() % 2;
 	
 	switch (complexity) {
 		case 0:
@@ -297,9 +298,9 @@ static void spawn_walls_inside(struct dungeon *dungeon, int f) {
 	int i, dir, target;
 
 	for (i = 0; i < dungeon->layout_scratchuse; i++) {
-		if (rand() % 4)
+		if (random_get() % 4)
 			continue;
-		dir = rand() % 4;
+		dir = random_get() % 4;
 		target = util_dir_conv(dungeon->layout_scratchpad[i], dir, dungeon->w[f], dungeon->h[f]);
 		if ((dungeon->data[f][target] & 0377) != MAP_ROOM_TYPE_ROOM)
 			continue;
@@ -384,15 +385,15 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 			spawn_doors(dungeon, dungeon->layout_scratchpad[i], f);
 			spawn_puzzle_part(dungeon, dungeon->layout_scratchpad[i], f, 0);
 	
-			for (j = 0; j < rand() % max_enemy; j++)
-				spawn_tile(dungeon, f, dungeon->layout_scratchpad[i], ROOM_TILE_ENEMY0 + rand() % 8);
+			for (j = 0; (unsigned int) j < random_get() % ((unsigned int) max_enemy); j++)
+				spawn_tile(dungeon, f, dungeon->layout_scratchpad[i], ROOM_TILE_ENEMY0 + random_get() % 8);
 		}
 
 		if (f == entrance_floor)
-			dungeon->entrance = dungeon->layout_scratchpad[rand() % rooms];
+			dungeon->entrance = dungeon->layout_scratchpad[random_get() % rooms];
 		
 		if (f > 0) {
-			spawn = dungeon->layout_scratchpad[rand() % rooms];
+			spawn = dungeon->layout_scratchpad[random_get() % rooms];
 			dungeon->room_map[f-1][last_room][last_tile] |= (spawn << 16);
 			dungeon->info[f].stair_down = util_local_to_global_coord(dungeon->w[f], dungeon->room_w, spawn, last_tile);
 			g = spawn_tile(dungeon, f, spawn, ROOM_TILE_WAY_DOWN | (last_room << 16));
@@ -400,7 +401,7 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 		}
 		
 		if (f + 1 < dungeon->floors) {
-			spawn = dungeon->layout_scratchpad[rand() % rooms];
+			spawn = dungeon->layout_scratchpad[random_get() % rooms];
 			last_room = spawn;
 			last_tile = spawn_tile(dungeon, f, spawn, ROOM_TILE_WAY_UP);
 		}

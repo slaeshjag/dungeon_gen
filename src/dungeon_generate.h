@@ -1,6 +1,7 @@
 #ifndef __DUNGEON_GENERATE_H__
 #define	__DUNGEON_GENERATE_H__
 
+#include "random.h"
 #define	MAP_ROOM_TMP_VISIT		0x1000
 
 
