@@ -36,8 +36,20 @@ struct dungeon {
 };
 
 
+struct dungeon_use {
+	int				*w;
+	int				*h;
+	int				floors;
+	unsigned int			**tile_data;
+	/* FIXME: Add structs for puzzles */
+	int				entrance;
+	int				entrance_floor;
+};
+
+
 struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int boss_s, int floors);
 void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max_enemy, int entrance_floor);
+void *dungeon_free_generate_dungeon(struct dungeon *dungeon);
 
 enum MAP_ROOM_TYPE {
 	MAP_ROOM_TYPE_NOTHING		= 0,

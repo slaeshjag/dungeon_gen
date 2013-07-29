@@ -410,3 +410,46 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 
 	return;
 }
+
+
+void *dungeon_free_generate_dungeon(struct dungeon *dungeon) {
+	int i, j;
+
+	for (i = 0; i < dungeon->floors; i++) {
+		for (j = 0; j < dungeon->w[i] * dungeon->h[i]; j++)
+			free(dungeon->room_map[i][j]);
+		free(dungeon->data[i]);
+	}
+
+	free(dungeon->w);
+	free(dungeon->h);
+	free(dungeon->puzzle);
+	free(dungeon->info);
+	free(dungeon->room_scratchpad);
+	free(dungeon->layout_scratchpad);
+	free(dungeon);
+	
+	return NULL;
+}
+
+
+struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
+	struct dungeon_use *dngu;
+	int i;
+
+	dngu = malloc(sizeof(*dngu));
+	dngu->w = malloc(sizeof(*(dngu->w)) * dungeon->floors);
+	dngu->h = malloc(sizeof(*(dngu->h)) * dungeon->floors);
+	for (i = 0; i < dungeon->floors; i++) {
+		dngu->w[i] = dungeon->w[i] * dungeon->room_w;
+		dngu->h[i] = dungeon->h[i] * dungeon->room_h;
+	}
+
+	dngu->tile_data = malloc(sizeof((*(dngu->tile_data))) * dungeon->floors);
+	
+	for (i = 0; i < dungeon->floors; i++)
+		dngu->tile_data[i] = calloc(dngu->w[i] * dngu->h[i], sizeof(**(dngu->tile_data)));
+	
+
+	return dngu;
+}
