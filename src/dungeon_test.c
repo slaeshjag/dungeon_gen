@@ -28,6 +28,7 @@ int main(int argc, char **argv) {
 	dungeon = dungeon_layout_new(tm->w, tm->h, 24, 16, 1, FLOORS);
 	dungeon_init_floor(dungeon, ROOM_W, ROOM_H, 4, FLOORS - 1);
 	memcpy(room_tm->data, dungeon->room_map[FLOORS-1][dungeon->entrance], sizeof(unsigned int) * room_tm->w * room_tm->h);
+	dungeon_make_usable(dungeon);
 	current_room = dungeon->entrance;
 	current_floor = dungeon->entrance_floor;
 	d_tilemap_recalc(room_tm);

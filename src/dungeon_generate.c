@@ -78,9 +78,11 @@ static int dungeon_room_reachable(struct dungeon *dungeon, int from, int to, int
 	dungeon->data[floor][from] |= MAP_ROOM_TMP_VISIT;
 	for (i = ret = 0; i < 4 && !ret; i++) {
 		next = util_dir_conv(from, i, dungeon->w[floor], dungeon->h[floor]);
+		if (next == from)
+			continue;
 		op = ((~(i ^ 1)) & 3);
 		if (!((1 << (28 + i)) & dungeon->data[floor][from]) && !((1 << (28 + op)) & dungeon->data[floor][next]))
-			ret = dungeon_room_reachable(dungeon, util_dir_conv(from, i, dungeon->w[floor], dungeon->h[floor]), to, floor);
+			ret = dungeon_room_reachable(dungeon, next, to, floor);
 	}
 
 	return ret;
@@ -298,9 +300,7 @@ static void spawn_walls_inside(struct dungeon *dungeon, int f) {
 	int i, dir, target;
 
 	for (i = 0; i < dungeon->layout_scratchuse; i++) {
-		if (random_get() % 2)
-			continue;
-		dir = random_get() % 4;
+		dir = (random_get() & 03);
 		target = util_dir_conv(dungeon->layout_scratchpad[i], dir, dungeon->w[f], dungeon->h[f]);
 		if ((dungeon->data[f][target] & 0377) != MAP_ROOM_TYPE_ROOM)
 			continue;
@@ -435,7 +435,7 @@ void *dungeon_free_generate_dungeon(struct dungeon *dungeon) {
 
 struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
 	struct dungeon_use *dngu;
-	int i;
+	int i, j, x, y;
 
 	dngu = malloc(sizeof(*dngu));
 	dngu->w = malloc(sizeof(*(dngu->w)) * dungeon->floors);
@@ -449,7 +449,15 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
 	
 	for (i = 0; i < dungeon->floors; i++)
 		dngu->tile_data[i] = calloc(dngu->w[i] * dngu->h[i], sizeof(**(dngu->tile_data)));
-	
+
+	for (i = 0; i < dungeon->floors; i++)
+		for (j = 0; j < dungeon->w[i] * dungeon->h[i]; j++) {
+			x = (j % dungeon->w[i]) * dungeon->room_w;
+			y = (j / dungeon->w[i]) * dungeon->room_h;
+			if (!dungeon->room_map[i][j])
+				continue;
+			util_blt(dngu->tile_data[i], dngu->w[i], dngu->h[i], x, y, dungeon->room_map[i][j], dungeon->room_w, dungeon->room_h, 0, 0);
+		}
 
 	return dngu;
 }
