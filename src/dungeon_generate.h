@@ -5,6 +5,13 @@
 #define	MAP_ROOM_TMP_VISIT		0x1000
 
 
+enum ROOM_OBJECT_TYPE {
+	ROOM_OBJECT_TYPE_NONE		= 0,
+	ROOM_OBJECT_TYPE_NPC		= 1,
+	ROOM_OBJECT_TYPE_PUZZLE_EL	= 2,
+};
+
+
 struct dungeon_puzzle_part {
 	int				room_link;
 	unsigned int			status;
@@ -36,11 +43,22 @@ struct dungeon {
 };
 
 
+struct dungeon_object {
+	int				x;
+	int				y;
+	int				l;
+	enum ROOM_OBJECT_TYPE		type;
+	void				*data;
+};
+
+
 struct dungeon_use {
 	int				*w;
 	int				*h;
 	int				floors;
 	unsigned int			**tile_data;
+	struct dungeon_object		*object;
+	int				objects;
 	/* FIXME: Add structs for puzzles */
 	int				entrance;
 	int				entrance_floor;
