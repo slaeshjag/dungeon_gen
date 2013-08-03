@@ -2,6 +2,7 @@
 #define	__DUNGEON_GENERATE_H__
 
 #include "random.h"
+#include <darnit/darnit.h>
 #define	MAP_ROOM_TMP_VISIT		0x1000
 
 
@@ -57,6 +58,7 @@ struct dungeon_use {
 	int				*h;
 	int				floors;
 	unsigned int			**tile_data;
+	DARNIT_TILEMAP			**tilemap;
 	struct dungeon_object		*object;
 	int				objects;
 	/* FIXME: Add structs for puzzles */

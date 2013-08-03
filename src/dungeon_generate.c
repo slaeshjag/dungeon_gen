@@ -302,7 +302,7 @@ static void spawn_walls_inside(struct dungeon *dungeon, int f) {
 	for (i = 0; i < dungeon->layout_scratchuse; i++) {
 		dir = (random_get() & 03);
 		target = util_dir_conv(dungeon->layout_scratchpad[i], dir, dungeon->w[f], dungeon->h[f]);
-		if (target == dungeon->layout_scratchpad[i])
+		if ((unsigned int) target == dungeon->layout_scratchpad[i])
 			continue;
 		if ((dungeon->data[f][target] & 0377) != MAP_ROOM_TYPE_ROOM)
 			continue;
@@ -451,6 +451,7 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
 	dngu = malloc(sizeof(*dngu));
 	dngu->object = NULL;
 	dngu->objects = 0;
+	dngu->tilemap = calloc(dungeon->floors, sizeof(*dngu->tilemap));
 	dngu->w = malloc(sizeof(*(dngu->w)) * dungeon->floors);
 	dngu->h = malloc(sizeof(*(dngu->h)) * dungeon->floors);
 	for (i = 0; i < dungeon->floors; i++) {
@@ -480,11 +481,13 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
 			dngu->object[x].x = j % dngu->w[i];
 			dngu->object[x].y = j / dngu->w[i];
 			dngu->object[x].l = i;
+			dngu->object[x].data = NULL;
 			if ((dngu->tile_data[i][j] & 0xFF) >= 48) {
 				/* FIXME: Add puzzle object here */
 				dngu->object[x].type = ROOM_OBJECT_TYPE_PUZZLE_EL;
 			} else
 				dngu->object[x].type = ROOM_OBJECT_TYPE_NPC;
+			dngu->tile_data[i][j] = ROOM_TILE_FLOOR_KEEP;
 		}
 
 	return dngu;
