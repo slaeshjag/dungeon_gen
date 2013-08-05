@@ -69,17 +69,11 @@ void autotile_run(struct autotile *at, unsigned int *src, unsigned int *dst, con
 				l = src[j];
 			}
 		}
+
+		if (m && l == src[i])
+			l = -1;
 		dst[i] = autotile_lookup(at, src[i], l, m);
 	}
 
 	return;
 }
-
-			
-
-
-#if 0
-DARNIT_TILEMAP *autotile(unsigned int *data, int w, int h, DARNIT_TILESHEET *ts) {
-	DARNIT_TILEMAP *tm = d_tilemap_new(DARNIT_TILEMAP_DEFAULT_MASK, ts, DARNIT_TILEMAP_DEFAULT_MASK, w, h);
-
-#endif

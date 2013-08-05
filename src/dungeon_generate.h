@@ -2,6 +2,7 @@
 #define	__DUNGEON_GENERATE_H__
 
 #include "random.h"
+#include "autotiler.h"
 #include <darnit/darnit.h>
 #define	MAP_ROOM_TMP_VISIT		0x1000
 
@@ -50,6 +51,7 @@ struct dungeon_object {
 	int				l;
 	enum ROOM_OBJECT_TYPE		type;
 	void				*data;
+	unsigned int			data_size;
 };
 
 
@@ -58,7 +60,6 @@ struct dungeon_use {
 	int				*h;
 	int				floors;
 	unsigned int			**tile_data;
-	DARNIT_TILEMAP			**tilemap;
 	struct dungeon_object		*object;
 	int				objects;
 	/* FIXME: Add structs for puzzles */
@@ -70,7 +71,7 @@ struct dungeon_use {
 struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int boss_s, int floors);
 void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max_enemy, int entrance_floor);
 void *dungeon_free_generate_dungeon(struct dungeon *dungeon);
-struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon);
+struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon, struct autotile *at);
 
 enum MAP_ROOM_TYPE {
 	MAP_ROOM_TYPE_NOTHING		= 0,

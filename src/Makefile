@@ -3,7 +3,7 @@ include $(TOPDIR)/config.mk
 
 SRCFILES=$(wildcard *.c)
 OBJFILES=$(SRCFILES:.c=.o)
-BIN = ../bin/dungeon_gen
+BIN = ../bin/dungeon_gen.elf
 .PHONY: all clean
 
 all: $(OBJFILES) $(DEPENDS)

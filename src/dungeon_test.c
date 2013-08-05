@@ -3,8 +3,10 @@
 #include <time.h>
 
 #include "dungeon_generate.h"
+#include "autotiler.h"
 #include "util.h"
 #include "random.h"
+#include "save_world.h"
 
 #define	ROOM_W			12
 #define	ROOM_H			12
@@ -13,6 +15,8 @@
 int main(int argc, char **argv) {
 	DARNIT_TILESHEET *ts, *room_ts;
 	DARNIT_TILEMAP *tm, *room_tm;
+	DARNIT_STRINGTABLE *st;
+	struct autotile *at;
 	int cam_x, cam_y, room, current_room, current_floor;
 	struct dungeon *dungeon;
 
@@ -21,6 +25,9 @@ int main(int argc, char **argv) {
 
 	ts = d_render_tilesheet_load("res/level_gfx.png", 32, 32, DARNIT_PFORMAT_RGB5A1);
 	room_ts = d_render_tilesheet_load("res/room_gfx.png", 32, 32, DARNIT_PFORMAT_RGB5A1);
+	st = d_stringtable_open("bin/autotile.stz");
+	d_stringtable_section_load(st, "DUNGEON");
+	at = autotile_new(st);
 	tm = d_tilemap_new(0xFFF, ts, 0xFFF, 16, 15);
 	room_tm = d_tilemap_new(0xFFF, room_ts, 0xFFF, ROOM_W, ROOM_H);
 	cam_x = cam_y = 0;
@@ -28,7 +35,7 @@ int main(int argc, char **argv) {
 	dungeon = dungeon_layout_new(tm->w, tm->h, 24, 16, 1, FLOORS);
 	dungeon_init_floor(dungeon, ROOM_W, ROOM_H, 4, FLOORS - 1);
 	memcpy(room_tm->data, dungeon->room_map[FLOORS-1][dungeon->entrance], sizeof(unsigned int) * room_tm->w * room_tm->h);
-	dungeon_make_usable(dungeon);
+	save_world_dungeon(dungeon_make_usable(dungeon, at), 0, NULL);
 	current_room = dungeon->entrance;
 	current_floor = dungeon->entrance_floor;
 	d_tilemap_recalc(room_tm);

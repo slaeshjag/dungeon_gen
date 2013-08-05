@@ -444,14 +444,13 @@ static int dungeon_add_object(struct dungeon_use *dngu) {
 }
 
 
-struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
+struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon, struct autotile *at) {
 	struct dungeon_use *dngu;
 	int i, j, x, y;
 
 	dngu = malloc(sizeof(*dngu));
 	dngu->object = NULL;
 	dngu->objects = 0;
-	dngu->tilemap = calloc(dungeon->floors, sizeof(*dngu->tilemap));
 	dngu->w = malloc(sizeof(*(dngu->w)) * dungeon->floors);
 	dngu->h = malloc(sizeof(*(dngu->h)) * dungeon->floors);
 	for (i = 0; i < dungeon->floors; i++) {
