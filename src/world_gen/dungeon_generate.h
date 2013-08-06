@@ -60,6 +60,7 @@ struct dungeon_use {
 	int				*h;
 	int				floors;
 	unsigned int			**tile_data;
+	struct dungeon_floor_info	*floor_info;
 	struct dungeon_object		*object;
 	int				objects;
 	/* FIXME: Add structs for puzzles */

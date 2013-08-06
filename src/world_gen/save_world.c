@@ -1,21 +1,64 @@
 #include "save_world.h"
 #include "dungeon_generate.h"
+#include <string.h>
 
 
-int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l) {
+int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *lw) {
 	int i;
 	unsigned int size;
-	union {
-		int		*i;
-		unsigned int	*u;
-	} write_data;
+	struct save_dungeon_header h;
+	struct save_dungeon_layer l;
+	struct save_dungeon_object o;
+	char *data, *next, name[32];
 
 	size = sizeof(struct save_dungeon_header) + sizeof(struct save_dungeon_layer) * dngu->floors;
 
 	for (i = 0; i < dngu->floors; i++)
 		size += (dngu->w[i] * dngu->h[i] * sizeof(unsigned int));
 	size += dngu->objects * sizeof(struct save_dungeon_object);
+	sprintf(name, "dungeon_%i.lvl", index);
 	fprintf(stderr, "calculated dungeon size to %i octets\n", size);
+	data = next = malloc(size);
+
+	h.floors = dngu->floors;
+	h.objects = dngu->objects;
+	h.entrance = dngu->entrance;
+	h.entrance_floor = dngu->entrance_floor;
+
+	d_util_endian_convert((void *) &h, sizeof(h) / sizeof(unsigned int));
+	memcpy(next, &h, sizeof(h));
+	next += sizeof(h);
+
+	for (i = 0; i < dngu->floors; i++) {
+		l.stair_up = dngu->floor_info[i].stair_up;
+		l.stair_down = dngu->floor_info[i].stair_down;
+		l.layer_w = dngu->w[i];
+		l.layer_h = dngu->h[i];
+		d_util_endian_convert((void *) &l, sizeof(l) / sizeof(unsigned int));
+		memcpy(next, &l, sizeof(l));
+		next += sizeof(l);
+		d_util_endian_convert((void *) dngu->tile_data[i], dngu->w[i] * dngu->h[i]);
+		memcpy(next, dngu->tile_data[i], dngu->w[i] * dngu->h[i] * 4);
+		d_util_endian_convert((void *) dngu->tile_data[i], dngu->w[i] * dngu->h[i]);
+		next += (dngu->w[i] * dngu->h[i] * 4);
+	}
+
+	for (i = 0; i < dngu->objects; i++) {
+		o.x = dngu->object[i].x;
+		o.y = dngu->object[i].y;
+		o.l = dngu->object[i].l;
+		o.type = dngu->object[i].type;
+
+		/* FIXME */
+		o.save_slot = dngu->object[i].x;
+
+		d_util_endian_convert((void *) &o, sizeof(o) / sizeof(unsigned int));
+		memcpy(next, &o, sizeof(o));
+		next += sizeof(o);
+	}
+
+	d_file_ldi_write_file(lw, name, data, size);
+	free(data);
 
 	return 1;
 }

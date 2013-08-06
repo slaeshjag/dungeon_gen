@@ -4,13 +4,19 @@ include $(TOPDIR)/config.mk
 SRCFILES=$(wildcard *.c)
 OBJFILES=$(SRCFILES:.c=.o)
 BIN = ../bin/dungeon_gen.elf
-.PHONY: all clean world_gen common
+GAMELIBS = game.a world_gen.a common.a
+.PHONY: all clean world_gen common game
 
-all: $(OBJFILES) $(DEPENDS) world_gen
+all: $(OBJFILES) $(DEPENDS) game
 	@echo " [ LD ]	$(BIN)"
-	@$(CC) $(OBJFILES) -o $(BIN) $(LDFLAGS)
+	@$(CC) $(OBJFILES) $(GAMELIBS) -o $(BIN) $(LDFLAGS)
 	@echo " Done."
 	@echo
+
+
+game: world_gen
+	@echo " [ CD ] game/"
+	+@make -C game/
 
 world_gen: common
 	@echo " [ CD ] world_gen/"
@@ -29,6 +35,8 @@ clean:
 	+@make -C world_gen clean
 	@echo " [ CD ] common/"
 	+@make -C common clean
+	@echo " [ CD ] game/"
+	+@make -C game clean
 	@echo "Done."
 	@echo ""
 

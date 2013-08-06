@@ -453,12 +453,15 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon, struct autotile
 	dngu->objects = 0;
 	dngu->w = malloc(sizeof(*(dngu->w)) * dungeon->floors);
 	dngu->h = malloc(sizeof(*(dngu->h)) * dungeon->floors);
+	dngu->floors = dungeon->floors;
 	for (i = 0; i < dungeon->floors; i++) {
 		dngu->w[i] = dungeon->w[i] * dungeon->room_w;
 		dngu->h[i] = dungeon->h[i] * dungeon->room_h;
 	}
 
 	dngu->tile_data = malloc(sizeof((*(dngu->tile_data))) * dungeon->floors);
+	dngu->floor_info = malloc(sizeof(*dngu->floor_info) * dungeon->floors);
+	memcpy(dngu->floor_info, dungeon->info, sizeof(*dngu->floor_info) * dungeon->floors);
 	
 	for (i = 0; i < dungeon->floors; i++)
 		dngu->tile_data[i] = calloc(dngu->w[i] * dngu->h[i], sizeof(**(dngu->tile_data)));
