@@ -17,6 +17,7 @@ enum ROOM_OBJECT_TYPE {
 struct dungeon_puzzle_part {
 	int				room_link;
 	int				layer;
+	int				group;
 	int				depend;
 	int				provide;
 };
@@ -45,6 +46,7 @@ struct dungeon {
 	unsigned int			*room_scratchpad;
 	unsigned int			*layout_scratchpad;
 	int				layout_scratchuse;
+	int				group_cnt;
 };
 
 
@@ -54,6 +56,7 @@ struct dungeon_object {
 	int				l;
 	enum ROOM_OBJECT_TYPE		type;
 	unsigned int			link;
+	int				group;
 	int				saveslot;
 };
 

@@ -267,11 +267,14 @@ static void spawn_puzzle_part(struct dungeon *dungeon, int room, int floor) {
 		i = puzzle_struct_add(dungeon);
 		dungeon->puzzle[i].room_link = util_local_to_global_coord(dungeon->w[floor], dungeon->room_w, room, p);
 		dungeon->puzzle[i].layer = floor;
+		dungeon->puzzle[i].group = dungeon->group_cnt;
 		dungeon->puzzle[i].depend = (structure[j] & ROOM_TILE_PUZZLE_DEPEND) ? 1 : -1;
 		if (dungeon->puzzle[i].depend < 0)
 			dungeon->puzzle[i].depend = (structure[j] & ROOM_TILE_PUZZLE_COULD_DEPEND) ? 0 : -1;
 		dungeon->puzzle[i].provide = (structure[j] & ROOM_TILE_PUZZLE_PROVIDE) ? 1 : 0;
 	}
+
+	dungeon->group_cnt++;
 
 	return;
 }
@@ -376,6 +379,71 @@ static void spawn_doors(struct dungeon *dungeon, int i, int floor) {
 }
 
 
+void dungeon_puzzle_link(struct dungeon *dungeon) {
+	int i, j, k, *dep_buff, *mdep_buff, dep, mdep, prov, *prov_buff, glob_prov, lim, *group_buff, *rand_buff;
+
+	dep_buff = malloc(sizeof(*dep_buff) * dungeon->puzzles);
+	prov_buff = malloc(sizeof(*prov_buff) * dungeon->puzzles);
+	mdep_buff = malloc(sizeof(*mdep_buff) * dungeon->puzzles);
+	rand_buff = malloc(sizeof(*rand_buff) * dungeon->puzzles);
+	group_buff = calloc(sizeof(*group_buff), dungeon->puzzles);
+	i = dungeon->entrance_floor;
+	lim = dungeon->floors;
+	glob_prov = 0;
+	
+	run_floors:
+
+	for (; i < lim; i++) {
+		dep = mdep = prov = k = 0;
+		for (j = 0; j < dungeon->puzzles; j++) {
+			if (dungeon->puzzle[j].layer != i)
+				continue;
+			if (dungeon->puzzle[j].depend == 1)
+				dep_buff[dep++] = j;
+			if (dungeon->puzzle[j].depend == 0)
+				mdep_buff[mdep++] = j;
+			if (dungeon->puzzle[j].provide)
+				prov_buff[prov++] = j;
+		}
+
+		util_order_randomize(rand_buff, prov);
+		for (j = 0; j < prov; j++) {
+			if (!group_buff[dungeon->puzzle[prov_buff[rand_buff[j]]].group])
+				group_buff[dungeon->puzzle[rand_buff[j]].group] = glob_prov + k + 1;
+			k++;
+		}
+
+		for (j = 0; j < dep; j++) {
+			if (!group_buff[dungeon->puzzle[dep_buff[j]].group])
+				group_buff[dungeon->puzzle[dep_buff[j]].group] = glob_prov + (random_get() % k) + 1;
+			dungeon->puzzle[dep_buff[j]].depend = group_buff[dungeon->puzzle[dep_buff[j]].group] - 1;
+		}
+		
+		for (j = 0; j < mdep; j++) {
+			if (!group_buff[dungeon->puzzle[mdep_buff[j]].group])
+				group_buff[dungeon->puzzle[mdep_buff[j]].group] = glob_prov + (random_get() % k) + 1;
+			dungeon->puzzle[mdep_buff[j]].depend = !group_buff[dungeon->puzzle[mdep_buff[j]].group] - 1;
+		}
+	
+		glob_prov += prov;
+	}
+
+	if (dungeon->entrance_floor != 0 && lim != dungeon->entrance_floor) {
+		lim = dungeon->entrance_floor;
+		i = 0;
+		goto run_floors;
+	}
+
+	free(dep_buff);
+	free(prov_buff);
+	free(mdep_buff);
+	free(rand_buff);
+	free(group_buff);
+	
+	return;
+}
+
+
 void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max_enemy, int entrance_floor) {
 	int i, j, f, g, last_room, last_tile, rooms, spawn, boss_room;
 	
@@ -384,6 +452,7 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 	dungeon->room_scratchpad = malloc(sizeof(unsigned int) * room_w * room_h);
 	dungeon->entrance_floor = entrance_floor;
 	last_room = last_tile = -1;
+	dungeon->group_cnt = 0;
 
 	for (f = 0; f < dungeon->floors; f++) {
 		boss_room = -1;
@@ -435,6 +504,7 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 
 		} else
 			dungeon->info[f].stair_up = -1;
+		dungeon_puzzle_link(dungeon);
 	}
 
 
