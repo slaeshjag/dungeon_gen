@@ -16,7 +16,9 @@ enum ROOM_OBJECT_TYPE {
 
 struct dungeon_puzzle_part {
 	int				room_link;
-	unsigned int			status;
+	int				layer;
+	int				depend;
+	int				provide;
 };
 
 
@@ -51,8 +53,8 @@ struct dungeon_object {
 	int				y;
 	int				l;
 	enum ROOM_OBJECT_TYPE		type;
-	void				*data;
-	unsigned int			data_size;
+	unsigned int			link;
+	int				saveslot;
 };
 
 
@@ -64,7 +66,8 @@ struct dungeon_use {
 	struct dungeon_floor_info	*floor_info;
 	struct dungeon_object		*object;
 	int				objects;
-	/* FIXME: Add structs for puzzles */
+	struct dungeon_puzzle_part	*puzzle;
+	int				puzzles;
 	int				entrance;
 	int				entrance_floor;
 };

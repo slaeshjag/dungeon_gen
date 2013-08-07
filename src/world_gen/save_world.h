@@ -7,6 +7,7 @@
 struct save_dungeon_header {
 	unsigned int			floors;
 	unsigned int			objects;
+	unsigned int			puzzles;
 	unsigned int			entrance;
 	unsigned int			entrance_floor;
 };
@@ -24,6 +25,7 @@ struct save_dungeon_object {
 	int				y;
 	int				l;
 	int				type;
+	int				link;
 	int				save_slot;
 };
 

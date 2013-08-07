@@ -63,7 +63,19 @@ static int spawn_structure(struct dungeon *dungeon, int floor, int room, int str
 	return spawn;
 }
 			
-	
+
+static int puzzle_find_index(struct dungeon *dungeon, int layer, int index) {
+	int i;
+
+	for (i = 0; i < dungeon->puzzles; i++) {
+		if (dungeon->puzzle[i].layer != layer)
+			continue;
+		if (dungeon->puzzle[i].room_link == index)
+			return i;
+	}
+
+	return -1;
+}
 
 
 static int dungeon_room_reachable(struct dungeon *dungeon, int from, int to, int floor) {
@@ -232,8 +244,8 @@ static int puzzle_struct_add(struct dungeon *dungeon) {
 }
 
 
-static void spawn_puzzle_part(struct dungeon *dungeon, int room, int floor, int depends) {
-	int complexity, spawn, i, w, h;
+static void spawn_puzzle_part(struct dungeon *dungeon, int room, int floor) {
+	int complexity, spawn, i, w, h, j, p;
 
 	CLEAR_STRUCTURE()
 	complexity = random_get() % 2;
@@ -248,8 +260,18 @@ static void spawn_puzzle_part(struct dungeon *dungeon, int room, int floor, int 
 			break;
 	}
 
-	i = puzzle_struct_add(dungeon);
-	dungeon->puzzle[i].room_link = util_local_to_global_coord(dungeon->w[floor], dungeon->room_w, room, spawn);
+	for (j = 0; j < w * h; j++) {
+		if (!(structure[j] & 0xE0000000))
+			continue;
+		p = spawn + (j % w) + (j / w) * dungeon->room_w;
+		i = puzzle_struct_add(dungeon);
+		dungeon->puzzle[i].room_link = util_local_to_global_coord(dungeon->w[floor], dungeon->room_w, room, p);
+		dungeon->puzzle[i].layer = floor;
+		dungeon->puzzle[i].depend = (structure[j] & ROOM_TILE_PUZZLE_DEPEND) ? 1 : -1;
+		if (dungeon->puzzle[i].depend < 0)
+			dungeon->puzzle[i].depend = (structure[j] & ROOM_TILE_PUZZLE_COULD_DEPEND) ? 0 : -1;
+		dungeon->puzzle[i].provide = (structure[j] & ROOM_TILE_PUZZLE_PROVIDE) ? 1 : 0;
+	}
 
 	return;
 }
@@ -385,7 +407,7 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 			spawn_doors(dungeon, boss_room, f);
 		for (i = 0; i < rooms; i++) {
 			spawn_doors(dungeon, dungeon->layout_scratchpad[i], f);
-			spawn_puzzle_part(dungeon, dungeon->layout_scratchpad[i], f, 0);
+			spawn_puzzle_part(dungeon, dungeon->layout_scratchpad[i], f);
 	
 			for (j = 0; (unsigned int) j < random_get() % ((unsigned int) max_enemy); j++)
 				spawn_tile(dungeon, f, dungeon->layout_scratchpad[i], ROOM_TILE_ENEMY0 + random_get() % 8);
@@ -460,6 +482,7 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon, struct autotile
 	dngu->w = malloc(sizeof(*(dngu->w)) * dungeon->floors);
 	dngu->h = malloc(sizeof(*(dngu->h)) * dungeon->floors);
 	dngu->floors = dungeon->floors;
+	dngu->puzzles = dungeon->puzzles;
 	for (i = 0; i < dungeon->floors; i++) {
 		dngu->w[i] = dungeon->w[i] * dungeon->room_w;
 		dngu->h[i] = dungeon->h[i] * dungeon->room_h;
@@ -467,9 +490,11 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon, struct autotile
 
 	dngu->tile_data = malloc(sizeof((*(dngu->tile_data))) * dungeon->floors);
 	dngu->floor_info = malloc(sizeof(*dngu->floor_info) * dungeon->floors);
+	dngu->puzzle = malloc(sizeof(*dngu->puzzle) * dungeon->puzzles);
 	dngu->entrance_floor = dungeon->entrance_floor;
 	dngu->entrance = util_local_to_global_coord(dngu->w[dngu->entrance_floor], dungeon->room_w, dungeon->entrance, dungeon->entrance_tile);
 	memcpy(dngu->floor_info, dungeon->info, sizeof(*dngu->floor_info) * dungeon->floors);
+	memcpy(dngu->puzzle, dungeon->puzzle, sizeof(*dngu->puzzle) * dungeon->puzzles);
 	
 	for (i = 0; i < dungeon->floors; i++)
 		dngu->tile_data[i] = calloc(dngu->w[i] * dngu->h[i], sizeof(**(dngu->tile_data)));
@@ -491,12 +516,14 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon, struct autotile
 			dngu->object[x].x = j % dngu->w[i];
 			dngu->object[x].y = j / dngu->w[i];
 			dngu->object[x].l = i;
-			dngu->object[x].data = NULL;
+			dngu->object[x].saveslot = -1;
 			if ((dngu->tile_data[i][j] & 0xFF) >= 48) {
-				/* FIXME: Add puzzle object here */
 				dngu->object[x].type = ROOM_OBJECT_TYPE_PUZZLE_EL;
-			} else
+				dngu->object[x].link = puzzle_find_index(dungeon, i, j);
+			} else {
 				dngu->object[x].type = ROOM_OBJECT_TYPE_NPC;
+				dngu->object[x].link = -1;
+			}
 			dngu->tile_data[i][j] = ROOM_TILE_FLOOR_KEEP;
 		}
 
@@ -512,6 +539,7 @@ void *dungeon_free_usable(struct dungeon_use *dngu) {
 	free(dngu->tile_data);
 	free(dngu->floor_info);
 	free(dngu->object);
+	free(dngu->puzzle);
 	free(dngu->w);
 	free(dngu->h);
 	free(dngu);
