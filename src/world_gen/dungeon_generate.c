@@ -123,7 +123,7 @@ static int generate_layout(int *n, int i, int *boss, unsigned int *data, int w, 
 
 
 static void generate_dungeon_layout_adjust(unsigned int *data, int w, int h) {
-	int i, j, xmin, ymin = h;
+	int i, j, xmin = w, ymin = h;
 
 	for (i = w - 1; i >= 0; i--)
 		for (j = h - 1; j >= 0; j--)
@@ -391,22 +391,28 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 				spawn_tile(dungeon, f, dungeon->layout_scratchpad[i], ROOM_TILE_ENEMY0 + random_get() % 8);
 		}
 
-		if (f == entrance_floor)
+		if (f == entrance_floor) {
 			dungeon->entrance = dungeon->layout_scratchpad[random_get() % rooms];
+			/* TODO: Make sure the entrance is actually reachable */
+			dungeon->entrance_tile = spawn_tile(dungeon, f, dungeon->entrance, ROOM_TILE_ENTRANCE);
+		}
 		
 		if (f > 0) {
 			spawn = dungeon->layout_scratchpad[random_get() % rooms];
 			dungeon->room_map[f-1][last_room][last_tile] |= (spawn << 16);
-			dungeon->info[f].stair_down = util_local_to_global_coord(dungeon->w[f], dungeon->room_w, spawn, last_tile);
+			dungeon->info[f].stair_down = util_local_to_global_coord(dungeon->w[f], dungeon->room_w, last_room, last_tile);
 			g = spawn_tile(dungeon, f, spawn, ROOM_TILE_WAY_DOWN | (last_room << 16));
-			dungeon->info[f-1].stair_down = util_local_to_global_coord(dungeon->w[f], dungeon->room_w, last_room, last_tile);
-		}
+			dungeon->info[f-1].stair_up = util_local_to_global_coord(dungeon->w[f], dungeon->room_w, spawn, g);
+		} else
+			dungeon->info[f].stair_down = -1;
 		
 		if (f + 1 < dungeon->floors) {
 			spawn = dungeon->layout_scratchpad[random_get() % rooms];
 			last_room = spawn;
 			last_tile = spawn_tile(dungeon, f, spawn, ROOM_TILE_WAY_UP);
-		}
+
+		} else
+			dungeon->info[f].stair_up = -1;
 	}
 
 
@@ -461,6 +467,8 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon, struct autotile
 
 	dngu->tile_data = malloc(sizeof((*(dngu->tile_data))) * dungeon->floors);
 	dngu->floor_info = malloc(sizeof(*dngu->floor_info) * dungeon->floors);
+	dngu->entrance_floor = dungeon->entrance_floor;
+	dngu->entrance = util_local_to_global_coord(dngu->w[dngu->entrance_floor], dungeon->room_w, dungeon->entrance, dungeon->entrance_tile);
 	memcpy(dngu->floor_info, dungeon->info, sizeof(*dngu->floor_info) * dungeon->floors);
 	
 	for (i = 0; i < dungeon->floors; i++)
@@ -493,4 +501,20 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon, struct autotile
 		}
 
 	return dngu;
+}
+
+
+void *dungeon_free_usable(struct dungeon_use *dngu) {
+	int i;
+
+	for (i = 0; i < dngu->floors; i++)
+		free(dngu->tile_data[i]);
+	free(dngu->tile_data);
+	free(dngu->floor_info);
+	free(dngu->object);
+	free(dngu->w);
+	free(dngu->h);
+	free(dngu);
+
+	return NULL;
 }

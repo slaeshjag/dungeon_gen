@@ -41,8 +41,11 @@ void dungeon_generate_bslide_puzzle(unsigned int *buff, int *w, int *h) {
 
 	util_order_randomize(order, 4);
 	max = (random_get() % 14) + 4;
+	use = -1;
 	for (l = 0; l < 4; l++)
 		use = ((t = dungeon_generate_path(buff, *w, *h, util_dir_conv(x + y * (*w), order[l], (*w), (*h)), ROOM_TILE_FLOOR_KEEP, &i, max)) == -1) ? use : t;
+	if (use < 0)
+		return;
 	buff[use] = (ROOM_TILE_PUZZLE_SLIDEBLOCK | ROOM_TILE_PUZZLE_COULD_DEPEND);
 
 	return;

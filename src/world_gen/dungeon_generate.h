@@ -37,6 +37,7 @@ struct dungeon {
 	unsigned int			***room_map;
 	int				room_w;
 	int				room_h;
+	int				entrance_tile;
 	int				entrance;
 	int				entrance_floor;
 	unsigned int			*room_scratchpad;
@@ -72,6 +73,7 @@ struct dungeon_use {
 struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int boss_s, int floors);
 void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max_enemy, int entrance_floor);
 void *dungeon_free_generate_dungeon(struct dungeon *dungeon);
+void *dungeon_free_usable(struct dungeon_use *dngu);
 struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon, struct autotile *at);
 
 enum MAP_ROOM_TYPE {
@@ -102,6 +104,7 @@ enum ROOM_TILE {
 	ROOM_TILE_FLOOR			= 10,
 	ROOM_TILE_FLOOR_KEEP		= 11,
 	ROOM_TILE_WATER			= 12,
+	ROOM_TILE_ENTRANCE		= 16,
 
 	ROOM_TILE_ENEMY0		= 32,
 
