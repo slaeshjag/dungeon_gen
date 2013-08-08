@@ -50,6 +50,7 @@ int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l
 		o.y = dngu->object[i].y;
 		o.l = dngu->object[i].l;
 		o.type = dngu->object[i].type;
+		o.subtype = dngu->object[i].subtype;
 		o.link = dngu->object[i].link;
 		o.save_slot = dngu->object[i].saveslot;
 

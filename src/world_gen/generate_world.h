@@ -6,4 +6,13 @@
 
 void generate_world(int saveslot);
 
+
+struct generate_world {
+	DARNIT_LDI_WRITER		*lw;
+	DARNIT_STRINGTABLE		*st;
+
+	int				dungeons;
+};
+
+
 #endif

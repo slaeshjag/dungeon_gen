@@ -57,6 +57,7 @@ struct dungeon_object {
 	enum ROOM_OBJECT_TYPE		type;
 	unsigned int			link;
 	int				group;
+	int				subtype;
 	int				saveslot;
 };
 

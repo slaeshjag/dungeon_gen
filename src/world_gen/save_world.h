@@ -25,6 +25,7 @@ struct save_dungeon_object {
 	int				y;
 	int				l;
 	int				type;
+	int				subtype;
 	int				link;
 	int				save_slot;
 };

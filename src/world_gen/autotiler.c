@@ -60,19 +60,20 @@ void autotile_run(struct autotile *at, unsigned int *src, unsigned int *dst, con
 	int i, j, k, l, m;
 
 	for (i = 0; i < w * h; i++) {
-		l = src[i];
+		l = (src[i] & 0xFFF);
 		for (j = m = 0; j < 4; j++) {
 			if ((k = util_dir_conv(i, j, w, h)) == i)
 				continue;
-			if (src[i] != src[j] && src[j] > 0) {
+			if ((src[i] & 0xFFF) != (src[j] & 0xFFF) && src[j] > 0) {
 				m |= (1 << j);
-				l = src[j];
+				l = (src[j] & 0xFFF);
 			}
 		}
 
-		if (m && (unsigned int) l == src[i])
+		if (m && (unsigned int) l == (src[i] & 0xFFF))
 			l = -1;
-		dst[i] = autotile_lookup(at, src[i], l, m);
+		dst[i] = autotile_lookup(at, (src[i] & 0xFFF), l, m);
+		dst[i] |= (src[i] & 0xFFFFF000);
 	}
 
 	return;

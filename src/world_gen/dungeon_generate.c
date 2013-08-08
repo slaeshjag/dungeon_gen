@@ -590,9 +590,11 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon, struct autotile
 			if ((dngu->tile_data[i][j] & 0xFF) >= 48) {
 				dngu->object[x].type = ROOM_OBJECT_TYPE_PUZZLE_EL;
 				dngu->object[x].link = puzzle_find_index(dungeon, i, j);
+				dngu->object[x].subtype = (dngu->tile_data[i][j] & 0xFF) - 48;
 			} else {
 				dngu->object[x].type = ROOM_OBJECT_TYPE_NPC;
 				dngu->object[x].link = -1;
+				dngu->object[x].subtype = 0;
 			}
 			dngu->tile_data[i][j] = ROOM_TILE_FLOOR_KEEP;
 		}
