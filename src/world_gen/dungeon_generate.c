@@ -542,7 +542,7 @@ static int dungeon_add_object(struct dungeon_use *dngu) {
 }
 
 
-struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon, struct autotile *at) {
+struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
 	struct dungeon_use *dngu;
 	int i, j, x, y;
 
@@ -594,7 +594,7 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon, struct autotile
 			} else {
 				dngu->object[x].type = ROOM_OBJECT_TYPE_NPC;
 				dngu->object[x].link = -1;
-				dngu->object[x].subtype = 0;
+				dngu->object[x].subtype = (dngu->tile_data[i][j] & 0xFF) - 32;
 			}
 			dngu->tile_data[i][j] = ROOM_TILE_FLOOR_KEEP;
 		}

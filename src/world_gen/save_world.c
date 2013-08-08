@@ -6,17 +6,17 @@
 int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *lw) {
 	int i;
 	unsigned int size;
-	struct save_dungeon_header h;
-	struct save_dungeon_layer l;
-	struct save_dungeon_object o;
+	struct savefile_dungeon_header h;
+	struct savefile_dungeon_floor l;
+	struct savefile_dungeon_object o;
 	char *data, *next, name[32];
 
-	size = sizeof(struct save_dungeon_header) + sizeof(struct save_dungeon_layer) * dngu->floors;
+	size = sizeof(h) + sizeof(l) * dngu->floors;
 	size += (sizeof(struct dungeon_puzzle_part) * dngu->puzzles);
 	
 	for (i = 0; i < dngu->floors; i++)
 		size += (dngu->w[i] * dngu->h[i] * sizeof(unsigned int));
-	size += dngu->objects * sizeof(struct save_dungeon_object);
+	size += dngu->objects * sizeof(o);
 	sprintf(name, "dungeon_%i.lvl", index);
 	fprintf(stderr, "calculated dungeon size to %i octets\n", size);
 	data = next = malloc(size);
@@ -34,8 +34,8 @@ int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l
 	for (i = 0; i < dngu->floors; i++) {
 		l.stair_up = dngu->floor_info[i].stair_up;
 		l.stair_down = dngu->floor_info[i].stair_down;
-		l.layer_w = dngu->w[i];
-		l.layer_h = dngu->h[i];
+		l.floor_w = dngu->w[i];
+		l.floor_h = dngu->h[i];
 		d_util_endian_convert((void *) &l, sizeof(l) / sizeof(unsigned int));
 		memcpy(next, &l, sizeof(l));
 		next += sizeof(l);
@@ -48,7 +48,7 @@ int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l
 	for (i = 0; i < dngu->objects; i++) {
 		o.x = dngu->object[i].x;
 		o.y = dngu->object[i].y;
-		o.l = dngu->object[i].l;
+		o.f = dngu->object[i].l;
 		o.type = dngu->object[i].type;
 		o.subtype = dngu->object[i].subtype;
 		o.link = dngu->object[i].link;

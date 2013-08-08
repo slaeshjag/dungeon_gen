@@ -81,7 +81,7 @@ struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int
 void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max_enemy, int entrance_floor);
 void *dungeon_free_generate_dungeon(struct dungeon *dungeon);
 void *dungeon_free_usable(struct dungeon_use *dngu);
-struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon, struct autotile *at);
+struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon);
 
 enum MAP_ROOM_TYPE {
 	MAP_ROOM_TYPE_NOTHING		= 0,

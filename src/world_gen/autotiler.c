@@ -73,7 +73,6 @@ void autotile_run(struct autotile *at, unsigned int *src, unsigned int *dst, con
 		if (m && (unsigned int) l == (src[i] & 0xFFF))
 			l = -1;
 		dst[i] = autotile_lookup(at, (src[i] & 0xFFF), l, m);
-		dst[i] |= (src[i] & 0xFFFFF000);
 	}
 
 	return;

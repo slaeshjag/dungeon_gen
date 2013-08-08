@@ -56,7 +56,7 @@ void generate_dungeons(struct generate_world *w) {
 
 		/* FIXME: Pay more attention to entrance floor (last arg.) */
 		dungeon_init_floor(dungeon, ROOM_W, ROOM_H, ENEMY_MAX, 0);
-		dngu = dungeon_make_usable(dungeon, NULL);
+		dngu = dungeon_make_usable(dungeon);
 		
 		for (j = 0; j < dngu->floors; j++) {
 			tmp_tile = realloc(tmp_tile, sizeof(*tmp_tile) * dngu->w[j] * dngu->h[j]);
