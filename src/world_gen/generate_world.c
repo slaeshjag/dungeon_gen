@@ -66,7 +66,7 @@ void generate_dungeons(struct generate_world *w) {
 	
 		dungeon_free_generate_dungeon(dungeon);
 
-		save_world_dungeon(dngu, i, w->lw);
+		save_world_dungeon(dngu, i, w->lw, 0);
 		dungeon_free_usable(dngu);
 	}
 

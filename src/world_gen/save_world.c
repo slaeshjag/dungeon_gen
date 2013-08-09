@@ -3,7 +3,7 @@
 #include <string.h>
 
 
-int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *lw) {
+int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *lw, int tileset) {
 	int i;
 	unsigned int size;
 	struct savefile_dungeon_header h;
@@ -17,13 +17,14 @@ int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l
 	for (i = 0; i < dngu->floors; i++)
 		size += (dngu->w[i] * dngu->h[i] * sizeof(unsigned int));
 	size += dngu->objects * sizeof(o);
-	sprintf(name, "dungeon_%i.lvl", index);
+	sprintf(name, "world/dungeon_%i.lvl", index);
 	fprintf(stderr, "calculated dungeon size to %i octets\n", size);
 	data = next = malloc(size);
 
 	h.floors = dngu->floors;
 	h.objects = dngu->objects;
 	h.puzzles = dngu->puzzles;
+	h.tileset = tileset;
 	h.entrance = dngu->entrance;
 	h.entrance_floor = dngu->entrance_floor;
 

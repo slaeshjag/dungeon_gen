@@ -9,6 +9,7 @@ struct savefile_dungeon_header {
 	unsigned int			floors;
 	unsigned int			objects;
 	unsigned int			puzzles;
+	unsigned int			tileset;
 	unsigned int			entrance;
 	unsigned int			entrance_floor;
 };

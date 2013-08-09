@@ -5,7 +5,7 @@
 #include "savefile.h"
 #include <darnit/darnit.h>
 
-int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l);
+int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l, int tileset);
 
 
 #endif
