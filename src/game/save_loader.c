@@ -3,7 +3,7 @@
 #include "string.h"
 
 
-void dungeon_load(int save_slot) {
+struct dungeon_map *dungeon_load(int dungeon_number) {
 	char name[32], *buf, *data;
 	int i;
 	DARNIT_FILE *f;
@@ -14,7 +14,7 @@ void dungeon_load(int save_slot) {
 	struct savefile_dungeon_object *dob;
 	struct savefile_dungeon_puzzle_part *dp;
 
-	sprintf(name, "world/dungeon_%i.lvl", save_slot);
+	sprintf(name, "world/dungeon_%i.lvl", dungeon_number);
 	if (!(f = d_file_open(name, "rb"))) {
 		fprintf(stderr, "Unable to open %s\n", name);
 		exit(-1);
@@ -25,6 +25,7 @@ void dungeon_load(int save_slot) {
 	size = d_file_tell(f);
 	d_file_seek(f, 0, SEEK_SET);
 	buf = malloc(size);
+	d_file_read(buf, size, f);
 	size = d_util_decompress(buf, size, &data);
 	free(buf);
 	buf = data;
@@ -69,6 +70,6 @@ void dungeon_load(int save_slot) {
 
 	free(data);
 
-	return;
+	return dm;
 }
 

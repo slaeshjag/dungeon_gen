@@ -4,6 +4,7 @@
 
 #include "world_gen/generate_world.h"
 #include "common/random.h"
+#include "save_loader.h"
 
 int main(int argc, char **argv) {
 
@@ -11,6 +12,8 @@ int main(int argc, char **argv) {
 	random_seed(time(NULL));
 
 	generate_world(0);
+	d_fs_mount("world_0.save");
+	dungeon_load(0);
 
 	for (;;) {
 		d_loop();
