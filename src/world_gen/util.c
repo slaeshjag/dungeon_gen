@@ -69,6 +69,6 @@ int util_local_to_global_coord(int w, int room_w, int room, int tile) {
 	blah = room % w;
 	fred = room / w;
 	foo = blah * room_w + (tile % room_w);
-	foo += (fred * w * room_w + (tile / room_w * w * room_w));
+	foo += (fred * w + (tile / room_w * w));
 	return foo;
 }

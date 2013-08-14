@@ -569,7 +569,7 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
 	for (i = 0; i < dungeon->floors; i++)
 		dngu->tile_data[i] = calloc(dngu->w[i] * dngu->h[i], sizeof(**(dngu->tile_data)));
 
-	for (i = 0; i < dungeon->floors; i++)
+	for (i = 0; i < dungeon->floors; i++) {
 		for (j = 0; j < dungeon->w[i] * dungeon->h[i]; j++) {
 			x = (j % dungeon->w[i]) * dungeon->room_w;
 			y = (j / dungeon->w[i]) * dungeon->room_h;
@@ -577,6 +577,8 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
 				continue;
 			util_blt(dngu->tile_data[i], dngu->w[i], dngu->h[i], x, y, dungeon->room_map[i][j], dungeon->room_w, dungeon->room_h, 0, 0);
 		}
+		fprintf(stderr, "Floor %i: %i * %i\n", i, dngu->w[i], dngu->h[i]);
+	}
 
 	for (i = 0; i < dungeon->floors; i++)
 		for (j = 0; j < dngu->w[i] * dngu->h[i]; j++) {

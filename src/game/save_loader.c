@@ -42,6 +42,7 @@ struct dungeon_map *dungeon_load(int dungeon_number) {
 	dm->puzzle = malloc(sizeof(*dm->puzzle) * dh->puzzles);
 	dm->entrance_floor = dh->entrance_floor;
 	dm->entrance = dh->entrance;
+	fprintf(stderr, "%i\n", dh->tileset);
 	sprintf(name, "res/tileset_%i.png", dh->tileset);
 	dm->ts = d_render_tilesheet_load(name, TILE_W, TILE_H, DARNIT_PFORMAT_RGB5A1);
 
@@ -53,6 +54,7 @@ struct dungeon_map *dungeon_load(int dungeon_number) {
 		dm->floor[i].stair_down = df->stair_down;
 
 		dm->floor[i].tm = d_tilemap_new(0xFFF, dm->ts, 0xFFF, df->floor_w, df->floor_h);
+		d_util_endian_convert((void *) buf, df->floor_w * df->floor_h);
 		memcpy(dm->floor[i].tm->data, buf, df->floor_w * df->floor_h * sizeof(int));
 		buf += df->floor_w * df->floor_h * sizeof(int);
 		d_tilemap_recalc(dm->floor[i].tm);
