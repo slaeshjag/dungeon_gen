@@ -265,7 +265,7 @@ static void spawn_puzzle_part(struct dungeon *dungeon, int room, int floor) {
 			continue;
 		p = spawn + (j % w) + (j / w) * dungeon->room_w;
 		i = puzzle_struct_add(dungeon);
-		dungeon->puzzle[i].room_link = util_local_to_global_coord(dungeon->w[floor], dungeon->room_w, room, p);
+		dungeon->puzzle[i].room_link = util_local_to_global_coord(dungeon->w[floor], dungeon->room_w, dungeon->room_h, room, p);
 		dungeon->puzzle[i].layer = floor;
 		dungeon->puzzle[i].group = dungeon->group_cnt;
 		dungeon->puzzle[i].depend = (structure[j] & ROOM_TILE_PUZZLE_DEPEND) ? 1 : -1;
@@ -491,9 +491,9 @@ void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max
 		if (f > 0) {
 			spawn = dungeon->layout_scratchpad[random_get() % rooms];
 			dungeon->room_map[f-1][last_room][last_tile] |= (spawn << 16);
-			dungeon->info[f].stair_down = util_local_to_global_coord(dungeon->w[f], dungeon->room_w, last_room, last_tile);
+			dungeon->info[f].stair_down = util_local_to_global_coord(dungeon->w[f], dungeon->room_w, dungeon->room_h, last_room, last_tile);
 			g = spawn_tile(dungeon, f, spawn, ROOM_TILE_WAY_DOWN | (last_room << 16));
-			dungeon->info[f-1].stair_up = util_local_to_global_coord(dungeon->w[f], dungeon->room_w, spawn, g);
+			dungeon->info[f-1].stair_up = util_local_to_global_coord(dungeon->w[f], dungeon->room_w, dungeon->room_h, spawn, g);
 		} else
 			dungeon->info[f].stair_down = -1;
 		
@@ -562,14 +562,14 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
 	dngu->floor_info = malloc(sizeof(*dngu->floor_info) * dungeon->floors);
 	dngu->puzzle = malloc(sizeof(*dngu->puzzle) * dungeon->puzzles);
 	dngu->entrance_floor = dungeon->entrance_floor;
-	dngu->entrance = util_local_to_global_coord(dngu->w[dngu->entrance_floor], dungeon->room_w, dungeon->entrance, dungeon->entrance_tile);
+	dngu->entrance = util_local_to_global_coord(dungeon->w[dungeon->entrance_floor], dungeon->room_w, dungeon->room_h, dungeon->entrance, dungeon->entrance_tile);
 	memcpy(dngu->floor_info, dungeon->info, sizeof(*dngu->floor_info) * dungeon->floors);
 	memcpy(dngu->puzzle, dungeon->puzzle, sizeof(*dngu->puzzle) * dungeon->puzzles);
 	
 	for (i = 0; i < dungeon->floors; i++)
 		dngu->tile_data[i] = calloc(dngu->w[i] * dngu->h[i], sizeof(**(dngu->tile_data)));
 
-	for (i = 0; i < dungeon->floors; i++) {
+	for (i = 0; i < dungeon->floors; i++) 
 		for (j = 0; j < dungeon->w[i] * dungeon->h[i]; j++) {
 			x = (j % dungeon->w[i]) * dungeon->room_w;
 			y = (j / dungeon->w[i]) * dungeon->room_h;
@@ -577,8 +577,6 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
 				continue;
 			util_blt(dngu->tile_data[i], dngu->w[i], dngu->h[i], x, y, dungeon->room_map[i][j], dungeon->room_w, dungeon->room_h, 0, 0);
 		}
-		fprintf(stderr, "Floor %i: %i * %i\n", i, dngu->w[i], dngu->h[i]);
-	}
 
 	for (i = 0; i < dungeon->floors; i++)
 		for (j = 0; j < dngu->w[i] * dngu->h[i]; j++) {

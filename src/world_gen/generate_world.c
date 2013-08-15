@@ -7,10 +7,8 @@
 #define	ROOM_H			16
 #define	ROOMS_W			12
 #define	ROOMS_H			12
-//#define	ROOM_MIN		16
-//#define	ROOM_MAX		24
-#define	ROOM_MIN		1
-#define	ROOM_MAX		2
+#define	ROOM_MIN		16
+#define	ROOM_MAX		24
 #define	FLOORS_MIN		2
 #define	FLOORS_MAX		7
 #define	ENEMY_MAX		7

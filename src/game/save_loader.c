@@ -42,7 +42,6 @@ struct dungeon_map *dungeon_load(int dungeon_number) {
 	dm->puzzle = malloc(sizeof(*dm->puzzle) * dh->puzzles);
 	dm->entrance_floor = dh->entrance_floor;
 	dm->entrance = dh->entrance;
-	fprintf(stderr, "%i\n", dh->tileset);
 	sprintf(name, "res/tileset_%i.png", dh->tileset);
 	dm->ts = d_render_tilesheet_load(name, TILE_W, TILE_H, DARNIT_PFORMAT_RGB5A1);
 
