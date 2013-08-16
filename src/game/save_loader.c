@@ -74,3 +74,18 @@ struct dungeon_map *dungeon_load(int dungeon_number) {
 	return dm;
 }
 
+
+void *dungeon_unload(struct dungeon_map *dm) {
+	int i;
+
+	if (!dm)
+		return NULL;
+	for (i = 0; i < dm->floors; i++)
+		d_tilemap_free(dm->floor[i].tm);
+	free(dm->floor);
+	free(dm->puzzle);
+	free(dm->object);
+	d_render_tilesheet_free(dm->ts);
+
+	return NULL;
+}

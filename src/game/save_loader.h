@@ -29,6 +29,7 @@ struct dungeon_map {
 
 
 struct dungeon_map *dungeon_load(int dungeon_number);
+void *dungeon_unload(struct dungeon_map *dm);
 
 
 #endif
