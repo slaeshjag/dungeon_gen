@@ -1,6 +1,58 @@
 #include "save_world.h"
 #include "dungeon_generate.h"
+#include "character_gen.h"
+#include "savefile.h"
 #include <string.h>
+#include <stdlib.h>
+#include <darnit/darnit.h>
+
+
+int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITER *lw) {
+	char *data, *zdata, *zdata2, *next;
+	int i, size;
+	unsigned int *iptr;
+	struct savefile_character_gfx scg;
+
+	data = malloc(sizeof(*iptr));
+	iptr = (void *) data;
+	size = sizeof(*iptr);
+	next = data + size;
+	
+	fprintf(stderr, "calculated dungeon size to %i octets\n", size);
+
+	for (i = 0; i < characters; i++) {
+		scg.face_w = gc[i]->face_w;
+		scg.face_h = gc[i]->face_h;
+		scg.sprite_w = gc[i]->sprite_w;
+		scg.sprite_h = gc[i]->sprite_h;
+		scg.directions = gc[i]->sprite_dirs;
+
+		d_util_endian_convert((void *) &gc[i]->face, scg.face_w * scg.face_h);
+		scg.zface = d_util_compress(gc[i]->face, scg.face_w * scg.face_h * 4, &zdata);
+		d_util_endian_convert((void *) &gc[i]->sprite, 
+			scg.sprite_w * scg.sprite_h * scg.directions);
+		scg.zsprite = d_util_compress(gc[i]->sprite, scg.sprite_w * scg.sprite_h * 4,
+			&zdata2);
+		size += sizeof(scg) + scg.zface + scg.zsprite;
+		data = realloc(data, size);
+		d_util_endian_convert((void *) &scg, sizeof(scg) / 4);
+		memcpy(next, &scg, sizeof(scg));
+		d_util_endian_convert((void *) &scg, sizeof(scg) / 4);
+		next += sizeof(scg);
+		memcpy(next, zdata, scg.zface); 
+		next += scg.zface;
+		memcpy(next, zdata2, scg.zsprite); 
+		next += scg.zsprite;
+		free(zdata);
+		free(zdata2);
+	}
+
+	d_file_ldi_write_file(lw, "gfx/characters.dat", data, size);
+	free(data);
+
+	return 1;
+}
+
 
 
 int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *lw, int tileset) {

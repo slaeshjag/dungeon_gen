@@ -4,6 +4,19 @@
 #define	SAVEFILE_VERSION		0x10001
 
 
+/*** FOR SAVING CHARACTER GRAPHICS ***/
+struct savefile_character_gfx {
+	unsigned int			face_w;
+	unsigned int			face_h;
+	unsigned int			sprite_w;
+	unsigned int			sprite_h;
+	unsigned int			directions;
+	unsigned int			zface;
+	unsigned int			zsprite;
+};
+
+
+
 /*** FOR SAVING DUNGEONS ***/
 struct savefile_dungeon_header {
 	unsigned int			floors;
