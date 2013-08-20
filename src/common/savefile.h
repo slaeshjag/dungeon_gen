@@ -10,6 +10,7 @@ struct savefile_character_gfx {
 	unsigned int			face_h;
 	unsigned int			sprite_w;
 	unsigned int			sprite_h;
+	unsigned int			sprite_frames;
 	unsigned int			directions;
 	unsigned int			zface;
 	unsigned int			zsprite;

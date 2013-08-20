@@ -6,6 +6,7 @@
 #define	CHAR_SPRITE_W		32
 #define	CHAR_SPRITE_H		48
 #define	CHAR_SPRITE_DIRECTIONS	1
+#define	CHAR_SPRITE_FRAMES	2
 
 struct generated_char {
 	unsigned int		*face;
@@ -14,6 +15,7 @@ struct generated_char {
 	unsigned int		*sprite;
 	unsigned int		sprite_w;
 	unsigned int		sprite_h;
+	unsigned int		sprite_frames;
 	unsigned int		sprite_dirs;
 };
 

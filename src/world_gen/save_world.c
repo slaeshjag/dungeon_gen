@@ -26,12 +26,13 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 		scg.sprite_w = gc[i]->sprite_w;
 		scg.sprite_h = gc[i]->sprite_h;
 		scg.directions = gc[i]->sprite_dirs;
+		scg.sprite_frames = gc[i]->sprite_frames;
 
 		d_util_endian_convert((void *) &gc[i]->face, scg.face_w * scg.face_h);
 		scg.zface = d_util_compress(gc[i]->face, scg.face_w * scg.face_h * 4, &zdata);
 		d_util_endian_convert((void *) &gc[i]->sprite, 
-			scg.sprite_w * scg.sprite_h * scg.directions);
-		scg.zsprite = d_util_compress(gc[i]->sprite, scg.sprite_w * scg.sprite_h * 4,
+			scg.sprite_w * scg.sprite_h * scg.sprite_frames);
+		scg.zsprite = d_util_compress(gc[i]->sprite, scg.sprite_w * scg.sprite_h * 4 * scg.sprite_frames,
 			&zdata2);
 		size += sizeof(scg) + scg.zface + scg.zsprite;
 		data = realloc(data, size);
