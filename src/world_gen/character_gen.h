@@ -19,5 +19,7 @@ struct generated_char {
 	unsigned int		sprite_dirs;
 };
 
+struct generated_char *generate_character();
+void generate_char_free(struct generated_char *gc);
 
 #endif

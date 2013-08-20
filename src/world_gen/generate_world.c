@@ -15,6 +15,7 @@
 
 
 void generate_dungeons(struct generate_world *w);
+void generate_character_graphics(struct generate_world *w, int characters);
 
 
 void generate_world(int saveslot) {
@@ -25,10 +26,11 @@ void generate_world(int saveslot) {
 	w.st = d_stringtable_open("bin/autotile.stz");
 	sprintf(name, "world_%i.save", saveslot);
 	f = d_file_open(name, "w+b");
-	w.lw = d_file_ldi_write(f, 1);
+	w.lw = d_file_ldi_write(f, 2);
 
 	w.dungeons = 1;
 	generate_dungeons(&w);
+	generate_character_graphics(&w, random_get() % 40 + 50);
 
 	d_file_ldi_write_end(w.lw);
 	d_file_close(f);
@@ -36,6 +38,21 @@ void generate_world(int saveslot) {
 	return;
 }
 
+
+void generate_character_graphics(struct generate_world *w, int characters) {
+	struct generated_char **gc;
+	int i;
+	
+	gc = malloc(sizeof(*gc) * characters);
+	for (i = 0; i < characters; i++)
+		gc[i] = generate_character();
+	save_characters(gc, characters, w->lw);
+	for (i = 0; i < characters; i++)
+		generate_char_free(gc[i]);
+
+	return;
+}
+	
 
 void generate_dungeons(struct generate_world *w) {
 	int i, j, floors, n;
