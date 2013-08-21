@@ -8,15 +8,19 @@
 #define	CHAR_SPRITE_DIRECTIONS	1
 #define	CHAR_SPRITE_FRAMES	2
 
+#include "savefile.h"
+
+
 struct generated_char {
-	unsigned int		*face;
-	int			face_w;
-	int			face_h;
-	unsigned int		*sprite;
-	unsigned int		sprite_w;
-	unsigned int		sprite_h;
-	unsigned int		sprite_frames;
-	unsigned int		sprite_dirs;
+	unsigned int			*face;
+	int				face_w;
+	int				face_h;
+	unsigned int			*sprite;
+	unsigned int			sprite_w;
+	unsigned int			sprite_h;
+	unsigned int			sprite_frames;
+	unsigned int			sprite_dirs;
+	struct savefile_character_type	char_type;
 };
 
 struct generated_char *generate_character();

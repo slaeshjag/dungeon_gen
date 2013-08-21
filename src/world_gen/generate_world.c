@@ -34,6 +34,7 @@ void generate_world(int saveslot) {
 
 	d_file_ldi_write_end(w.lw);
 	d_file_close(f);
+	free(w.char_type);
 
 	return;
 }
@@ -44,11 +45,15 @@ void generate_character_graphics(struct generate_world *w, int characters) {
 	int i;
 	
 	gc = malloc(sizeof(*gc) * characters);
-	for (i = 0; i < characters; i++)
+	w->char_type = malloc(sizeof(*w->char_type) * characters);
+	for (i = 0; i < characters; i++) {
 		gc[i] = generate_character();
+		w->char_type[i] = gc[i]->char_type;
+	}
 	save_characters(gc, characters, w->lw);
 	for (i = 0; i < characters; i++)
 		generate_char_free(gc[i]);
+	w->characters = characters;
 
 	return;
 }

@@ -46,7 +46,6 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 	}
 
 	d_file_ldi_write_file(lw, "gfx/characters.dat", data, next);
-	fprintf(stderr, "Character data file size: %i octets\n", next);
 	free(data);
 
 	return 1;

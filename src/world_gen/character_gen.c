@@ -1,6 +1,7 @@
 #include "character_gen.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "random.h"
 
 struct generated_char *generate_character() {
 	struct generated_char *gc;
@@ -15,6 +16,7 @@ struct generated_char *generate_character() {
 	gc->sprite_h = CHAR_SPRITE_H;
 	gc->sprite_dirs = CHAR_SPRITE_DIRECTIONS;
 	gc->sprite_frames = CHAR_SPRITE_FRAMES;
+	gc->char_type.gender = random_get() & 1;
 
 	return gc;
 }

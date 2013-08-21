@@ -5,6 +5,11 @@
 
 
 /*** FOR SAVING CHARACTER GRAPHICS ***/
+
+struct savefile_character_type {
+	unsigned int			gender	: 1;
+};
+
 struct savefile_character_gfx {
 	unsigned int			face_w;
 	unsigned int			face_h;
@@ -14,6 +19,7 @@ struct savefile_character_gfx {
 	unsigned int			directions;
 	unsigned int			zface;
 	unsigned int			zsprite;
+	struct savefile_character_type	type;
 };
 
 

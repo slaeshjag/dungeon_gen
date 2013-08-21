@@ -3,6 +3,7 @@
 
 #include "dungeon_generate.h"
 #include "save_world.h"
+#include "savefile.h"
 
 void generate_world(int saveslot);
 
@@ -12,6 +13,8 @@ struct generate_world {
 	DARNIT_STRINGTABLE		*st;
 
 	int				dungeons;
+	int				characters;
+	struct savefile_character_type	*char_type;
 };
 
 
