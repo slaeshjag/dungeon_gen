@@ -16,9 +16,13 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 	data = malloc(sizeof(*iptr));
 	iptr = (void *) data;
 	next = sizeof(*iptr);
+	next += characters * sizeof(*iptr);
 	*iptr = characters;
+	d_util_endian_convert(iptr, 1);
+	iptr++;
 	
 	for (i = 0; i < characters; i++) {
+		iptr[i] = next;
 		scg.face_w = gc[i]->face_w;
 		scg.face_h = gc[i]->face_h;
 		scg.sprite_w = gc[i]->sprite_w;
@@ -45,6 +49,7 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 		free(zdata2);
 	}
 
+	d_util_endian_convert(iptr, characters);
 	d_file_ldi_write_file(lw, "gfx/characters.dat", data, next);
 	free(data);
 

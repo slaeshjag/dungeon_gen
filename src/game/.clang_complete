@@ -1,6 +1,6 @@
--I src/world_gen
--I src/common
--I src/
--I src/game
+-I ../world_gen
+-I ../common
+-I ../
+-I .
 -I /usr/local/include
 -I /usr/local/include/darnit

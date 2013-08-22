@@ -1,6 +1,80 @@
 #include "save_loader.h"
 #include "common.h"
 #include "string.h"
+#include "darnit/darnit.h"
+
+
+struct char_gfx *character_gfx_data_load(unsigned int char_num) {
+	DARNIT_FILE *f;
+	unsigned int chars, pos, char_w, char_h, i, j, w, max_w, r, *ptr, *bptr;
+	struct char_gfx *cg;
+	struct savefile_character_gfx scg;
+	void *buff, *sprite_b;
+
+	f = d_file_open("gfx/characters.dat", "rb");
+	d_file_read_ints(&chars, 4, f);
+	if (char_num >= chars) {
+		d_file_close(f);
+		return NULL;
+	}
+
+	d_file_seek(f, char_num * 4, SEEK_CUR);
+	d_file_read_ints(&pos, 4, f);
+	d_file_seek(f, pos, SEEK_SET);
+
+	cg = malloc(sizeof(*cg));
+	d_file_read_ints(&scg, sizeof(scg) / 4, f);
+	cg->face_w = scg.face_w;
+	cg->face_h = scg.face_h;
+	cg->sprite_w = scg.sprite_w;
+	cg->sprite_h = scg.sprite_h;
+	cg->frames = scg.sprite_frames;
+	cg->directions = scg.directions;
+
+	buff = malloc(scg.zface);
+	d_file_read(buff, scg.zface, f);
+	d_util_decompress(buff, scg.zface, &cg->face);
+	d_util_endian_convert(cg->face, cg->face_w * cg->face_h);
+	buff = realloc(buff, scg.zsprite);
+	d_file_read(buff, scg.zsprite, f);
+	d_util_decompress(buff, scg.zsprite, &sprite_b);
+	d_util_endian_convert(sprite_b, scg.sprite_w * scg.sprite_h * scg.sprite_frames);
+
+	char_h = scg.sprite_h;
+	char_w = scg.sprite_w * scg.sprite_frames;
+	max_w = 1024 / scg.sprite_w;
+	max_w *= scg.sprite_w;
+	ptr = sprite_b;
+
+	if (char_w > max_w) {
+		char_h *= (char_w / max_w);
+		if (char_w % max_w)
+			char_h += scg.sprite_h;
+		char_w = max_w;
+	}
+	buff = realloc(buff, char_w * char_h * 4);
+	bptr = buff;
+	memset(buff, 0, char_w * char_h * 4);
+
+	/* Split up into several rows of frames */
+	if (char_h != scg.sprite_h) {
+		w = scg.sprite_w * scg.sprite_frames;
+		for (i = 0; i < (char_h / scg.sprite_h); i++) {
+			r = w - (max_w * i);
+			r = (r > max_w) ? max_w : r;
+			for (j = 0; j < scg.sprite_h; j++)
+				memcpy(bptr + j * max_w + i * max_w * char_h,
+					ptr + max_w * i + w * j, r * 4);
+		}
+	}
+
+	cg->sprite_ts = d_render_tilesheet_new(char_w / scg.sprite_w, char_h / scg.sprite_h, 
+		scg.sprite_w, scg.sprite_h, DARNIT_PFORMAT_RGB5A1);
+	d_render_tilesheet_update(cg->sprite_ts, 0, 0, char_w, char_h, bptr);
+	free(buff);
+	d_file_close(f);
+	return cg;
+}
 
 
 struct dungeon_map *dungeon_load(int dungeon_number) {
@@ -70,6 +144,7 @@ struct dungeon_map *dungeon_load(int dungeon_number) {
 	memcpy(dm->puzzle, dp, sizeof(*dm->puzzle) * dm->puzzles);
 
 	free(data);
+	d_file_close(f);
 
 	return dm;
 }

@@ -7,6 +7,17 @@
 #define	TILE_W					32
 #define	TILE_H					32
 
+struct char_gfx {
+	unsigned int				face_w;
+	unsigned int				face_h;
+	unsigned int				sprite_w;
+	unsigned int				sprite_h;
+	unsigned int				frames;
+	unsigned int				directions;
+	unsigned int				*face;
+	DARNIT_TILESHEET			*sprite_ts;
+};
+
 
 struct dungeon_map_floor {
 	DARNIT_TILEMAP				*tm;
