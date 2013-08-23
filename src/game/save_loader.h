@@ -38,6 +38,8 @@ struct dungeon_map {
 	DARNIT_TILESHEET			*ts;
 };
 
+struct char_gfx *character_gfx_data_load(unsigned int char_num);
+void *character_gfx_data_unload(struct char_gfx *cg);
 
 struct dungeon_map *dungeon_load(int dungeon_number);
 void *dungeon_unload(struct dungeon_map *dm);

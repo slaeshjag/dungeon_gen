@@ -1,6 +1,7 @@
 #include "character_gen.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "random.h"
 
 struct generated_char *generate_character() {

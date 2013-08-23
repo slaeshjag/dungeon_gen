@@ -13,5 +13,4 @@ void world_init() {
 	ws = malloc(sizeof(*ws));
 	ws->active_dungeon = -1;
 	ws->dm = NULL;
-
 }

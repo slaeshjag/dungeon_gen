@@ -16,6 +16,7 @@ int main(int argc, char **argv) {
 	generate_world(0);
 	d_fs_mount("world_0.save");
 	dm = dungeon_load(0);
+	character_gfx_data_unload(character_gfx_data_load(3));
 	
 	x = (dm->entrance % dm->floor->tm->w) * 32 - 400;
 	y = (dm->entrance / dm->floor->tm->w) * 32 - 240;

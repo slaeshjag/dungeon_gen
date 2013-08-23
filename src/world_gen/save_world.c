@@ -13,7 +13,8 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 	unsigned int *iptr;
 	struct savefile_character_gfx scg;
 
-	data = malloc(sizeof(*iptr));
+	memset(&scg, 0, sizeof(scg));
+	data = malloc(sizeof(*iptr) + characters * 4);
 	iptr = (void *) data;
 	next = sizeof(*iptr);
 	next += characters * sizeof(*iptr);
@@ -22,15 +23,16 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 	iptr++;
 	
 	for (i = 0; i < characters; i++) {
-		iptr[i] = next;
 		scg.face_w = gc[i]->face_w;
 		scg.face_h = gc[i]->face_h;
 		scg.sprite_w = gc[i]->sprite_w;
 		scg.sprite_h = gc[i]->sprite_h;
 		scg.directions = gc[i]->sprite_dirs;
 		scg.sprite_frames = gc[i]->sprite_frames;
+		/* TODO: Set gender etc. */
 
 		d_util_endian_convert((void *) gc[i]->face, scg.face_w * scg.face_h);
+		memset(gc[i]->face, 0, scg.face_w * scg.face_h * 4);
 		scg.zface = d_util_compress(gc[i]->face, scg.face_w * scg.face_h * 4, &zdata);
 		d_util_endian_convert((void *) gc[i]->sprite, 
 			scg.sprite_w * scg.sprite_h * scg.sprite_frames);
@@ -47,6 +49,8 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 		next += scg.zsprite;
 		free(zdata);
 		free(zdata2);
+		iptr = (unsigned int *) (data + 4);
+		iptr[i] = next;
 	}
 
 	d_util_endian_convert(iptr, characters);

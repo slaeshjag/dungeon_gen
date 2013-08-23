@@ -77,6 +77,14 @@ struct char_gfx *character_gfx_data_load(unsigned int char_num) {
 }
 
 
+void *character_gfx_data_unload(struct char_gfx *cg) {
+	free(cg->face);
+	d_render_tilesheet_free(cg->sprite_ts);
+	free(cg);
+	return NULL;
+}
+
+
 struct dungeon_map *dungeon_load(int dungeon_number) {
 	char name[32], *buf, *data;
 	int i;
