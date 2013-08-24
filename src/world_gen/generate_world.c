@@ -23,14 +23,18 @@ void generate_world(int saveslot) {
 	DARNIT_FILE *f;
 	char name[32];
 
+	d_fs_mount("bin/char_gen.ldi");
 	w.st = d_stringtable_open("bin/autotile.stz");
 	sprintf(name, "world_%i.save", saveslot);
 	f = d_file_open(name, "w+b");
 	w.lw = d_file_ldi_write(f, 2);
 
 	w.dungeons = 1;
+	fprintf(stderr, "Generating dungeons... ");
 	generate_dungeons(&w);
+	fprintf(stderr, "Generating character graphics... ");
 	generate_character_graphics(&w, random_get() % 40 + 50);
+	fprintf(stderr, "\n");
 
 	d_file_ldi_write_end(w.lw);
 	d_file_close(f);

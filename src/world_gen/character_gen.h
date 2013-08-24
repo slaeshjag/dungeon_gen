@@ -1,12 +1,10 @@
 #ifndef __CHARACTER_GEN_H__
 #define __CHARACTER_GEN_H__
 
-#define	CHAR_FACE_W		64
-#define	CHAR_FACE_H		64
 #define	CHAR_SPRITE_W		32
 #define	CHAR_SPRITE_H		48
 #define	CHAR_SPRITE_DIRECTIONS	1
-#define	CHAR_SPRITE_FRAMES	2
+#define	CHAR_SPRITE_FRAMES	12
 
 #include "savefile.h"
 

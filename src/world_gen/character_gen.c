@@ -2,17 +2,26 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <darnit/darnit.h>
 #include "random.h"
 
 struct generated_char *generate_character() {
 	struct generated_char *gc;
+	DARNIT_IMAGE_DATA base;
+	DARNIT_IMAGE_DATA face;
 
 	gc = calloc(sizeof(*gc), 1);
-	gc->face = calloc(sizeof(*gc->face) * CHAR_FACE_W * CHAR_FACE_H, 1);
-	gc->sprite = calloc(sizeof(*gc->sprite) * CHAR_SPRITE_W 
-		* CHAR_SPRITE_H * CHAR_SPRITE_FRAMES, 1);
-	gc->face_w = CHAR_FACE_W;
-	gc->face_h = CHAR_FACE_H;
+
+	/* This will be replaced with something that actually generates a face */
+	face = d_img_load_raw("char_gen/f_base0_0.png");
+	gc->face = face.data;
+
+	/* This will be replaced with something that actually generates a sprite */
+	base = d_img_load_raw("char_gen/s_base0_0.png");
+	gc->sprite = base.data;
+
+	gc->face_w = face.w;
+	gc->face_h = face.h;
 	gc->sprite_w = CHAR_SPRITE_W;
 	gc->sprite_h = CHAR_SPRITE_H;
 	gc->sprite_dirs = CHAR_SPRITE_DIRECTIONS;
