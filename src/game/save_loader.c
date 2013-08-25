@@ -24,14 +24,14 @@ struct char_gfx *character_gfx_data_load(unsigned int char_num) {
 	void *buff, *sprite_b;
 
 	f = d_file_open("data/characters.dat", "rb");
-	d_file_read_ints(&chars, 4, f);
+	d_file_read_ints(&chars, 1, f);
 	if (char_num >= chars) {
 		d_file_close(f);
 		return NULL;
 	}
 
 	d_file_seek(f, char_num * 4, SEEK_CUR);
-	d_file_read_ints(&pos, 4, f);
+	d_file_read_ints(&pos, 1, f);
 	d_file_seek(f, pos, SEEK_SET);
 
 	cg = malloc(sizeof(*cg));
