@@ -8,6 +8,7 @@
 #define	TILE_H					32
 
 struct char_gfx {
+	unsigned int				link;
 	unsigned int				face_w;
 	unsigned int				face_h;
 	unsigned int				sprite_w;
@@ -38,6 +39,7 @@ struct dungeon_map {
 	DARNIT_TILESHEET			*ts;
 };
 
+int character_gfx_data_characters();
 struct char_gfx *character_gfx_data_load(unsigned int char_num);
 void *character_gfx_data_unload(struct char_gfx *cg);
 

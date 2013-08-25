@@ -12,6 +12,7 @@ struct world_state {
 	enum world_state_e		state;
 	int				active_dungeon;
 	struct dungeon_map		*dm;
+	struct character_data		*char_data;
 };
 
 

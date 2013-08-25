@@ -1,6 +1,7 @@
 #include "save_world.h"
 #include "dungeon_generate.h"
 #include "character_gen.h"
+#include "character_save_data.h"
 #include "savefile.h"
 #include <string.h>
 #include <stdlib.h>
@@ -10,17 +11,24 @@
 int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITER *lw) {
 	char *data, *zdata, *zdata2;
 	int i, next;
-	unsigned int *iptr;
+	unsigned int *iptr, sprite_cnt;
 	struct savefile_character_gfx scg;
 
+	for (i = 1; sprite_data[i] != -1 || sprite_data[i-1] != -1; i++);
+	sprite_cnt = i + 1;
+	
 	memset(&scg, 0, sizeof(scg));
-	data = malloc(sizeof(*iptr) + characters * 4);
+	data = malloc(sizeof(*iptr) + characters * 4 + sprite_cnt * 4 + 4);
 	iptr = (void *) data;
 	next = sizeof(*iptr);
 	next += characters * sizeof(*iptr);
+	next += (sprite_cnt + 1) * sizeof(*iptr);
 	*iptr = characters;
 	d_util_endian_convert(iptr, 1);
 	iptr++;
+	iptr[characters] = sprite_cnt;
+	memcpy(&iptr[characters + 1], sprite_data, sprite_cnt * 4);
+	d_util_endian_convert(&iptr[characters], sprite_cnt + 1);
 	
 	for (i = 0; i < characters; i++) {
 		scg.face_w = gc[i]->face_w;
@@ -29,10 +37,9 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 		scg.sprite_h = gc[i]->sprite_h;
 		scg.directions = gc[i]->sprite_dirs;
 		scg.sprite_frames = gc[i]->sprite_frames;
-		/* TODO: Set gender etc. */
+		scg.type = gc[i]->char_type;
 
 		d_util_endian_convert((void *) gc[i]->face, scg.face_w * scg.face_h);
-		memset(gc[i]->face, 0, scg.face_w * scg.face_h * 4);
 		scg.zface = d_util_compress(gc[i]->face, scg.face_w * scg.face_h * 4, &zdata);
 		d_util_endian_convert((void *) gc[i]->sprite, 
 			scg.sprite_w * scg.sprite_h * scg.sprite_frames);
@@ -54,7 +61,7 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 	}
 
 	d_util_endian_convert(iptr, characters);
-	d_file_ldi_write_file(lw, "gfx/characters.dat", data, next);
+	d_file_ldi_write_file(lw, "data/characters.dat", data, next);
 	free(data);
 
 	return 1;

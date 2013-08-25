@@ -4,6 +4,18 @@
 #include "darnit/darnit.h"
 
 
+int character_gfx_data_characters() {
+	DARNIT_FILE *f;
+	unsigned int chars;
+
+	f = d_file_open("data/characters.dat", "rb");
+	d_file_read_ints(&chars, 4, f);
+	d_file_close(f);
+
+	return chars;
+}
+
+
 struct char_gfx *character_gfx_data_load(unsigned int char_num) {
 	DARNIT_FILE *f;
 	unsigned int chars, pos, char_w, char_h, i, j, w, max_w, r, *ptr, *bptr;
@@ -11,7 +23,7 @@ struct char_gfx *character_gfx_data_load(unsigned int char_num) {
 	struct savefile_character_gfx scg;
 	void *buff, *sprite_b;
 
-	f = d_file_open("gfx/characters.dat", "rb");
+	f = d_file_open("data/characters.dat", "rb");
 	d_file_read_ints(&chars, 4, f);
 	if (char_num >= chars) {
 		d_file_close(f);
@@ -73,6 +85,8 @@ struct char_gfx *character_gfx_data_load(unsigned int char_num) {
 	d_render_tilesheet_update(cg->sprite_ts, 0, 0, char_w, char_h, bptr);
 	free(buff);
 	d_file_close(f);
+
+	cg->link = 0;
 	return cg;
 }
 
