@@ -25,6 +25,7 @@ struct autotile *autotile_new(DARNIT_STRINGTABLE *st) {
 		at->tile[from].border[b].neighbour = from;
 		at->tile[from].border[b].start = to;
 		at->tile[from].border[b].mode = (mode == 'x') ? 1 : 0;
+		fprintf(stderr, "Added rule %i -> %i\n", from, to);
 	}
 
 	return at;
@@ -48,7 +49,7 @@ static int autotile_lookup(struct autotile *at, unsigned int tile, int neighbour
 
 	for (i = 0; i < at->tile[tile].borders; i++)
 		if (at->tile[tile].border[i].neighbour == neighbour)
-			return at->tile[tile].border[i].start + (at->tile[tile].border[i].mode) ? mask : 0;
+			return at->tile[tile].border[i].start + ((at->tile[tile].border[i].mode) ? mask : 0);
 	
 	if (neighbour < 0)
 		return tile;
