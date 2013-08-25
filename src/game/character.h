@@ -13,8 +13,8 @@ struct character_data {
 	struct char_gfx		**gfx;
 };
 
-void character_init(struct world_state *s);
-int character_load_graphics(struct world_state *s, unsigned int slot);
+void character_init();
+int character_load_graphics(unsigned int slot);
 
 
 #endif
