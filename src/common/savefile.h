@@ -19,6 +19,7 @@ struct savefile_character_gfx {
 	unsigned int			directions;
 	unsigned int			zface;
 	unsigned int			zsprite;
+	unsigned int			zspritedata;
 	struct savefile_character_type	type;
 };
 

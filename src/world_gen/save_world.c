@@ -1,7 +1,6 @@
 #include "save_world.h"
 #include "dungeon_generate.h"
 #include "character_gen.h"
-#include "character_save_data.h"
 #include "savefile.h"
 #include <string.h>
 #include <stdlib.h>
@@ -9,26 +8,20 @@
 
 
 int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITER *lw) {
-	char *data, *zdata, *zdata2;
+	char *data, *zdata, *zdata2, *zdata3;
 	int i, next;
-	unsigned int *iptr, sprite_cnt;
+	unsigned int *iptr;
 	struct savefile_character_gfx scg;
 
-	for (i = 1; sprite_data[i] != -1 || sprite_data[i-1] != -1; i++);
-	sprite_cnt = i + 1;
 	
 	memset(&scg, 0, sizeof(scg));
-	data = malloc(sizeof(*iptr) + characters * 4 + sprite_cnt * 4 + 4);
+	data = malloc(sizeof(*iptr) + characters * 4);
 	iptr = (void *) data;
 	next = sizeof(*iptr);
 	next += characters * sizeof(*iptr);
-	next += (sprite_cnt + 1) * sizeof(*iptr);
 	*iptr = characters;
 	d_util_endian_convert(iptr, 1);
 	iptr++;
-	iptr[characters] = sprite_cnt;
-	memcpy(&iptr[characters + 1], sprite_data, sprite_cnt * 4);
-	d_util_endian_convert(&iptr[characters], sprite_cnt + 1);
 	
 	for (i = 0; i < characters; i++) {
 		scg.face_w = gc[i]->face_w;
@@ -41,11 +34,16 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 
 		d_util_endian_convert((void *) gc[i]->face, scg.face_w * scg.face_h);
 		scg.zface = d_util_compress(gc[i]->face, scg.face_w * scg.face_h * 4, &zdata);
+		
 		d_util_endian_convert((void *) gc[i]->sprite, 
 			scg.sprite_w * scg.sprite_h * scg.sprite_frames);
-		scg.zsprite = d_util_compress(gc[i]->sprite, scg.sprite_w * scg.sprite_h * 4 * scg.sprite_frames,
-			&zdata2);
-		data = realloc(data, next + sizeof(scg) + scg.zface + scg.zsprite);
+		scg.zsprite = d_util_compress(gc[i]->sprite, 
+			scg.sprite_w * scg.sprite_h * 4 * scg.sprite_frames, &zdata2);
+		
+		d_util_endian_convert((void *) gc[i]->sprite_data, gc[i]->sprite_data_len);
+		scg.zspritedata = d_util_compress(gc[i]->sprite_data, gc[i]->sprite_data_len * 4,
+			&zdata3);
+		data = realloc(data, next + sizeof(scg) + scg.zface + scg.zsprite + scg.zspritedata);
 		d_util_endian_convert((void *) &scg, sizeof(scg) / 4);
 		memcpy(data + next, &scg, sizeof(scg));
 		d_util_endian_convert((void *) &scg, sizeof(scg) / 4);
@@ -54,8 +52,11 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 		next += scg.zface;
 		memcpy(data + next, zdata2, scg.zsprite); 
 		next += scg.zsprite;
+		memcpy(data + next, zdata3, scg.zspritedata);
+		next += scg.zspritedata;
 		free(zdata);
 		free(zdata2);
+		free(zdata3);
 		iptr = (unsigned int *) (data + 4);
 		iptr[i] = next;
 	}

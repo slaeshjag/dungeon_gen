@@ -2,7 +2,7 @@
 #define	__CHARACTER_SAVE_DATA_H__
 
 
-static int sprite_data[] = {
+static int sprite_data_default[] = {
 	/* Data in pairs, tile, time. Set tile to -1 for next dir,
 		both to -1 for end of sprite */
 	/* Down */

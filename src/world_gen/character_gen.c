@@ -4,8 +4,10 @@
 #include <string.h>
 #include <darnit/darnit.h>
 #include "random.h"
+#include "character_save_data.h"
 
 struct generated_char *generate_character() {
+	int i, sprite_cnt, *sprite_data;
 	struct generated_char *gc;
 	DARNIT_IMAGE_DATA base;
 	DARNIT_IMAGE_DATA face;
@@ -19,6 +21,12 @@ struct generated_char *generate_character() {
 	/* This will be replaced with something that actually generates a sprite */
 	base = d_img_load_raw("char_gen/s_base0_0.png");
 	gc->sprite = base.data;
+	
+	/* TODO: Get suitable sprite data for the character generated */
+	sprite_data = sprite_data_default;
+
+	for (i = 1; sprite_data[i] != -1 || sprite_data[i-1] != -1; i++);
+	sprite_cnt = i + 1;
 
 	gc->face_w = face.w;
 	gc->face_h = face.h;
@@ -27,6 +35,9 @@ struct generated_char *generate_character() {
 	gc->sprite_dirs = CHAR_SPRITE_DIRECTIONS;
 	gc->sprite_frames = CHAR_SPRITE_FRAMES;
 	gc->char_type.gender = random_get() & 1;
+	gc->sprite_data_len = sprite_cnt;
+	gc->sprite_data = malloc(sprite_cnt * 4);
+	memcpy(gc->sprite_data, sprite_data, sprite_cnt * 4);
 
 	return gc;
 }
@@ -35,6 +46,7 @@ struct generated_char *generate_character() {
 void generate_char_free(struct generated_char *gc) {
 	free(gc->face);
 	free(gc->sprite);
+	free(gc->sprite_data);
 	free(gc);
 	return;
 }
