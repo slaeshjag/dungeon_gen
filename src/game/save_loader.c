@@ -83,6 +83,11 @@ struct char_gfx *character_gfx_data_load(unsigned int char_num) {
 	cg->sprite_ts = d_render_tilesheet_new(char_w / scg.sprite_w, char_h / scg.sprite_h, 
 		scg.sprite_w, scg.sprite_h, DARNIT_PFORMAT_RGB5A1);
 	d_render_tilesheet_update(cg->sprite_ts, 0, 0, char_w, char_h, bptr);
+
+	buff = realloc(buff, scg.zspritedata);
+	d_file_read(buff, scg.zspritedata, f);
+	d_util_endian_convert((void *) cg->sprite_data, 
+		d_util_decompress(buff, scg.zspritedata, &cg->sprite_data) / 4);
 	free(buff);
 	d_file_close(f);
 
