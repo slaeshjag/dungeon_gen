@@ -1,10 +1,11 @@
 #ifndef __CHARACTER_H__
 #define	__CHARACTER_H__
 
-struct world_state;
+#include <darnit/darnit.h>
 
 struct character_entry {
 	void			(*loop)();
+	DARNIT_SPRITE		*sprite;
 };
 
 

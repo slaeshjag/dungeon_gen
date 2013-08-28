@@ -8,7 +8,7 @@ enum world_state_e {
 	WORLD_STATE_DUNGEON,
 };
 
-struct {
+struct world_state {
 	enum world_state_e		state;
 	int				active_dungeon;
 	struct dungeon_map		*dm;

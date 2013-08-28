@@ -18,22 +18,23 @@ const char *consonants[] = {
 };
 
 int main(int argc, char **argv) {
-	int num, w, z, i;
+	int num, w, z, i, j;
 	
 	srand(time(NULL));
 	
 	for (i = 0; i < 20; i++) {
 		num = (rand() % 4) + 4;
 		w = rand() & 1;
-		for (; num > 0; num--) {
+		for (j = 0; num > 0; num--) {
 			if (w)
 				fprintf(stdout, "%s", vowels[rand() % VOWELS]);
 			else {
-				if ((z = rand() % CONSONANTS) == 3) {
+				if ((z = rand() % CONSONANTS) == 3 && !j) {
 					num++;
 					continue;
 				}
 				fprintf(stdout, "%s", consonants[z]);
+				j++;
 			}
 			w = !w;
 		}

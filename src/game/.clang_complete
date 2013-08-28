@@ -1,6 +1,0 @@
--I ../world_gen
--I ../common
--I ../
--I .
--I /usr/local/include
--I /usr/local/include/darnit
