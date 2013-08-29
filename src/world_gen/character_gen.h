@@ -19,6 +19,7 @@ struct generated_char {
 	unsigned int			sprite_frames;
 	unsigned int			sprite_dirs;
 	int				*sprite_data;
+	int				*sprite_hitbox;
 	unsigned int			sprite_data_len;
 	struct savefile_character_type	char_type;
 };

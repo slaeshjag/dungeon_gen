@@ -43,10 +43,12 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 		d_util_endian_convert((void *) gc[i]->sprite_data, gc[i]->sprite_data_len);
 		scg.zspritedata = d_util_compress(gc[i]->sprite_data, gc[i]->sprite_data_len * 4,
 			&zdata3);
-		data = realloc(data, next + sizeof(scg) + scg.zface + scg.zsprite + scg.zspritedata);
+		data = realloc(data, next + sizeof(scg) + scg.zface + scg.zsprite + scg.zspritedata
+			+ gc[i]->sprite_dirs * 16);
 		d_util_endian_convert((void *) &scg, sizeof(scg) / 4);
 		memcpy(data + next, &scg, sizeof(scg));
 		d_util_endian_convert((void *) &scg, sizeof(scg) / 4);
+		d_util_endian_convert((void *) gc[i]->sprite_hitbox, 4 * gc[i]->sprite_dirs);
 		next += sizeof(scg);
 		memcpy(data + next, zdata, scg.zface); 
 		next += scg.zface;
@@ -54,6 +56,8 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 		next += scg.zsprite;
 		memcpy(data + next, zdata3, scg.zspritedata);
 		next += scg.zspritedata;
+		memcpy(data + next, gc[i]->sprite_hitbox, gc[i]->sprite_dirs * 16);
+		next += gc[i]->sprite_dirs * 16;
 		free(zdata);
 		free(zdata2);
 		free(zdata3);

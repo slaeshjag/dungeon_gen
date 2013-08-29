@@ -4,12 +4,57 @@
 
 void character_init() {
 	unsigned int chars;
+	int i;
 
 	chars = character_gfx_data_characters();
 	ws.char_data = malloc(sizeof(*ws.char_data));
 	ws.char_data->characters = chars;
 	ws.char_data->gfx = calloc(sizeof(*ws.char_data->gfx) * chars, 1);
+	ws.char_data->max_entries = 8;
+	ws.char_data->entries = 0;
+	ws.char_data->entry = malloc(sizeof(*ws.char_data->entry) * ws.char_data->max_entries);
+	ws.char_data->bbox = d_bbox_new(ws.char_data->max_entries);
 
+	for (i = 0; i < ws.char_data->max_entries; i++)
+		ws.char_data->entry[i] = NULL;
+
+	return;
+}
+
+
+void character_set_hitbox(int entry) {
+	int x, y, w, h;
+	struct character_entry *ce;
+
+	/* If the behaviour of darnit bbox ever changes, this will break */
+	ce = ws.char_data->entry[entry];
+	d_sprite_hitbox(ce->sprite, &x, &y, &w, &h);
+	x += (ce->x >> 8);
+	y += (ce->y >> 8);
+	d_bbox_move(ws.char_data->bbox, entry, x, y);
+	d_bbox_resize(ws.char_data->bbox, entry, (unsigned) w, (unsigned) h);
+
+	return;
+}
+
+
+void character_expand_entries() {
+	int i;
+
+	ws.char_data->entry = realloc(ws.char_data->entry, ws.char_data->max_entries << 1);
+	for (i = 0; i < ws.char_data->max_entries; i++)
+		ws.char_data->entry[i + ws.char_data->max_entries] = NULL;
+	
+	ws.char_data->max_entries <<= 1;
+	d_bbox_free(ws.char_data->bbox);
+	d_bbox_new(ws.char_data->max_entries);
+
+	for (i = 0; i < ws.char_data->max_entries; i++)
+		d_bbox_add(ws.char_data->bbox, ~0, ~0, 0, 0);
+	
+	for (i = 0; i < (ws.char_data->max_entries >> 1); i++)
+		character_set_hitbox(i);
+	
 	return;
 }
 
@@ -25,33 +70,57 @@ int character_load_graphics(unsigned int slot) {
 }
 
 
-struct character_entry *character_spawn_entry(unsigned int slot) {
-	int i, j, k;
+int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l) {
+	int i, j, k, h;
 	struct character_entry *ce;
+	struct char_gfx *cg;
 	struct {
 		int		tile;
 		int		time;
 	} *sprite;
 
 	if (ws.char_data->characters <= slot)
-		return NULL;
+		return -1;
 
 	sprite = (void *) ws.char_data->gfx[slot]->sprite_data;
 	character_load_graphics(slot);
 	ce = malloc(sizeof(*ce));
 	ce->sprite = d_sprite_new(ws.char_data->gfx[slot]->sprite_ts);
+	cg = ws.char_data->gfx[slot];
 
 	/* TODO: Init character AI */
 	
 	for (i = j = k = 0; sprite[i].tile != -1 || sprite[i].time != -1; i++) {
-		if (sprite[i].tile >= 0)
+		h = j * 4;
+		if (sprite[i].tile >= 0) {
+			if (!k)
+				d_sprite_hitbox_set(ce->sprite, j, 0, 
+					cg->sprite_hitbox[h], cg->sprite_hitbox[h+1], 
+					cg->sprite_hitbox[h+2], cg->sprite_hitbox[h+3]);
 			d_sprite_frame_entry(ce->sprite, j, k++, sprite[i].tile, sprite[i].time);
-		else
+		} else
 			j++, k = 0;
 	}
 
-	return ce;
+	ce->x = x << 8;
+	ce->y = y << 8;
+	ce->l = l;
+	ce->slot = slot;
+	ce->dir = 0;
+
+	d_sprite_move(ce->sprite, ce->x >> 8, ce->y >> 8);
+	if (ws.char_data->entries == ws.char_data->max_entries)
+		character_expand_entries();
+	for (i = 0; i < ws.char_data->max_entries; i++)
+		if (!ws.char_data->entry)
+			break;
+	ws.char_data->entry[i] = ce;
+
+	return i;
 }
+
+
+
 
 
 void *character_free_entry(struct character_entry *ce) {
@@ -63,3 +132,4 @@ void *character_free_entry(struct character_entry *ce) {
 
 	return NULL;
 }
+

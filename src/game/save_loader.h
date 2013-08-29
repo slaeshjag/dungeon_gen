@@ -17,6 +17,7 @@ struct char_gfx {
 	unsigned int				directions;
 	unsigned int				*face;
 	int					*sprite_data;
+	int					*sprite_hitbox;
 	DARNIT_TILESHEET			*sprite_ts;
 };
 

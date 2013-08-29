@@ -88,6 +88,8 @@ struct char_gfx *character_gfx_data_load(unsigned int char_num) {
 	d_file_read(buff, scg.zspritedata, f);
 	d_util_endian_convert((void *) cg->sprite_data, 
 		d_util_decompress(buff, scg.zspritedata, &cg->sprite_data) / 4);
+	cg->sprite_hitbox = malloc(cg->directions * 16);
+	d_file_read_ints(cg->sprite_hitbox, cg->directions * 4, f);
 	free(buff);
 	d_file_close(f);
 
