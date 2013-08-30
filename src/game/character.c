@@ -1,5 +1,6 @@
 #include "character.h"
 #include "world.h"
+#include "aicomm.h"
 
 
 void character_init() {
@@ -13,6 +14,7 @@ void character_init() {
 	ws.char_data->max_entries = 8;
 	ws.char_data->entries = 0;
 	ws.char_data->entry = malloc(sizeof(*ws.char_data->entry) * ws.char_data->max_entries);
+	ws.char_data->collision = malloc(sizeof(unsigned int) * ws.char_data->max_entries);
 	ws.char_data->bbox = d_bbox_new(ws.char_data->max_entries);
 
 	for (i = 0; i < ws.char_data->max_entries; i++)
@@ -39,9 +41,11 @@ void character_set_hitbox(int entry) {
 
 
 void character_expand_entries() {
-	int i;
+	int i, nz;
 
-	ws.char_data->entry = realloc(ws.char_data->entry, ws.char_data->max_entries << 1);
+	nz = (ws.char_data->max_entries << 1);
+	ws.char_data->entry = realloc(ws.char_data->entry, nz * sizeof(*ws.char_data->entry));
+	ws.char_data->collision = realloc(ws.char_data->collision, nz * sizeof(unsigned int));
 	for (i = 0; i < ws.char_data->max_entries; i++)
 		ws.char_data->entry[i + ws.char_data->max_entries] = NULL;
 	
@@ -89,6 +93,7 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	cg = ws.char_data->gfx[slot];
 
 	/* TODO: Init character AI */
+	ce->loop = NULL;
 	
 	for (i = j = k = 0; sprite[i].tile != -1 || sprite[i].time != -1; i++) {
 		h = j * 4;
@@ -107,6 +112,7 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	ce->l = l;
 	ce->slot = slot;
 	ce->dir = 0;
+	*((unsigned int *) (&ce->special_action)) = 0;
 
 	d_sprite_move(ce->sprite, ce->x >> 8, ce->y >> 8);
 	if (ws.char_data->entries == ws.char_data->max_entries)
@@ -120,7 +126,74 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 }
 
 
+void character_message_loop(struct aicomm_struct ac) {
+	for (;;) {
+		if (!ws.char_data->entry[ac.self]->loop) {
+			ac.msg = AICOMM_MSG_NOAI;
+			if (ac.from < 0 || ac.from >= ws.char_data->max_entries)
+				return;
+			if (!ws.char_data->entry[ac.from]->loop)
+				return;
+			ac = ws.char_data->entry[ac.from]->loop(ac);
+		} else
+			ac = ws.char_data->entry[ac.self]->loop(ac);
 
+		if (ac.msg == AICOMM_MSG_DONE)
+			return;
+	}
+
+	return;
+}
+
+
+void character_loop_entry(struct character_entry *ce) {
+	int x, y, w, h, n, e, i;
+	struct aicomm_struct ac;
+
+	d_sprite_hitbox(ce->sprite, &x, &y, &w, &h);
+	x += (ce->x >> 8);
+	y += (ce->y >> 8);
+	n = d_bbox_test(ws.char_data->bbox, x, y, w, h, (unsigned *) ws.char_data->collision, 
+		ws.char_data->max_entries);
+	
+	ac.ce = ws.char_data->entry;
+
+	ac.msg = AICOMM_MSG_COLL;
+	ac.from = -1;
+	
+	for (i = 0; i < n; i++) {
+		e = ws.char_data->collision[i];
+		if (e == ce->slot)
+			continue;
+		ac.arg1 = ce->slot;
+		ac.self = e;
+		character_message_loop(ac);
+		ac.arg1 = e;
+		ac.self = ce->slot;
+		character_message_loop(ac);
+	}
+
+	ac.msg = AICOMM_MSG_LOOP;
+	for (i = 0; i < ws.char_data->max_entries; i++) {
+		ac.self = i;
+		character_message_loop(ac);
+	}
+
+	return;
+}
+
+
+void character_loop() {
+	int i;
+
+	for (i = 0; i < ws.char_data->max_entries; i++) {
+		if (!ws.char_data->entry[i])
+			continue;
+		character_loop_entry(ws.char_data->entry[i]);
+	}
+
+	return;
+}
 
 
 void *character_free_entry(struct character_entry *ce) {
