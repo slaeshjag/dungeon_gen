@@ -12,6 +12,7 @@ void camera_init() {
 
 	ws.camera.screen_w = p.screen_w;
 	ws.camera.screen_h = p.screen_h;
+	ws.camera.player = -1;
 
 	return;
 }

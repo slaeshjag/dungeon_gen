@@ -7,6 +7,7 @@ struct camera {
 	int			follow_char;
 	int			screen_w;
 	int			screen_h;
+	int			player;
 };
 
 

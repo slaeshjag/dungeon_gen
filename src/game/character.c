@@ -26,19 +26,30 @@ void character_init() {
 }
 
 
+struct aicomm_struct character_message_next(struct aicomm_struct ac) {
+	ac.self = ac.from;
+	ac.from = -1;
+	ac.msg = AICOMM_MSG_NEXT;
+
+	return ac;
+}
+
+
 void character_message_loop(struct aicomm_struct ac) {
 	for (;;) {
+		ac.ce = ws.char_data->entry;
+		
 		if (!ws.char_data->entry[ac.self]->loop) {
 			ac.msg = AICOMM_MSG_NOAI;
 			if (ac.from < 0 || ac.from >= ws.char_data->max_entries)
 				return;
 			if (!ws.char_data->entry[ac.from]->loop)
 				return;
+			ac.self = ac.from;
+			ac.from = -1;
 			ac = ws.char_data->entry[ac.from]->loop(ac);
 		} else
 			ac = ws.char_data->entry[ac.self]->loop(ac);
-
-		ac.ce = ws.char_data->entry;
 
 		switch (ac.msg) {
 			case AICOMM_MSG_DONE:
@@ -62,6 +73,7 @@ void character_message_loop(struct aicomm_struct ac) {
 				ac.self = ac.from;
 				ac.from = -1;
 				ac.msg = AICOMM_MSG_NEXT;
+				ac = character_message_next(ac);
 				break;
 			case AICOMM_MSG_DIRU:
 				if (ac.from < 0 || ac.from >= ws.char_data->max_entries ||
@@ -77,6 +89,15 @@ void character_message_loop(struct aicomm_struct ac) {
 					d_sprite_animate_start(ws.char_data->entry[ac.from]->sprite);
 				else
 					d_sprite_animate_stop(ws.char_data->entry[ac.from]->sprite);
+				ac = character_message_next(ac);
+				break;
+			case AICOMM_MSG_SETP:
+				ws.camera.player = ac.self;
+				ac = character_message_next(ac);
+				break;
+			case AICOMM_MSG_GETP:
+				ac.self = ac.from;
+				ac.from = ws.camera.player;
 				break;
 			default:
 				ac.self = ac.from;
@@ -224,8 +245,6 @@ void character_loop_entry(struct character_entry *ce) {
 	n = d_bbox_test(ws.char_data->bbox, x, y, w, h, (unsigned *) ws.char_data->collision, 
 		ws.char_data->max_entries);
 	
-	ac.ce = ws.char_data->entry;
-
 	ac.msg = AICOMM_MSG_COLL;
 	ac.from = -1;
 	
@@ -277,7 +296,6 @@ void character_despawn(int entry) {
 	if (!ce)
 		return;
 	
-	ac.ce = ws.char_data->entry;
 	ac.msg = AICOMM_MSG_DESTROY;
 	ac.from = -1;
 	ac.self = entry;
@@ -286,6 +304,9 @@ void character_despawn(int entry) {
 	d_sprite_free(ce->sprite);
 	free(ce);
 	ws.char_data->entry[entry] = NULL;
+
+	if (ws.camera.player == entry)
+		ws.camera.player = -1;
 
 	return;
 }

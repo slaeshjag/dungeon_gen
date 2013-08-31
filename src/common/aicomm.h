@@ -12,6 +12,8 @@ enum aicomm_msg {
 	AICOMM_MSG_NOAI,
 	AICOMM_MSG_NEXT,	/* Next message! */
 	AICOMM_MSG_FOLM,	/* Follow me! */
+	AICOMM_MSG_GETP,	/* Get player entry */
+	AICOMM_MSG_SETP,	/* Set player entry */
 	AICOMM_MSG_DESTROY,	/* Time to die! */
 };
 
