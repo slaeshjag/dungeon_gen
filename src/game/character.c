@@ -1,3 +1,4 @@
+#include <darnit/darnit.h>
 #include "character.h"
 #include "world.h"
 #include "aicomm.h"
@@ -37,8 +38,53 @@ void character_message_loop(struct aicomm_struct ac) {
 		} else
 			ac = ws.char_data->entry[ac.self]->loop(ac);
 
-		if (ac.msg == AICOMM_MSG_DONE)
-			return;
+		ac.ce = ws.char_data->entry;
+
+		switch (ac.msg) {
+			case AICOMM_MSG_DONE:
+				return;
+			case AICOMM_MSG_INIT:
+			case AICOMM_MSG_NOAI:
+			case AICOMM_MSG_DESTROY:
+			case AICOMM_MSG_LOOP:
+				/* Invalid return messages */
+				fprintf(stderr, "WARNING: char %i returned invalid message %i\n",
+					ac.from, ac.msg);
+				return;
+			case AICOMM_MSG_COLL:
+			case AICOMM_MSG_SEND:
+			case AICOMM_MSG_INVM:
+			case AICOMM_MSG_NEXT:
+				/* These are just passed on */
+				break;
+			case AICOMM_MSG_FOLM:
+				ws.camera.follow_char = ac.from;
+				ac.self = ac.from;
+				ac.from = -1;
+				ac.msg = AICOMM_MSG_NEXT;
+				break;
+			case AICOMM_MSG_DIRU:
+				if (ac.from < 0 || ac.from >= ws.char_data->max_entries ||
+				    !ws.char_data->entry[ac.from]) {
+					ac.msg = AICOMM_MSG_NOAI;
+					ac.self = ac.from;
+					ac.from = -1;
+					break;
+				}
+				d_sprite_direction_set(ws.char_data->entry[ac.from]->sprite,
+				    ws.char_data->entry[ac.from]->dir);
+				if (ws.char_data->entry[ac.from]->special_action.animate)
+					d_sprite_animate_start(ws.char_data->entry[ac.from]->sprite);
+				else
+					d_sprite_animate_stop(ws.char_data->entry[ac.from]->sprite);
+				break;
+			default:
+				ac.self = ac.from;
+				ac.from = -1;
+				ac.msg = AICOMM_MSG_INVM;
+				break;
+		}
+
 	}
 
 	return;

@@ -2,16 +2,17 @@
 #define	__AICOMM_H__
 
 enum aicomm_msg {
-	AICOMM_MSG_INIT,
-	AICOMM_MSG_LOOP,
-	AICOMM_MSG_COLL,
-	AICOMM_MSG_SEND,
-	AICOMM_MSG_INCO,
-	AICOMM_MSG_DIRU,
+	AICOMM_MSG_INIT,	/* Initialize! */
+	AICOMM_MSG_LOOP,	/* Frame update */
+	AICOMM_MSG_COLL,	/* Collision notification */
+	AICOMM_MSG_SEND,	/* Pass this on */
+	AICOMM_MSG_INVM,	/* Invalid message */
+	AICOMM_MSG_DIRU,	/* Update sprite */
 	AICOMM_MSG_DONE,
 	AICOMM_MSG_NOAI,
+	AICOMM_MSG_NEXT,	/* Next message! */
 	AICOMM_MSG_FOLM,	/* Follow me! */
-	AICOMM_MSG_DESTROY,
+	AICOMM_MSG_DESTROY,	/* Time to die! */
 };
 
 
@@ -38,6 +39,8 @@ struct character_entry {
 	struct {
 		unsigned int	pushing		: 1;
 		unsigned int	jumping		: 1;
+		unsigned int	walking		: 1;
+		unsigned int	animate		: 1;
 		unsigned int	invisible	: 1;
 	} special_action;
 
