@@ -2,6 +2,7 @@
 #define	__WORLD_H__
 
 #include "save_loader.h"
+#include "camera.h"
 
 enum world_state_e {
 	WORLD_STATE_OVERWORLD,
@@ -13,7 +14,9 @@ struct world_state {
 	int				active_dungeon;
 	struct dungeon_map		*dm;
 	struct character_data		*char_data;
+	struct camera			camera;
 } ws;
 
+void world_init();
 
 #endif

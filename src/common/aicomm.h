@@ -10,6 +10,7 @@ enum aicomm_msg {
 	AICOMM_MSG_DIRU,
 	AICOMM_MSG_DONE,
 	AICOMM_MSG_NOAI,
+	AICOMM_MSG_FOLM,	/* Follow me! */
 	AICOMM_MSG_DESTROY,
 };
 
@@ -32,10 +33,12 @@ struct character_entry {
 	int			l;
 	int			dir;
 	int			slot;
+	int			self;
 
 	struct {
 		unsigned int	pushing		: 1;
 		unsigned int	jumping		: 1;
+		unsigned int	invisible	: 1;
 	} special_action;
 
 	DARNIT_SPRITE		*sprite;

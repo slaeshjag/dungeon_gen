@@ -9,7 +9,7 @@ int character_gfx_data_characters() {
 	unsigned int chars;
 
 	f = d_file_open("data/characters.dat", "rb");
-	d_file_read_ints(&chars, 4, f);
+	d_file_read_ints(&chars, 1, f);
 	d_file_close(f);
 
 	return chars;
@@ -78,11 +78,13 @@ struct char_gfx *character_gfx_data_load(unsigned int char_num) {
 				memcpy(bptr + j * max_w + i * max_w * char_h,
 					ptr + max_w * i + w * j, r * 4);
 		}
-	}
+	} else
+		memcpy(bptr, ptr, char_w * char_h * 4);
 
 	cg->sprite_ts = d_render_tilesheet_new(char_w / scg.sprite_w, char_h / scg.sprite_h, 
 		scg.sprite_w, scg.sprite_h, DARNIT_PFORMAT_RGB5A1);
 	d_render_tilesheet_update(cg->sprite_ts, 0, 0, char_w, char_h, bptr);
+	fprintf(stderr, "Updating area of size %i, %i\n", char_w, char_h);
 
 	buff = realloc(buff, scg.zspritedata);
 	d_file_read(buff, scg.zspritedata, f);
@@ -91,6 +93,7 @@ struct char_gfx *character_gfx_data_load(unsigned int char_num) {
 	cg->sprite_hitbox = malloc(cg->directions * 16);
 	d_file_read_ints(cg->sprite_hitbox, cg->directions * 4, f);
 	free(buff);
+	free(sprite_b);
 	d_file_close(f);
 
 	cg->link = 0;
@@ -100,6 +103,8 @@ struct char_gfx *character_gfx_data_load(unsigned int char_num) {
 
 void *character_gfx_data_unload(struct char_gfx *cg) {
 	free(cg->face);
+	free(cg->sprite_data);
+	free(cg->sprite_hitbox);
 	d_render_tilesheet_free(cg->sprite_ts);
 	free(cg);
 	return NULL;

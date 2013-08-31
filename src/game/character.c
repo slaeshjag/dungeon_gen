@@ -16,9 +16,30 @@ void character_init() {
 	ws.char_data->entry = malloc(sizeof(*ws.char_data->entry) * ws.char_data->max_entries);
 	ws.char_data->collision = malloc(sizeof(unsigned int) * ws.char_data->max_entries);
 	ws.char_data->bbox = d_bbox_new(ws.char_data->max_entries);
+	d_bbox_sortmode(ws.char_data->bbox, DARNIT_BBOX_SORT_Y);
 
 	for (i = 0; i < ws.char_data->max_entries; i++)
 		ws.char_data->entry[i] = NULL;
+
+	return;
+}
+
+
+void character_message_loop(struct aicomm_struct ac) {
+	for (;;) {
+		if (!ws.char_data->entry[ac.self]->loop) {
+			ac.msg = AICOMM_MSG_NOAI;
+			if (ac.from < 0 || ac.from >= ws.char_data->max_entries)
+				return;
+			if (!ws.char_data->entry[ac.from]->loop)
+				return;
+			ac = ws.char_data->entry[ac.from]->loop(ac);
+		} else
+			ac = ws.char_data->entry[ac.self]->loop(ac);
+
+		if (ac.msg == AICOMM_MSG_DONE)
+			return;
+	}
 
 	return;
 }
@@ -52,6 +73,7 @@ void character_expand_entries() {
 	ws.char_data->max_entries <<= 1;
 	d_bbox_free(ws.char_data->bbox);
 	d_bbox_new(ws.char_data->max_entries);
+	d_bbox_sortmode(ws.char_data->bbox, DARNIT_BBOX_SORT_Y);
 
 	for (i = 0; i < ws.char_data->max_entries; i++)
 		d_bbox_add(ws.char_data->bbox, ~0, ~0, 0, 0);
@@ -74,10 +96,23 @@ int character_load_graphics(unsigned int slot) {
 }
 
 
+int character_unload_graphics(unsigned int slot) {
+	if (slot >= ws.char_data->characters)
+		return 0;
+	if (!ws.char_data->gfx[slot])
+		return 0;
+	ws.char_data->gfx[slot]->link--;
+	if (!ws.char_data->gfx[slot]->link)
+		ws.char_data->gfx[slot] = character_gfx_data_unload(ws.char_data->gfx[slot]);
+	return 1;
+}
+
+
 int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l) {
 	int i, j, k, h;
 	struct character_entry *ce;
 	struct char_gfx *cg;
+	struct aicomm_struct ac;
 	struct {
 		int		tile;
 		int		time;
@@ -86,15 +121,13 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	if (ws.char_data->characters <= slot)
 		return -1;
 
-	sprite = (void *) ws.char_data->gfx[slot]->sprite_data;
 	character_load_graphics(slot);
+	sprite = (void *) ws.char_data->gfx[slot]->sprite_data;
 	ce = malloc(sizeof(*ce));
 	ce->sprite = d_sprite_new(ws.char_data->gfx[slot]->sprite_ts);
 	cg = ws.char_data->gfx[slot];
 
-	/* TODO: Init character AI */
-	ce->loop = NULL;
-	
+
 	for (i = j = k = 0; sprite[i].tile != -1 || sprite[i].time != -1; i++) {
 		h = j * 4;
 		if (sprite[i].tile >= 0) {
@@ -102,7 +135,7 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 				d_sprite_hitbox_set(ce->sprite, j, 0, 
 					cg->sprite_hitbox[h], cg->sprite_hitbox[h+1], 
 					cg->sprite_hitbox[h+2], cg->sprite_hitbox[h+3]);
-			d_sprite_frame_entry(ce->sprite, j, k++, sprite[i].tile, sprite[i].time);
+			d_sprite_frame_entry_set(ce->sprite, j, k++, sprite[i].tile, sprite[i].time);
 		} else
 			j++, k = 0;
 	}
@@ -114,35 +147,24 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	ce->dir = 0;
 	*((unsigned int *) (&ce->special_action)) = 0;
 
+	d_sprite_activate(ce->sprite, 0);
 	d_sprite_move(ce->sprite, ce->x >> 8, ce->y >> 8);
 	if (ws.char_data->entries == ws.char_data->max_entries)
 		character_expand_entries();
 	for (i = 0; i < ws.char_data->max_entries; i++)
-		if (!ws.char_data->entry)
+		if (!ws.char_data->entry[i])
 			break;
 	ws.char_data->entry[i] = ce;
+	ws.char_data->entry[i]->self = i;
+	
+	/* TODO: Init character AI */
+	ce->loop = NULL;
+	ac.msg = AICOMM_MSG_INIT;
+	ac.from = -1;
+	ac.self = ce->self;
+	character_message_loop(ac);
 
 	return i;
-}
-
-
-void character_message_loop(struct aicomm_struct ac) {
-	for (;;) {
-		if (!ws.char_data->entry[ac.self]->loop) {
-			ac.msg = AICOMM_MSG_NOAI;
-			if (ac.from < 0 || ac.from >= ws.char_data->max_entries)
-				return;
-			if (!ws.char_data->entry[ac.from]->loop)
-				return;
-			ac = ws.char_data->entry[ac.from]->loop(ac);
-		} else
-			ac = ws.char_data->entry[ac.self]->loop(ac);
-
-		if (ac.msg == AICOMM_MSG_DONE)
-			return;
-	}
-
-	return;
 }
 
 
@@ -163,13 +185,15 @@ void character_loop_entry(struct character_entry *ce) {
 	
 	for (i = 0; i < n; i++) {
 		e = ws.char_data->collision[i];
-		if (e == ce->slot)
+		if (ws.char_data->entry[e]->l != ws.char_data->entry[ce->self]->l)
 			continue;
-		ac.arg1 = ce->slot;
+		if (e == ce->self)
+			continue;
+		ac.arg1 = ce->self;
 		ac.self = e;
 		character_message_loop(ac);
 		ac.arg1 = e;
-		ac.self = ce->slot;
+		ac.self = ce->self;
 		character_message_loop(ac);
 	}
 
@@ -196,13 +220,27 @@ void character_loop() {
 }
 
 
-void *character_free_entry(struct character_entry *ce) {
+void character_despawn(int entry) {
+	struct character_entry *ce;
+	struct aicomm_struct ac;
+
+	if (entry < 0 || entry >= ws.char_data->max_entries)
+		return;
+
+	ce = ws.char_data->entry[entry];
 	if (!ce)
-		return NULL;
-	/* TODO: Add call to character AI for cleanup */
+		return;
+	
+	ac.ce = ws.char_data->entry;
+	ac.msg = AICOMM_MSG_DESTROY;
+	ac.from = -1;
+	ac.self = entry;
+	character_message_loop(ac);
+	
 	d_sprite_free(ce->sprite);
 	free(ce);
+	ws.char_data->entry[entry] = NULL;
 
-	return NULL;
+	return;
 }
 
