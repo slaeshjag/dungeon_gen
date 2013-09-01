@@ -1,6 +1,7 @@
 #include <darnit/darnit.h>
 #include "camera.h"
 #include "world.h"
+#include "save_loader.h"
 #include "character.h"
 
 void camera_init() {
@@ -13,6 +14,8 @@ void camera_init() {
 	ws.camera.screen_w = p.screen_w;
 	ws.camera.screen_h = p.screen_h;
 	ws.camera.player = -1;
+	ws.camera.tile_w = TILE_W;
+	ws.camera.tile_h = TILE_H;
 
 	return;
 }

@@ -1,0 +1,151 @@
+*** Messages that can be recived by an AI handler**
+
+aicomm.self is always your character ID.
+
+AICOMM_MSG_INIT - Initialize
+Tells the character to set up its data structures and be ready to be used.
+
+No arguments.
+
+======
+
+AICOMM_MSG_LOOP - Do once a frame stuff etc.
+This is when you do stuff you need to do every frame.
+
+No arguments
+
+======
+
+AICOMM_MSG_COLL - A collision was detected
+Tells the character that another character was collided into
+
+arg0 = The character ID of the character collided with
+
+======
+
+AICOMM_MSG_SEND - A message from a character
+Used to send messages between characters
+
+ac.from - Who sent it
+ac.arg[0-7], ac.argp - Arguments sent
+
+======
+
+AICOMM_MSG_INVM - Invalid message
+
+ac.from - Who send it (-1 = message system)
+
+======
+
+AICOMM_MSG_NOAI - No AI
+Sent from the message system when the intended target of the last message
+doesn't have an AI handler, or that character just doesn't exist.
+
+No arguments.
+
+======
+
+AICOMM_MSG_GETP - Get player
+A response when sending get player. Tells you the character ID of the player.
+
+ac.from - ID of the player character
+
+======
+
+AICOMM_MSG_DESTROY - It's time to die
+Sent right before you're despawned. This is your chance to clean up,
+free memory etc.
+
+No arguments
+
+======
+
+
+
+*** Messages that can be sent by AI handler ***
+
+Note: When sending a message, ac.self needs to be the reciever, and ac.from
+should be set to sender's character ID.
+
+======
+
+AICOMM_MSG_SEND - Send a message to a character
+Sends a message to a character, preserving arg[0..7], argp.
+
+ac.self - Who to send it to
+ac.from - Who's sending it
+
+======
+
+AICOMM_MSG_INVM - Invalid message
+
+ac.self - Who to send it to
+ac.from - Who's sending it
+
+======
+
+AICOMM_MSG_DIRU - Direction update
+Updates the characters sprite direction, and enables/disables animation.
+
+ac.from - Which sprite to update direction for
+
+======
+
+AICOMM_MSG_DONE - Breaks the message loop
+Tells the message handler that this character is done for now.
+
+======
+
+AICOMM_MSG_NEXT - Tell a character to send its next message
+
+ac.from - Who's requesting the next message
+ac.self - Who to request it from
+
+======
+
+AICOMM_MSG_FOLM - Follow me
+Tells the camera to follow specified character
+
+ac.self - Who to follow
+
+======
+
+AICOMM_MSG_GETP - Get player
+Request the player's character ID from the message system
+
+No arguments
+
+======
+
+AICOMM_MSG_SETP - Set player
+Tell the message system who's the player
+
+ac.self - The character ID to set as player
+
+======
+
+AICOMM_MSG_TELP - Teleport
+Teleport the character to a different location
+
+arg0 - Dungeon to teleport to (-1 for overworld)
+arg1 - Map X coordinate (for dungeon, leave as -1 for entrance)
+arg2 - Map Y coordinate (for dungeon, leave as -1 for entrance)
+
+======
+
+AICOMM_MSG_KILL - Kill a character
+Despawns a character
+
+ac.self - The character to despawn
+
+======
+
+AICOMM_MSG_SPWN - Spawn a character
+
+arg0 - Graphics slot to use
+arg1 - X-coordinate in tiles
+arg2 - Y-coordinate in tiles
+arg3 - Floor (layer on overworld) number
+argp - A NULL-terminates string with the name of the AI handler
+
+======

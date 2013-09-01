@@ -8,6 +8,8 @@ struct camera {
 	int			screen_w;
 	int			screen_h;
 	int			player;
+	int			tile_w;
+	int			tile_h;
 };
 
 

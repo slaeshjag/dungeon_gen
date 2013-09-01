@@ -56,6 +56,8 @@ struct aicomm_struct character_message_next(struct aicomm_struct ac) {
 
 
 void character_message_loop(struct aicomm_struct ac) {
+	int x, y;
+
 	for (;;) {
 		ac.ce = ws.char_data->entry;
 		if (!ws.char_data->entry[ac.self] || !ws.char_data->entry[ac.self]->loop) {
@@ -117,6 +119,16 @@ void character_message_loop(struct aicomm_struct ac) {
 			case AICOMM_MSG_GETP:
 				ac.self = ac.from;
 				ac.from = ws.camera.player;
+				break;
+			case AICOMM_MSG_KILL:
+				character_despawn(ac.self);
+				ac = character_message_next(ac);
+				break;
+			case AICOMM_MSG_SPWN:
+				x = ac.arg[1] * ws.camera.tile_w * 256;
+				y = ac.arg[2] * ws.camera.tile_h * 256;
+				character_spawn_entry(ac.arg[0], ac.argp, x, y, ac.arg[3]);
+				ac = character_message_next(ac);
 				break;
 			default:
 				ac.self = ac.from;
@@ -220,10 +232,8 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	for (i = j = k = 0; sprite[i].tile != -1 || sprite[i].time != -1; i++) {
 		h = j * 4;
 		if (sprite[i].tile >= 0) {
-			if (!k)
-				d_sprite_hitbox_set(ce->sprite, j, 0, 
-					cg->sprite_hitbox[h], cg->sprite_hitbox[h+1], 
-					cg->sprite_hitbox[h+2], cg->sprite_hitbox[h+3]);
+			d_sprite_hitbox_set(ce->sprite, j, 0, cg->sprite_hitbox[h], 
+			    cg->sprite_hitbox[h+1], cg->sprite_hitbox[h+2],cg->sprite_hitbox[h+3]);
 			d_sprite_frame_entry_set(ce->sprite, j, k++, sprite[i].tile, sprite[i].time);
 		} else
 			j++, k = 0;

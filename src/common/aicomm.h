@@ -15,6 +15,8 @@ enum aicomm_msg {
 	AICOMM_MSG_GETP,	/* Get player entry */
 	AICOMM_MSG_SETP,	/* Set player entry */
 	AICOMM_MSG_TELP,	/* Teleport me! */
+	AICOMM_MSG_KILL,	/* Kill a character */
+	AICOMM_MSG_SPWN,	/* Spawn a character */
 	AICOMM_MSG_DESTROY,	/* Time to die! */
 };
 
