@@ -86,7 +86,7 @@ int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l
 	size += (sizeof(struct dungeon_puzzle_part) * dngu->puzzles);
 	
 	for (i = 0; i < dngu->floors; i++)
-		size += (dngu->w[i] * dngu->h[i] * sizeof(unsigned int));
+		size += (dngu->w[i] * dngu->h[i] * sizeof(unsigned int) * 2);
 	size += dngu->objects * sizeof(o);
 	sprintf(name, "world/dungeon_%i.lvl", index);
 	fprintf(stderr, "calculated dungeon size to %i octets\n", size);
@@ -114,6 +114,10 @@ int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l
 		d_util_endian_convert((void *) dngu->tile_data[i], dngu->w[i] * dngu->h[i]);
 		memcpy(next, dngu->tile_data[i], dngu->w[i] * dngu->h[i] * 4);
 		d_util_endian_convert((void *) dngu->tile_data[i], dngu->w[i] * dngu->h[i]);
+		next += (dngu->w[i] * dngu->h[i] * 4);
+		d_util_endian_convert((void *) dngu->overlay_data[i], dngu->w[i] * dngu->h[i]);
+		memcpy(next, dngu->overlay_data[i], dngu->w[i] * dngu->h[i] * 4);
+		d_util_endian_convert((void *) dngu->overlay_data[i], dngu->w[i] * dngu->h[i]);
 		next += (dngu->w[i] * dngu->h[i] * 4);
 	}
 

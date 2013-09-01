@@ -52,6 +52,10 @@ void world_loop() {
 			character_render_layer(character_find_visible(), f);
 			d_render_blend_disable();
 			d_render_offset(0, 0);
+	
+			d_tilemap_camera_move(ws.dm->floor[f].overlay, ws.camera.x, ws.camera.y);
+			d_tilemap_draw(ws.dm->floor[f].overlay);
+
 			/* TODO: Render a UI of some sort */
 			d_render_end();
 	}

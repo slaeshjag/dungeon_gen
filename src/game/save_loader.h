@@ -24,6 +24,7 @@ struct char_gfx {
 
 struct dungeon_map_floor {
 	DARNIT_TILEMAP				*tm;
+	DARNIT_TILEMAP				*overlay;
 	int					stair_up;
 	int					stair_down;
 };

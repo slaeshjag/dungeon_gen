@@ -161,7 +161,7 @@ void character_expand_entries() {
 	
 	ws.char_data->max_entries <<= 1;
 	d_bbox_free(ws.char_data->bbox);
-	d_bbox_new(ws.char_data->max_entries);
+	ws.char_data->bbox = d_bbox_new(ws.char_data->max_entries);
 	d_bbox_sortmode(ws.char_data->bbox, DARNIT_BBOX_SORT_Y);
 
 	for (i = 0; i < ws.char_data->max_entries; i++)

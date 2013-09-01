@@ -67,6 +67,7 @@ struct dungeon_use {
 	int				*h;
 	int				floors;
 	unsigned int			**tile_data;
+	unsigned int			**overlay_data;
 	struct dungeon_floor_info	*floor_info;
 	struct dungeon_object		*object;
 	int				objects;

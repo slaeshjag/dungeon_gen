@@ -164,7 +164,14 @@ struct dungeon_map *dungeon_load(int dungeon_number) {
 		d_util_endian_convert((void *) buf, df->floor_w * df->floor_h);
 		memcpy(dm->floor[i].tm->data, buf, df->floor_w * df->floor_h * sizeof(int));
 		buf += df->floor_w * df->floor_h * sizeof(int);
+
+		dm->floor[i].overlay = d_tilemap_new(0xFFF, dm->ts, 0xFFF, df->floor_w, df->floor_h);
+		d_util_endian_convert((void *) buf, df->floor_w * df->floor_h);
+		memcpy(dm->floor[i].overlay->data, buf, df->floor_w * df->floor_h * sizeof(int));
+		buf += df->floor_w * df->floor_h * sizeof(int);
+
 		d_tilemap_recalc(dm->floor[i].tm);
+		d_tilemap_recalc(dm->floor[i].overlay);
 	}
 
 	dob = (void *) buf;

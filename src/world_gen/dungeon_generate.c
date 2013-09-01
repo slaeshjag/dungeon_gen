@@ -559,6 +559,7 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
 	}
 
 	dngu->tile_data = malloc(sizeof((*(dngu->tile_data))) * dungeon->floors);
+	dngu->overlay_data = malloc(sizeof((*(dngu->overlay_data))) * dungeon->floors);
 	dngu->floor_info = malloc(sizeof(*dngu->floor_info) * dungeon->floors);
 	dngu->puzzle = malloc(sizeof(*dngu->puzzle) * dungeon->puzzles);
 	dngu->entrance_floor = dungeon->entrance_floor;
@@ -566,8 +567,10 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
 	memcpy(dngu->floor_info, dungeon->info, sizeof(*dngu->floor_info) * dungeon->floors);
 	memcpy(dngu->puzzle, dungeon->puzzle, sizeof(*dngu->puzzle) * dungeon->puzzles);
 	
-	for (i = 0; i < dungeon->floors; i++)
+	for (i = 0; i < dungeon->floors; i++) {
 		dngu->tile_data[i] = calloc(dngu->w[i] * dngu->h[i], sizeof(**(dngu->tile_data)));
+		dngu->overlay_data[i] = calloc(dngu->w[i] * dngu->h[i], sizeof(**(dngu->overlay_data)));
+	}
 
 	for (i = 0; i < dungeon->floors; i++) 
 		for (j = 0; j < dungeon->w[i] * dungeon->h[i]; j++) {
@@ -606,8 +609,12 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
 void *dungeon_free_usable(struct dungeon_use *dngu) {
 	int i;
 
-	for (i = 0; i < dngu->floors; i++)
+	for (i = 0; i < dngu->floors; i++) {
+		free(dngu->overlay_data[i]);
 		free(dngu->tile_data[i]);
+	}
+
+	free(dngu->overlay_data);
 	free(dngu->tile_data);
 	free(dngu->floor_info);
 	free(dngu->object);
