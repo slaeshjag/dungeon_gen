@@ -4,6 +4,7 @@
 #include "aicomm.h"
 
 void character_expand_entries();
+void character_update_sprite(int entry);
 
 void character_init() {
 	unsigned int chars;
@@ -104,12 +105,7 @@ void character_message_loop(struct aicomm_struct ac) {
 					ac.from = -1;
 					break;
 				}
-				d_sprite_direction_set(ws.char_data->entry[ac.from]->sprite,
-				    ws.char_data->entry[ac.from]->dir);
-				if (ws.char_data->entry[ac.from]->special_action.animate)
-					d_sprite_animate_start(ws.char_data->entry[ac.from]->sprite);
-				else
-					d_sprite_animate_stop(ws.char_data->entry[ac.from]->sprite);
+				character_update_sprite(ac.from);
 				ac = character_message_next(ac);
 				break;
 			case AICOMM_MSG_SETP:
@@ -209,6 +205,87 @@ int character_unload_graphics(unsigned int slot) {
 }
 
 
+int character_test_collision(int entry, int dx, int dy) {
+	struct aicomm_struct ac;
+	struct character_entry *ce;
+	int x, y, w, h, e, i, s, n;
+
+	ce = ws.char_data->entry[entry];
+	d_sprite_hitbox(ce->sprite, &x, &y, &w, &h);
+	x += ((ce->x + dx) >> 8);
+	y += ((ce->y + dy) >> 8);
+	n = d_bbox_test(ws.char_data->bbox, x, y, w, h, (unsigned *) ws.char_data->collision, 
+		ws.char_data->max_entries);
+	
+	ac.msg = AICOMM_MSG_COLL;
+	ac.from = -1;
+	
+	for (i = s = 0; i < n; i++) {
+		e = ws.char_data->collision[i];
+		if (ws.char_data->entry[e]->l != ws.char_data->entry[ce->self]->l)
+			continue;
+		if (e == ce->self)
+			continue;
+		ac.arg[0] = ce->self;
+		ac.self = e;
+		character_message_loop(ac);
+		ac.arg[0] = e;
+		ac.self = ce->self;
+		character_message_loop(ac);
+		if (ws.char_data->entry[entry]->special_action.solid
+		    && ws.char_data->entry[e]->special_action.solid)
+			s = 1;
+		
+	}
+
+	return s;
+}
+
+
+void character_update_sprite(int entry) {
+	int x, y;
+	struct character_entry *ce;
+
+	ce = ws.char_data->entry[entry];
+
+	d_sprite_hitbox(ce->sprite, &x, &y, NULL, NULL);
+	x *= -1;
+	y *= -1;
+	x += (ce->x >> 8);
+	y += (ce->y >> 8);
+
+	d_sprite_direction_set(ce->sprite, ce->dir);
+	(ce->special_action.animate?d_sprite_animate_start:d_sprite_animate_stop)(ce->sprite);
+	d_sprite_move(ce->sprite, x, y);
+
+	return;
+}
+
+
+void character_handle_movement(int entry) {
+	int dx, dy;
+
+	dx = ws.char_data->entry[entry]->dx;
+	dy = ws.char_data->entry[entry]->dy;
+
+	if (!dx && !dy)
+		return;
+
+	dx *= d_last_frame_time();
+	dy *= d_last_frame_time();
+	dx /= 1000;
+	dy /= 1000;
+
+	if (!character_test_collision(entry, dx, 0))
+		ws.char_data->entry[entry]->x += dx;
+	if (!character_test_collision(entry, 0, dy))
+		ws.char_data->entry[entry]->y += dy;
+	character_update_sprite(entry);
+	
+	return;
+}
+
+
 int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l) {
 	int i, j, k, h;
 	struct character_entry *ce;
@@ -269,37 +346,13 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 
 
 void character_loop_entry(struct character_entry *ce) {
-	int x, y, w, h, n, e, i;
 	struct aicomm_struct ac;
 
-	d_sprite_hitbox(ce->sprite, &x, &y, &w, &h);
-	x += (ce->x >> 8);
-	y += (ce->y >> 8);
-	n = d_bbox_test(ws.char_data->bbox, x, y, w, h, (unsigned *) ws.char_data->collision, 
-		ws.char_data->max_entries);
-	
-	ac.msg = AICOMM_MSG_COLL;
-	ac.from = -1;
-	
-	for (i = 0; i < n; i++) {
-		e = ws.char_data->collision[i];
-		if (ws.char_data->entry[e]->l != ws.char_data->entry[ce->self]->l)
-			continue;
-		if (e == ce->self)
-			continue;
-		ac.arg[0] = ce->self;
-		ac.self = e;
-		character_message_loop(ac);
-		ac.arg[0] = e;
-		ac.self = ce->self;
-		character_message_loop(ac);
-	}
 
 	ac.msg = AICOMM_MSG_LOOP;
-	for (i = 0; i < ws.char_data->max_entries; i++) {
-		ac.self = i;
-		character_message_loop(ac);
-	}
+	ac.self = ce->self;
+	character_message_loop(ac);
+	character_handle_movement(ce->self);
 
 	return;
 }

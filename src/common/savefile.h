@@ -61,6 +61,7 @@ struct savefile_dungeon_object {
 	int				subtype;
 	int				link;
 	int				save_slot;
+	char				ai_func[32];
 };
 
 

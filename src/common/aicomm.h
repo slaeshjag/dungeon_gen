@@ -41,11 +41,16 @@ struct character_entry {
 	int			slot;
 	int			self;
 
+	/* In fix-pint 24.8 pixels/s */
+	int			dx;
+	int			dy;
+
 	struct {
 		unsigned int	pushing		: 1;
 		unsigned int	jumping		: 1;
 		unsigned int	walking		: 1;
 		unsigned int	animate		: 1;
+		unsigned int	solid		: 1;
 		unsigned int	invisible	: 1;
 	} special_action;
 
