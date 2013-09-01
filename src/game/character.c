@@ -3,6 +3,7 @@
 #include "world.h"
 #include "aicomm.h"
 
+void character_expand_entries();
 
 void character_init() {
 	unsigned int chars;
@@ -21,6 +22,25 @@ void character_init() {
 
 	for (i = 0; i < ws.char_data->max_entries; i++)
 		ws.char_data->entry[i] = NULL;
+	character_expand_entries();
+
+	return;
+}
+
+
+void character_destroy() {
+	unsigned int i;
+
+	for (i = 0; (signed) i < ws.char_data->max_entries; i++)
+		character_despawn(i);
+	free(ws.char_data->entry);
+	for (i = 0; i < ws.char_data->characters; i++)
+		character_unload_graphics(i);
+	free(ws.char_data->gfx);
+	free(ws.char_data->collision);
+	d_bbox_free(ws.char_data->bbox);
+	free(ws.char_data);
+	ws.char_data = NULL;
 
 	return;
 }
@@ -38,8 +58,7 @@ struct aicomm_struct character_message_next(struct aicomm_struct ac) {
 void character_message_loop(struct aicomm_struct ac) {
 	for (;;) {
 		ac.ce = ws.char_data->entry;
-		
-		if (!ws.char_data->entry[ac.self]->loop) {
+		if (!ws.char_data->entry[ac.self] || !ws.char_data->entry[ac.self]->loop) {
 			ac.msg = AICOMM_MSG_NOAI;
 			if (ac.from < 0 || ac.from >= ws.char_data->max_entries)
 				return;
@@ -115,6 +134,9 @@ void character_message_loop(struct aicomm_struct ac) {
 void character_set_hitbox(int entry) {
 	int x, y, w, h;
 	struct character_entry *ce;
+
+	if (!ws.char_data->entry[entry])
+		return;
 
 	/* If the behaviour of darnit bbox ever changes, this will break */
 	ce = ws.char_data->entry[entry];
@@ -230,6 +252,7 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	ac.from = -1;
 	ac.self = ce->self;
 	character_message_loop(ac);
+	character_set_hitbox(i);
 
 	return i;
 }
@@ -254,10 +277,10 @@ void character_loop_entry(struct character_entry *ce) {
 			continue;
 		if (e == ce->self)
 			continue;
-		ac.arg1 = ce->self;
+		ac.arg[0] = ce->self;
 		ac.self = e;
 		character_message_loop(ac);
-		ac.arg1 = e;
+		ac.arg[0] = e;
 		ac.self = ce->self;
 		character_message_loop(ac);
 	}
@@ -311,3 +334,25 @@ void character_despawn(int entry) {
 	return;
 }
 
+
+int character_find_visible() {
+	return d_bbox_test(ws.char_data->bbox, ws.camera.x - 96, ws.camera.y - 96,
+		ws.camera.screen_w + 192, ws.camera.screen_h + 192, 
+		(unsigned *) ws.char_data->collision, ws.char_data->max_entries);
+}
+	
+
+void character_render_layer(int hits, int layer) {
+	int i, e;
+
+	for (i = 0; i < hits; i++) {
+		e = ws.char_data->collision[i];
+		if (!ws.char_data->entry[e])
+			continue;
+		if (ws.char_data->entry[e]->l != layer)
+			continue;
+		d_sprite_draw(ws.char_data->entry[e]->sprite);
+	}
+
+	return;
+}

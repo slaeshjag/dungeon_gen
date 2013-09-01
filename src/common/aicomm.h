@@ -14,14 +14,15 @@ enum aicomm_msg {
 	AICOMM_MSG_FOLM,	/* Follow me! */
 	AICOMM_MSG_GETP,	/* Get player entry */
 	AICOMM_MSG_SETP,	/* Set player entry */
+	AICOMM_MSG_TELP,	/* Teleport me! */
 	AICOMM_MSG_DESTROY,	/* Time to die! */
 };
 
 
 struct aicomm_struct {
 	enum aicomm_msg		msg;
-	int			arg1;
-	int			arg2;
+	int			arg[8];
+	void			*argp;
 	int			from;
 	struct character_entry	**ce;
 	int			self;

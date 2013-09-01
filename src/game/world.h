@@ -5,6 +5,7 @@
 #include "camera.h"
 
 enum world_state_e {
+	WORLD_STATE_MAINMENU,
 	WORLD_STATE_OVERWORLD,
 	WORLD_STATE_DUNGEON,
 };
@@ -18,5 +19,6 @@ struct world_state {
 } ws;
 
 void world_init();
+void world_loop();
 
 #endif

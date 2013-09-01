@@ -17,11 +17,14 @@ struct character_data {
 };
 
 void character_init();
+void character_destroy();
 int character_load_graphics(unsigned int slot);
 int character_unload_graphics(unsigned int slot);
 int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l);
+int character_find_visible();
 void character_despawn(int entry);
 void character_loop();
+void character_render_layer(int hits, int layer);
 
 
 #endif

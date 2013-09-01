@@ -32,9 +32,11 @@ void camera_loop() {
 
 	d_sprite_hitbox(ws.char_data->entry[ws.camera.follow_char]->sprite, &x, &y, &w, &h);
 	x -= (ws.camera.screen_w >> 1);
-	x -= (ws.camera.screen_h >> 1);
+	y -= (ws.camera.screen_h >> 1);
 	x += (w >> 1);
 	y += (h >> 1);
+	x += (ws.char_data->entry[ws.camera.follow_char]->x >> 8);
+	y += (ws.char_data->entry[ws.camera.follow_char]->y >> 8);
 	ws.camera.x = x;
 	ws.camera.y = y;
 	
