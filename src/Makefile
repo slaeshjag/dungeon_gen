@@ -5,7 +5,7 @@ SRCFILES=$(wildcard *.c)
 OBJFILES=$(SRCFILES:.c=.o)
 BIN = ../bin/dungeon_gen.elf
 GAMELIBS = game.a world_gen.a common.a
-.PHONY: all clean world_gen common game
+.PHONY: all clean world_gen common game ai
 
 all: $(OBJFILES) $(DEPENDS) game
 	@echo " [ LD ]	$(BIN)"
@@ -18,9 +18,13 @@ game: world_gen
 	@echo " [ CD ] game/"
 	+@make -C game/
 
-world_gen: common
+world_gen: ai
 	@echo " [ CD ] world_gen/"
 	+@make -C world_gen/
+
+ai: common
+	@echo " [ CD ] ai/"
+	+@make -C ai
 
 common:
 	@echo " [ CD ] common/"
@@ -37,6 +41,8 @@ clean:
 	+@make -C common clean
 	@echo " [ CD ] game/"
 	+@make -C game clean
+	@echo " [ CD ] ai/"
+	+@make -C ai clean
 	@echo "Done."
 	@echo ""
 

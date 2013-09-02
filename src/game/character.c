@@ -257,7 +257,7 @@ void character_update_sprite(int entry) {
 	y += (ce->y >> 8);
 
 	d_sprite_direction_set(ce->sprite, ce->dir);
-	(ce->special_action.animate?d_sprite_animate_start:d_sprite_animate_stop)(ce->sprite);
+	(ce->special_action.animate ? d_sprite_animate_start : d_sprite_animate_stop)(ce->sprite);
 	d_sprite_move(ce->sprite, x, y);
 
 	return;

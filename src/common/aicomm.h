@@ -1,6 +1,8 @@
 #ifndef __AICOMM_H__
 #define	__AICOMM_H__
 
+#include <darnit/darnit.h>
+
 enum aicomm_msg {
 	AICOMM_MSG_INIT,	/* Initialize! */
 	AICOMM_MSG_LOOP,	/* Frame update */
