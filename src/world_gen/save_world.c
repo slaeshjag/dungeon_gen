@@ -1,5 +1,6 @@
 #include "save_world.h"
 #include "dungeon_generate.h"
+#include "dungeon_object.h"
 #include "character_gen.h"
 #include "savefile.h"
 #include <string.h>
@@ -125,8 +126,8 @@ int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l
 		o.x = dngu->object[i].x;
 		o.y = dngu->object[i].y;
 		o.f = dngu->object[i].l;
-		o.type = dngu->object[i].type;
-		o.subtype = dngu->object[i].subtype;
+		o.gfx_slot = dungeon_object_graphics(dngu->object[i].type, dngu->object[i].subtype);
+		strcpy(o.ai_func, dungeon_object_ai(dngu->object[i].type, dngu->object[i].subtype));
 		o.link = dngu->object[i].link;
 		o.save_slot = dngu->object[i].saveslot;
 

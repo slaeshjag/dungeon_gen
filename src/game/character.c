@@ -65,6 +65,8 @@ void character_message_loop(struct aicomm_struct ac) {
 			ac.msg = AICOMM_MSG_NOAI;
 			if (ac.from < 0 || ac.from >= ws.char_data->max_entries)
 				return;
+			if (!ws.char_data->entry[ac.from])
+				return;
 			if (!ws.char_data->entry[ac.from]->loop)
 				return;
 			ac.self = ac.from;
@@ -276,6 +278,7 @@ void character_handle_movement(int entry) {
 	dx /= 1000;
 	dy /= 1000;
 
+	/* TODO: Take the map into account */
 	if (!character_test_collision(entry, dx, 0))
 		ws.char_data->entry[entry]->x += dx;
 	if (!character_test_collision(entry, 0, dy))
@@ -319,12 +322,12 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	ce->x = x << 8;
 	ce->y = y << 8;
 	ce->l = l;
+	ce->dx = ce->dy = 0;
 	ce->slot = slot;
 	ce->dir = 0;
 	*((unsigned int *) (&ce->special_action)) = 0;
 
 	d_sprite_activate(ce->sprite, 0);
-	d_sprite_move(ce->sprite, ce->x >> 8, ce->y >> 8);
 	if (ws.char_data->entries == ws.char_data->max_entries)
 		character_expand_entries();
 	for (i = 0; i < ws.char_data->max_entries; i++)
@@ -332,6 +335,7 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 			break;
 	ws.char_data->entry[i] = ce;
 	ws.char_data->entry[i]->self = i;
+	character_update_sprite(i);
 	
 	/* TODO: Init character AI */
 	ce->loop = NULL;
@@ -351,6 +355,7 @@ void character_loop_entry(struct character_entry *ce) {
 
 	ac.msg = AICOMM_MSG_LOOP;
 	ac.self = ce->self;
+	ac.from = -1;
 	character_message_loop(ac);
 	character_handle_movement(ce->self);
 
