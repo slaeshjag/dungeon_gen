@@ -6,6 +6,12 @@
 
 
 
+struct ai_lib {
+	void			*lib;
+	char			*ainame;
+};
+
+
 struct character_data {
 	DARNIT_BBOX		*bbox;
 	unsigned int		characters;
@@ -14,10 +20,13 @@ struct character_data {
 	int			*collision;
 	int			entries;
 	int			max_entries;
+	struct ai_lib		*ai_lib;
+	int			ai_libs;
 };
 
 void character_init();
 void character_destroy();
+void character_load_ai_lib(const char *fname);
 int character_load_graphics(unsigned int slot);
 int character_unload_graphics(unsigned int slot);
 int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l);

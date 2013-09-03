@@ -1,5 +1,5 @@
 # Project: dungeon_gen
-include config.mk
+include $(TOPDIR)/config.mk
 
 SRCFILES	=	$(wildcard *.c)
 OBJFILES	=	$(SRCFILES:.c=.o)

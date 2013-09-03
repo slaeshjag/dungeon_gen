@@ -3,9 +3,27 @@
 #include "dungeon_object.h"
 #include "character_gen.h"
 #include "savefile.h"
+#include "dynchar.h"
 #include <string.h>
 #include <stdlib.h>
 #include <darnit/darnit.h>
+
+
+void save_map_info(DARNIT_LDI_WRITER *lw) {
+	char buff[128];
+	struct dynchar *dc;
+
+	dc = dynchar_new();
+
+	dynchar_append(dc, "require_ai ai\n");
+	sprintf(buff, "save_version %i\n", SAVEFILE_VERSION);
+	dynchar_append(dc, buff);
+
+	d_file_ldi_write_file(lw, "world.info", dc->buff, dc->size - 1);
+	dynchar_free(dc);
+
+	return;
+}
 
 
 int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITER *lw) {

@@ -1,10 +1,25 @@
 #include <darnit/darnit.h>
+#include <string.h>
 #include "character.h"
 #include "world.h"
 #include "aicomm.h"
 
 void character_expand_entries();
 void character_update_sprite(int entry);
+
+void character_load_ai_lib(const char *fname) {
+	int i;
+
+	i = ws.char_data->ai_libs++;
+	ws.char_data->ai_lib = realloc(ws.char_data->ai_lib, 
+		sizeof(*ws.char_data->ai_lib) * ws.char_data->ai_libs);
+	ws.char_data->ai_lib[i].lib = d_dynlib_open(fname);
+	ws.char_data->ai_lib[i].ainame = malloc(strlen(fname) + 1);
+	strcpy(ws.char_data->ai_lib[i].ainame, fname);
+
+	return;
+}
+
 
 void character_init() {
 	unsigned int chars;
@@ -19,6 +34,8 @@ void character_init() {
 	ws.char_data->entry = malloc(sizeof(*ws.char_data->entry) * ws.char_data->max_entries);
 	ws.char_data->collision = malloc(sizeof(unsigned int) * ws.char_data->max_entries);
 	ws.char_data->bbox = d_bbox_new(ws.char_data->max_entries);
+	ws.char_data->ai_lib = NULL;
+	ws.char_data->ai_libs = 0;
 	d_bbox_sortmode(ws.char_data->bbox, DARNIT_BBOX_SORT_Y);
 
 	for (i = 0; i < ws.char_data->max_entries; i++)
@@ -37,6 +54,12 @@ void character_destroy() {
 	free(ws.char_data->entry);
 	for (i = 0; i < ws.char_data->characters; i++)
 		character_unload_graphics(i);
+	for (i = 0; (signed) i < ws.char_data->ai_libs; i++) {
+		ws.char_data->ai_lib[i].lib = d_dynlib_close(ws.char_data->ai_lib[i].lib);
+		free(ws.char_data->ai_lib[i].ainame);
+	}
+
+	free(ws.char_data->ai_lib);
 	free(ws.char_data->gfx);
 	free(ws.char_data->collision);
 	d_bbox_free(ws.char_data->bbox);

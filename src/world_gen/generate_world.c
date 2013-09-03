@@ -27,7 +27,7 @@ void generate_world(int saveslot) {
 	w.st = d_stringtable_open("bin/autotile.stz");
 	sprintf(name, "world_%i.save", saveslot);
 	f = d_file_open(name, "w+b");
-	w.lw = d_file_ldi_write(f, 2);
+	w.lw = d_file_ldi_write(f, 3);
 
 	w.dungeons = 1;
 	fprintf(stderr, "Generating dungeons... ");
@@ -35,6 +35,7 @@ void generate_world(int saveslot) {
 	fprintf(stderr, "Generating character graphics... ");
 	generate_character_graphics(&w, random_get() % 40 + 50);
 	fprintf(stderr, "\n");
+	save_map_info(w.lw);
 
 	d_file_ldi_write_end(w.lw);
 	d_file_close(f);
