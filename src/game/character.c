@@ -7,17 +7,31 @@
 void character_expand_entries();
 void character_update_sprite(int entry);
 
-void character_load_ai_lib(const char *fname) {
+int character_load_ai_lib(const char *fname) {
 	int i;
 
 	i = ws.char_data->ai_libs++;
 	ws.char_data->ai_lib = realloc(ws.char_data->ai_lib, 
 		sizeof(*ws.char_data->ai_lib) * ws.char_data->ai_libs);
-	ws.char_data->ai_lib[i].lib = d_dynlib_open(fname);
+	if (!(ws.char_data->ai_lib[i].lib = d_dynlib_open(fname))) {
+		ws.char_data->ai_libs--;
+		return 0;
+	}
+
 	ws.char_data->ai_lib[i].ainame = malloc(strlen(fname) + 1);
 	strcpy(ws.char_data->ai_lib[i].ainame, fname);
 
-	return;
+	return 1;
+}
+
+
+void *character_find_ai_func(const char *name) {
+	int i;
+	void *func = NULL;
+
+	for (i = 0; i < ws.char_data->ai_libs && !func; i++)
+		func = d_dynlib_get(ws.char_data->ai_lib[i].lib, name);
+	return func;
 }
 
 
@@ -84,7 +98,9 @@ void character_message_loop(struct aicomm_struct ac) {
 
 	for (;;) {
 		ac.ce = ws.char_data->entry;
-		if (!ws.char_data->entry[ac.self] || !ws.char_data->entry[ac.self]->loop) {
+		if (ac.self < 0)
+			return;
+		else if (!ws.char_data->entry[ac.self] || !ws.char_data->entry[ac.self]->loop) {
 			ac.msg = AICOMM_MSG_NOAI;
 			if (ac.from < 0 || ac.from >= ws.char_data->max_entries)
 				return;
@@ -268,12 +284,12 @@ int character_test_collision(int entry, int dx, int dy) {
 
 
 void character_update_sprite(int entry) {
-	int x, y;
+	int x, y, w, h;
 	struct character_entry *ce;
 
 	ce = ws.char_data->entry[entry];
 
-	d_sprite_hitbox(ce->sprite, &x, &y, NULL, NULL);
+	d_sprite_hitbox(ce->sprite, &x, &y, &w, &h);
 	x *= -1;
 	y *= -1;
 	x += (ce->x >> 8);
@@ -282,6 +298,8 @@ void character_update_sprite(int entry) {
 	d_sprite_direction_set(ce->sprite, ce->dir);
 	(ce->special_action.animate ? d_sprite_animate_start : d_sprite_animate_stop)(ce->sprite);
 	d_sprite_move(ce->sprite, x, y);
+	d_bbox_move(ws.char_data->bbox, ce->self, x, y);
+	d_bbox_resize(ws.char_data->bbox, ce->self, w, h);
 
 	return;
 }
@@ -335,7 +353,7 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	for (i = j = k = 0; sprite[i].tile != -1 || sprite[i].time != -1; i++) {
 		h = j * 4;
 		if (sprite[i].tile >= 0) {
-			d_sprite_hitbox_set(ce->sprite, j, 0, cg->sprite_hitbox[h], 
+			d_sprite_hitbox_set(ce->sprite, j, k, cg->sprite_hitbox[h], 
 			    cg->sprite_hitbox[h+1], cg->sprite_hitbox[h+2],cg->sprite_hitbox[h+3]);
 			d_sprite_frame_entry_set(ce->sprite, j, k++, sprite[i].tile, sprite[i].time);
 		} else
@@ -348,6 +366,7 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	ce->dx = ce->dy = 0;
 	ce->slot = slot;
 	ce->dir = 0;
+	ce->state = NULL;
 	*((unsigned int *) (&ce->special_action)) = 0;
 
 	d_sprite_activate(ce->sprite, 0);
@@ -360,8 +379,8 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	ws.char_data->entry[i]->self = i;
 	character_update_sprite(i);
 	
-	/* TODO: Init character AI */
-	ce->loop = NULL;
+	ce->loop = character_find_ai_func(ai);
+	fprintf(stderr, "Looking for func %s\n", ai);
 	ac.msg = AICOMM_MSG_INIT;
 	ac.from = -1;
 	ac.self = ce->self;

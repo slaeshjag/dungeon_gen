@@ -145,6 +145,7 @@ int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l
 		o.y = dngu->object[i].y;
 		o.f = dngu->object[i].l;
 		o.gfx_slot = dungeon_object_graphics(dngu->object[i].type, dngu->object[i].subtype);
+		memset(o.ai_func, 0, 32);
 		strcpy(o.ai_func, dungeon_object_ai(dngu->object[i].type, dngu->object[i].subtype));
 		o.link = dngu->object[i].link;
 		o.save_slot = dngu->object[i].saveslot;

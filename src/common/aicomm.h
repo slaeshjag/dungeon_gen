@@ -57,6 +57,7 @@ struct character_entry {
 	} special_action;
 
 	DARNIT_SPRITE		*sprite;
+	void			*state;
 };
 
 #endif

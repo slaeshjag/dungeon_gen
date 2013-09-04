@@ -1,7 +1,8 @@
 #include "save_loader.h"
 #include "common.h"
 #include "string.h"
-#include "darnit/darnit.h"
+#include <darnit/darnit.h>
+#include "character.h"
 
 
 int character_gfx_data_characters() {
@@ -84,7 +85,6 @@ struct char_gfx *character_gfx_data_load(unsigned int char_num) {
 	cg->sprite_ts = d_render_tilesheet_new(char_w / scg.sprite_w, char_h / scg.sprite_h, 
 		scg.sprite_w, scg.sprite_h, DARNIT_PFORMAT_RGB5A1);
 	d_render_tilesheet_update(cg->sprite_ts, 0, 0, char_w, char_h, bptr);
-	fprintf(stderr, "Updating area of size %i, %i\n", char_w, char_h);
 
 	buff = realloc(buff, scg.zspritedata);
 	d_file_read(buff, scg.zspritedata, f);
@@ -204,4 +204,26 @@ void *dungeon_unload(struct dungeon_map *dm) {
 	d_render_tilesheet_free(dm->ts);
 
 	return NULL;
+}
+
+
+int save_load_deps() {
+	DARNIT_FILE *f;
+	char cmd[128], arg[128], line[256];
+
+	f = d_file_open("world.info", "rb");
+	while (!d_file_eof(f)) {
+		d_file_getln(line, 256, f);
+		sscanf(line, "%s %s", cmd, arg);
+		if (!strcmp(cmd, "require_ai")) {
+			sprintf(line, "bin/" PLATFORM ".%s", arg);
+			if (!character_load_ai_lib(line)) {
+				fprintf(stderr, "Unable to load required lib %s\n", line);
+				return 0;
+			}
+		}
+	}
+
+	d_file_close(f);
+	return 1;
 }

@@ -49,5 +49,6 @@ void *character_gfx_data_unload(struct char_gfx *cg);
 struct dungeon_map *dungeon_load(int dungeon_number);
 void *dungeon_unload(struct dungeon_map *dm);
 
+int save_load_deps();
 
 #endif

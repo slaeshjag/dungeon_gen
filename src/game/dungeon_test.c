@@ -18,9 +18,10 @@ int main(int argc, char **argv) {
 	world_init();
 	d_fs_mount("world_0.save");
 	character_init();
+	save_load_deps();
 
 	ws.dm = dungeon_load(0);
-	character_spawn_entry(2, NULL, ws.dm->entrance % ws.dm->floor->tm->w * 32, 
+	character_spawn_entry(2, "player_ai", ws.dm->entrance % ws.dm->floor->tm->w * 32, 
 		ws.dm->entrance / ws.dm->floor->tm->w * 32, ws.dm->entrance_floor);
 
 	ws.state = WORLD_STATE_DUNGEON;

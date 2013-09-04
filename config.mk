@@ -66,3 +66,4 @@ endif
 endif
 
 LIB	=	$(TOPDIR)/bin/$(PLATFORM).ai
+CFLAGS	+=	-DPLATFORM=\"$(PLATFORM)\"
