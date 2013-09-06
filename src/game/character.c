@@ -246,6 +246,61 @@ int character_unload_graphics(unsigned int slot) {
 }
 
 
+int character_test_map(int entry, int dx, int dy) {
+	int x, y, w, h, x2, y2, x3, y3, t, t2, t3, t4, dir, l;
+	struct character_entry *ce;
+	
+	ce = ws.char_data->entry[entry];
+	d_sprite_hitbox(ce->sprite, NULL, NULL, &w, &h);
+	x2 = ((ce->x + dx) >> 8);
+	y2 = ((ce->y + dy) >> 8);
+	x = (ce->x >> 8);
+	y = (ce->y >> 8);
+	l = ce->l;
+	if (x < 0 || x2 < 0 || y < 0 || y2 < 0)
+		return 1;
+
+	t3 = world_calc_tile(x2, y2, ce->l);
+	t4 = world_calc_tile(x, y, ce->l);
+	x3 = x2;
+	y3 = y2;
+	if (dx > 0) {
+		x += w;
+		x2 += w;
+	}
+	if (dy > 0) {
+		y += h;
+		y2 += h;
+	}
+	t = world_calc_tile(x, y, ce->l);
+	t2 = world_calc_tile(x2, y2, ce->l);
+	if (t < 0 || t2 < 0 || t3 < 0)
+		return 1;
+	if (dx < 0 || dy < 0) {
+		if (t == t2)
+			return 0;
+	} else {
+		if (t4 == t3)
+			return 0;
+	}
+	if (dx) {
+		dir = (dx < 0) ? 0x4 : 0x1;
+		if (world_get_tile(x2, y2, l) & (dir << 16))
+			return 1;
+		if (world_get_tile(x2, y3, l) & (dir << 16))
+			return 1;
+	} else if (dy) {
+		dir = (dy < 0) ? 0x8 : 0x2;
+		if (world_get_tile(x2, y2, l) & (dir << 16))
+			return 1;
+		if (world_get_tile(x3, y2, l) & (dir << 16))
+			return 1;
+	}
+	
+	return 0;
+}
+
+
 int character_test_collision(int entry, int dx, int dy) {
 	struct aicomm_struct ac;
 	struct character_entry *ce;
@@ -307,9 +362,11 @@ void character_update_sprite(int entry) {
 
 void character_handle_movement(int entry) {
 	int dx, dy;
+	struct character_entry *e;
 
-	dx = ws.char_data->entry[entry]->dx;
-	dy = ws.char_data->entry[entry]->dy;
+	e = ws.char_data->entry[entry];
+	dx = e->dx;
+	dy = e->dy;
 
 	if (!dx && !dy)
 		return;
@@ -319,12 +376,29 @@ void character_handle_movement(int entry) {
 	dx /= 1000;
 	dy /= 1000;
 
-	/* TODO: Take the map into account */
-	if (!character_test_collision(entry, dx, 0))
-		ws.char_data->entry[entry]->x += dx;
-	if (!character_test_collision(entry, 0, dy))
-		ws.char_data->entry[entry]->y += dy;
+	while (dx) {
+		if (!character_test_collision(entry, dx, 0) && !character_test_map(entry, dx, 0)) {
+			ws.char_data->entry[entry]->x += dx;
+			break;
+		}
+		if (!(dx / 256))
+			break;
+		dx += (dx < 0) ? 256 : -256;
+	}
+
+	while (dy) {
+		if (!character_test_collision(entry, 0, dy) && !character_test_map(entry, 0, dy)) {
+			ws.char_data->entry[entry]->y += dy;
+			break;
+		}
+		if (!(dy / 256))
+			break;
+		dy += (dy < 0) ? 256 : -256;
+	}
+
 	character_update_sprite(entry);
+
+	e->dx = 0, e->dy = 0;
 	
 	return;
 }

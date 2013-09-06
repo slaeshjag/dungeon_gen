@@ -62,3 +62,44 @@ void world_loop() {
 
 	return;
 }
+
+
+int world_calc_tile(int x, int y, int l) {
+	x /= ws.camera.tile_w;
+	y /= ws.camera.tile_h;
+	if (x < 0 || y < 0) {
+		return -1;
+	}
+
+	switch (ws.state) {
+		case WORLD_STATE_DUNGEON:
+			if (x >= ws.dm->floor[l].tm->w)
+				return -1;
+			if (y >= ws.dm->floor[l].tm->h)
+				return -1;
+			return x + y * ws.dm->floor[l].tm->w;
+			break;
+		default:
+			return 0;
+	}
+
+	return 0;
+}
+
+
+unsigned int world_get_tile(int x, int y, int l) {
+	int ret;
+	switch (ws.state) {
+		case WORLD_STATE_DUNGEON:
+			ret = world_calc_tile(x, y, l);
+			if (ret < 0)
+				return ~0;
+			return ws.dm->floor[l].tm->data[ret];
+			break;
+		default:
+			return 0;
+			break;
+	}
+
+	return 0;
+}
