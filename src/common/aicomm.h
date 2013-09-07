@@ -19,6 +19,7 @@ enum aicomm_msg {
 	AICOMM_MSG_TELP,	/* Teleport me! */
 	AICOMM_MSG_KILL,	/* Kill a character */
 	AICOMM_MSG_SPWN,	/* Spawn a character */
+	AICOMM_MSG_GETF,	/* Get character I'm facing */
 	AICOMM_MSG_DESTROY,	/* Time to die! */
 };
 

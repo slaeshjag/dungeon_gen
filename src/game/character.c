@@ -7,6 +7,65 @@
 void character_expand_entries();
 void character_update_sprite(int entry);
 
+
+int character_get_character_looked_at(int src) {
+	int x, y, w, h, xt, yt, n;
+	unsigned int t;
+
+	if (src < 0 || src >= ws.char_data->max_entries)
+		return -1;
+	if (!ws.char_data->entry[src])
+		return -1;
+	d_sprite_hitbox(ws.char_data->entry[src]->sprite, &x, &y, &w, &h);
+	x += (ws.char_data->entry[src]->x >> 8);
+	y += (ws.char_data->entry[src]->y >> 8);
+
+	switch (ws.char_data->entry[src]->dir) {
+		case 0:	/* West */
+			xt = x - (w >> 1);
+			yt = y + (h >> 1);
+			break;
+		case 1:	/* North */
+			xt = x + (w >> 1);
+			yt = y - (h >> 1);
+			break;
+		case 2:	/* East */
+			xt = x + w;
+			yt = y + (h >> 1);
+			break;
+		case 3:	/* South */
+			xt = x + (w >> 1);
+			yt = y + h;
+			break;
+		case 4: /* North-west */
+			xt = x - (w >> 1);
+			yt = y - (h >> 1);
+			break;
+		case 5:	/* North-east */
+			xt = x + w;
+			yt = y - (h >> 1);
+			break;
+		case 6:	/* South-east */
+			xt = x + w;
+			yt = y + h;
+			break;
+		case 7:	/* South-west */
+			xt = x - (w >> 1);
+			yt = y + h;
+			break;
+		default:
+			return -1;
+			break;
+	}
+
+	n = d_bbox_test(ws.char_data->bbox, xt, yt, (w >> 1), (h >> 1), &t, 1);
+	if (!n)
+		return -1;
+	return t;
+}
+			
+
+
 int character_load_ai_lib(const char *fname) {
 	int i;
 
@@ -166,6 +225,10 @@ void character_message_loop(struct aicomm_struct ac) {
 				y = ac.arg[2] * ws.camera.tile_h * 256;
 				character_spawn_entry(ac.arg[0], ac.argp, x, y, ac.arg[3]);
 				ac = character_message_next(ac);
+				break;
+			case AICOMM_MSG_GETF:
+				ac.self = ac.from;
+				ac.from = character_get_character_looked_at(ac.self);
 				break;
 			default:
 				ac.self = ac.from;

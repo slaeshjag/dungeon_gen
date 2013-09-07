@@ -61,6 +61,12 @@ No arguments
 ======
 
 
+AICOMM_MSG_GETF - Get the character you're facing
+Recieved as a reply to AICOMM_MSG_GETF.
+
+ac.from - Character you are facing. -1 if not facing any.
+
+======
 
 *** Messages that can be sent by AI handler ***
 
@@ -147,5 +153,11 @@ arg1 - X-coordinate in tiles
 arg2 - Y-coordinate in tiles
 arg3 - Floor (layer on overworld) number
 argp - A NULL-terminates string with the name of the AI handler
+
+======
+
+AICOMM_MSG_GETF - Get character you're facing
+
+ac.from - Who you are
 
 ======
