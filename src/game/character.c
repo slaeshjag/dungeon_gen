@@ -312,6 +312,7 @@ int character_unload_graphics(unsigned int slot) {
 int character_test_map(int entry, int dx, int dy) {
 	int x, y, w, h, x2, y2, x3, y3, t, t2, t3, t4, dir, l;
 	struct character_entry *ce;
+	struct aicomm_struct ac;
 	
 	ce = ws.char_data->entry[entry];
 	d_sprite_hitbox(ce->sprite, NULL, NULL, &w, &h);
@@ -327,16 +328,18 @@ int character_test_map(int entry, int dx, int dy) {
 	t4 = world_calc_tile(x, y, ce->l);
 	x3 = x2;
 	y3 = y2;
+
 	if (dx > 0) {
 		x += w;
 		x2 += w;
-	}
-	if (dy > 0) {
+	} else if (dy > 0) {
 		y += h;
 		y2 += h;
 	}
+
 	t = world_calc_tile(x, y, ce->l);
 	t2 = world_calc_tile(x2, y2, ce->l);
+
 	if (t < 0 || t2 < 0 || t3 < 0)
 		return 1;
 	if (dx < 0 || dy < 0) {
@@ -346,6 +349,7 @@ int character_test_map(int entry, int dx, int dy) {
 		if (t4 == t3)
 			return 0;
 	}
+
 	if (dx) {
 		dir = (dx < 0) ? 0x4 : 0x1;
 		if (world_get_tile(x2, y2, l) & (dir << 16))
@@ -358,6 +362,21 @@ int character_test_map(int entry, int dx, int dy) {
 			return 1;
 		if (world_get_tile(x3, y2, l) & (dir << 16))
 			return 1;
+	}
+
+	ac.from = -1;
+	ac.msg = AICOMM_MSG_MAPE;
+	ac.self = entry;
+	if (world_get_tile(x, y, ce->l) & MAP_FLAG_EVENT) {
+		ac.arg[0] = t;
+		ac.arg[1] = world_get_tile(x, y, ce->l);
+		character_message_loop(ac);
+	}
+
+	if (world_get_tile(x2, y2, ce->l) & MAP_FLAG_EVENT) {
+		ac.arg[0] = t2;
+		ac.arg[1] = world_get_tile(x2, y2, ce->l);
+		character_message_loop(ac);
 	}
 	
 	return 0;
@@ -517,7 +536,6 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	character_update_sprite(i);
 	
 	ce->loop = character_find_ai_func(ai);
-	fprintf(stderr, "Looking for func %s\n", ai);
 	ac.msg = AICOMM_MSG_INIT;
 	ac.from = -1;
 	ac.self = ce->self;

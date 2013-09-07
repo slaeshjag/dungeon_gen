@@ -68,6 +68,13 @@ ac.from - Character you are facing. -1 if not facing any.
 
 ======
 
+AICOMM_MSG_MAPE - Character stepped on a map event trigger
+
+ac.arg0 - Tile index
+ac.arg1 - Tile value
+
+======
+
 *** Messages that can be sent by AI handler ***
 
 Note: When sending a message, ac.self needs to be the reciever, and ac.from
@@ -136,6 +143,13 @@ Teleport the character to a different location
 arg0 - Dungeon to teleport to (-1 for overworld)
 arg1 - Map X coordinate (for dungeon, leave as -1 for entrance)
 arg2 - Map Y coordinate (for dungeon, leave as -1 for entrance)
+
+======
+
+AICOMM_MSG_TPME - Teleport using teleport table
+Teleport the character using the current maps teleportation table
+
+arg0 - Index in the teleportation table to use
 
 ======
 
