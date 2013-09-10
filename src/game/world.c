@@ -15,6 +15,8 @@ void world_dungeon_load(int dungeon) {
 
 void world_init() {
 	ws.active_dungeon = -1;
+	ws.state = WORLD_STATE_MAINMENU;
+	ws.new_state = WORLD_STATE_MAINMENU;
 	ws.dm = NULL;
 }
 
@@ -31,6 +33,41 @@ void world_reset() {
 
 void world_loop() {
 	int p, f;
+
+	if (ws.new_state != ws.state) {
+		if (!d_render_fade_status())
+			d_render_fade_in(WORLD_FADE_TIME, 0, 0, 0);
+		else if (d_render_fade_status() == 2) {
+			switch (ws.state) {
+				case WORLD_STATE_MAINMENU:
+				case WORLD_STATE_OVERWORLD:
+					break;
+				case WORLD_STATE_DUNGEON:
+					ws.dm = dungeon_unload(ws.dm);
+					break;
+				default:
+					break;
+			}
+
+			switch (ws.new_state) {
+				case WORLD_STATE_MAINMENU:
+				case WORLD_STATE_OVERWORLD:
+					break;
+				case WORLD_STATE_DUNGEON:
+					ws.dm = dungeon_load(ws.active_dungeon);
+					character_spawn_entry(2, "player_ai", ws.dm->entrance % ws.dm->floor->tm->w * 32, 
+					ws.dm->entrance / ws.dm->floor->tm->w * 32, ws.dm->entrance_floor);
+					break;
+				default:
+					break;
+			}
+
+			ws.state = ws.new_state;
+			d_render_fade_out(WORLD_FADE_TIME);
+		}
+	}
+			
+
 
 	switch (ws.state) {
 		case WORLD_STATE_MAINMENU:

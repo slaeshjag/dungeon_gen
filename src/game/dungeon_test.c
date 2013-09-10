@@ -19,15 +19,16 @@ int main(int argc, char **argv) {
 	d_fs_mount("world_0.save");
 	character_init();
 	save_load_deps();
-
-	ws.dm = dungeon_load(0);
-	character_spawn_entry(2, "player_ai", ws.dm->entrance % ws.dm->floor->tm->w * 32, 
-		ws.dm->entrance / ws.dm->floor->tm->w * 32, ws.dm->entrance_floor);
-
-	ws.state = WORLD_STATE_DUNGEON;
+	
 	camera_init();
 	ws.camera.follow_char = 0;
 	ws.camera.player = 0;
+
+	ws.active_dungeon = 0;
+	ws.new_state = WORLD_STATE_DUNGEON;
+	world_loop();
+
+
 
 	for (;;) {
 		world_loop();
