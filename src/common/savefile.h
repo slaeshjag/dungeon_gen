@@ -27,6 +27,17 @@ struct savefile_character_gfx {
 
 
 
+/*** FOR BOTH OVERWORLD AND DUNGEON */
+
+struct savefile_teleport_entry {
+	/* -1 for overworld */
+	int				dungeon;
+	int				x;
+	int				y;
+	int				l;
+};
+
+
 /*** FOR SAVING DUNGEONS ***/
 struct savefile_dungeon_header {
 	unsigned int			floors;

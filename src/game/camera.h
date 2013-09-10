@@ -10,6 +10,7 @@ struct camera {
 	int			player;
 	int			tile_w;
 	int			tile_h;
+	int			scroll_speed;
 };
 
 
