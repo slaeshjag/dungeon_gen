@@ -175,3 +175,9 @@ AICOMM_MSG_GETF - Get character you're facing
 ac.from - Who you are
 
 ======
+
+AICOMM_MSG_CAMN - Make camera jump to followed character
+
+ac.from - Who you are
+
+======
