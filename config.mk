@@ -5,7 +5,7 @@ DBGFLAGS	=	-O0 -g -D__DEBUG__
 #DBGFLAGS	=	-O3 -g
 #General flags
 CFLAGS		+=	-Wall -shared $(DBGFLAGS) -Wextra
-LDFLAGS		+=	-ldarnit -Wl,-soname,ai_lib.so
+LDFLAGS		+=	-ldarnit -Wl,-soname,ai_lib.so -lm
 
 #Makefile tools
 RM		=	rm -Rf
