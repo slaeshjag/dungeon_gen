@@ -15,6 +15,9 @@ static void player_init(struct aicomm_struct ac, struct player_state *ps) {
 	ac.msg = AICOMM_MSG_FOLM;
 	aicom_msgbuf_push(ps->msg, ac);
 
+	ac.msg = AICOMM_MSG_CAMN;
+	aicom_msgbuf_push(ps->msg, ac);
+
 	return;
 }
 

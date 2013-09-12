@@ -230,6 +230,12 @@ void character_message_loop(struct aicomm_struct ac) {
 				ac.self = ac.from;
 				ac.from = character_get_character_looked_at(ac.self);
 				break;
+			case AICOMM_MSG_CAMN:
+				ac.self = ac.from;
+				ac.from = -1;
+				ac = character_message_next(ac);
+				ws.camera.jump = 1;
+				break;
 			default:
 				ac.self = ac.from;
 				ac.from = -1;

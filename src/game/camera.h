@@ -11,6 +11,7 @@ struct camera {
 	int			tile_w;
 	int			tile_h;
 	int			scroll_speed;
+	int			jump;
 };
 
 
