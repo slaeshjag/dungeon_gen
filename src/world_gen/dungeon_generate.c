@@ -10,7 +10,7 @@
 static unsigned int structure[256];
 #define	CLEAR_STRUCTURE()		(memset(structure, 0, sizeof(int) * 256));
 
-static void diamon_square(unsigned int *map, int side_len) {
+static void diamond_square(unsigned int *map, int side_len) {
 	#define INDEX(x, y) ((y)*side_len+(x))
 	
 	int x, y, len=side_len, half, r=5000, tmp;
@@ -37,8 +37,41 @@ static void diamon_square(unsigned int *map, int side_len) {
 	#undef INDEX
 }
 
-struct dungeon_use *dungeon_generate_diamond_square() {
+struct dungeon_use *dungeon_generate_diamond_square(int size) {
+	struct dungeon_use *du;
+	void *tmp_data;
+	int i;
+
+	du = malloc(sizeof(*du));
+	du->w = malloc(sizeof(*du->w));
+	du->h = malloc(sizeof(*du->h));
+	du->tile_data = malloc(sizeof(*du->tile_data));
+	du->tile_data[0] = malloc(sizeof(**du->tile_data) * size * size);
+	du->overlay_data = malloc(sizeof(*du->overlay_data));
+	du->overlay_data[0] = calloc(sizeof(**du->overlay_data), size * size);
+	du->floor_info = malloc(sizeof(*du->floor_info));
+	du->floor_info->stair_up = -1;
+	du->floor_info->stair_down = -1;
+	du->floors = 1;
+	du->object = NULL;
+	du->objects = 0;
+	du->puzzle = NULL;
+	du->puzzles = 0;
+	du->entrance = 4 * size;
+	du->entrance_floor = 0;
+	du->w[0] = size;
+	du->h[0] = size;
+	tmp_data = malloc((size + 1) * (size + 1) * sizeof(int));
+	diamond_square(tmp_data, size + 1);
+	util_blt(du->tile_data[0], size, size, 0, 0, tmp_data, size + 1, size + 1, 1, 1);
+
+	for (i = 0; i < size * size; i++) {
+		du->tile_data[0][i] = du->tile_data[0][i] > 2500 ? 0 : 1;
+		du->tile_data[0][i] = (du->tile_data[0][i]) ? (du->entrance = i, ROOM_TILE_FLOOR) : 0xF0000;
+	}
+	free(tmp_data);
 	
+	return du;
 }
 
 static void floor_clear_visit(struct dungeon *dungeon, int f) {

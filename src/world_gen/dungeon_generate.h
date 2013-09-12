@@ -78,6 +78,7 @@ struct dungeon_use {
 };
 
 
+struct dungeon_use *dungeon_generate_diamond_square(int size);
 struct dungeon *dungeon_layout_new(int w, int h, int max_room, int min_room, int boss_s, int floors);
 void dungeon_init_floor(struct dungeon *dungeon, int room_w, int room_h, int max_enemy, int entrance_floor);
 void *dungeon_free_generate_dungeon(struct dungeon *dungeon);
