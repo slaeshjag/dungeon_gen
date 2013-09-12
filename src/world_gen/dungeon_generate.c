@@ -10,6 +10,36 @@
 static unsigned int structure[256];
 #define	CLEAR_STRUCTURE()		(memset(structure, 0, sizeof(int) * 256));
 
+static void diamon_square(unsigned int *map, int side_len) {
+	#define INDEX(x, y) ((y)*side_len+(x))
+	
+	int x, y, len=side_len, half, r=5000, tmp;
+	
+	map[0]=map[INDEX(len-1, 0)]=map[INDEX(0, len-1)]=map[INDEX(len-1, len-1)]=r/2;
+	
+	for(len=side_len-1; len>=2; len/=2, r/=2) {
+		half=len/2;
+		for(y=0; y<side_len-1; y+=len)
+			for(x=0; x<side_len-1; x+=len)
+				map[INDEX(x+half, y+half)]=(map[INDEX(x, y)]+map[INDEX(x+len, y)]+map[INDEX(x, y+len)]+map[INDEX(x+len, y+len)])/4+rand()%r-r/2;
+		
+		for(y=0; y<side_len-1; y+=half)
+			for(x=(y+half)%len; x<side_len-1; x+=len) {
+				tmp=(map[INDEX((x-half+len)%side_len, y)]+map[INDEX((x+half)%side_len, y)]+map[INDEX(x, (y-half+len)%side_len)]+map[INDEX(x, (y+half)%side_len)])/4+rand()%r-r/2;
+				map[INDEX(x, y)]=tmp;
+				if(!x)
+					map[INDEX(side_len-1, y)]=tmp;
+				if(!y)
+					map[INDEX(x, side_len-1)]=tmp;
+			}
+	}
+	
+	#undef INDEX
+}
+
+struct dungeon_use *dungeon_generate_diamond_square() {
+	
+}
 
 static void floor_clear_visit(struct dungeon *dungeon, int f) {
 	int i;
