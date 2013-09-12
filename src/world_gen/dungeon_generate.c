@@ -43,15 +43,13 @@ struct dungeon_use *dungeon_generate_diamond_square(int size) {
 	int i;
 
 	du = malloc(sizeof(*du));
-	du->w = malloc(sizeof(*du->w));
-	du->h = malloc(sizeof(*du->h));
-	du->tile_data = malloc(sizeof(*du->tile_data));
-	du->tile_data[0] = malloc(sizeof(**du->tile_data) * size * size);
-	du->overlay_data = malloc(sizeof(*du->overlay_data));
-	du->overlay_data[0] = calloc(sizeof(**du->overlay_data), size * size);
 	du->floor_info = malloc(sizeof(*du->floor_info));
+	du->floor_info->tile_data = malloc(sizeof(*du->floor_info->tile_data) * size * size);
+	du->floor_info->overlay_data = calloc(sizeof(*du->floor_info->overlay_data), size * size);
 	du->floor_info->stair_up = -1;
 	du->floor_info->stair_down = -1;
+	du->floor_info->w = size;
+	du->floor_info->h = size;
 	du->floors = 1;
 	du->object = NULL;
 	du->objects = 0;
@@ -59,20 +57,20 @@ struct dungeon_use *dungeon_generate_diamond_square(int size) {
 	du->puzzles = 0;
 	du->entrance = 4 * size;
 	du->entrance_floor = 0;
-	du->w[0] = size;
-	du->h[0] = size;
 	tmp_data = malloc((size + 1) * (size + 1) * sizeof(int));
 	diamond_square(tmp_data, size + 1);
-	util_blt(du->tile_data[0], size, size, 0, 0, tmp_data, size + 1, size + 1, 1, 1);
+	util_blt(du->floor_info[0].tile_data, size, size, 0, 0, tmp_data, size + 1, size + 1, 1, 1);
 
 	for (i = 0; i < size * size; i++) {
-		du->tile_data[0][i] = du->tile_data[0][i] > 2500 ? 0 : 1;
-		du->tile_data[0][i] = (du->tile_data[0][i]) ? (du->entrance = i, ROOM_TILE_FLOOR) : 0xF0000;
+		du->floor_info[0].tile_data[i] = du->floor_info[0].tile_data[i] > 2500 ? 0 : 1;
+		du->floor_info[0].tile_data[i] = (du->floor_info[0].tile_data[i]) ? (du->entrance = i, ROOM_TILE_FLOOR) : 0xF0000;
 	}
 	free(tmp_data);
 	
 	return du;
 }
+
+#if 0
 
 static void floor_clear_visit(struct dungeon *dungeon, int f) {
 	int i;
@@ -668,22 +666,19 @@ struct dungeon_use *dungeon_make_usable(struct dungeon *dungeon) {
 	return dngu;
 }
 
+#endif
 
 void *dungeon_free_usable(struct dungeon_use *dngu) {
 	int i;
 
 	for (i = 0; i < dngu->floors; i++) {
-		free(dngu->overlay_data[i]);
-		free(dngu->tile_data[i]);
+		free(dngu->floor_info[i].overlay_data);
+		free(dngu->floor_info[i].tile_data);
 	}
 
-	free(dngu->overlay_data);
-	free(dngu->tile_data);
 	free(dngu->floor_info);
 	free(dngu->object);
 	free(dngu->puzzle);
-	free(dngu->w);
-	free(dngu->h);
 	free(dngu);
 
 	return NULL;

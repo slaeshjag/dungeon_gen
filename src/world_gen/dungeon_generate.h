@@ -26,6 +26,10 @@ struct dungeon_puzzle_part {
 struct dungeon_floor_info {
 	int				stair_up;
 	int				stair_down;
+	int				w;
+	int				h;
+	unsigned int			*tile_data;
+	unsigned int			*overlay_data;
 };
 
 
@@ -63,11 +67,7 @@ struct dungeon_object {
 
 
 struct dungeon_use {
-	int				*w;
-	int				*h;
 	int				floors;
-	unsigned int			**tile_data;
-	unsigned int			**overlay_data;
 	struct dungeon_floor_info	*floor_info;
 	struct dungeon_object		*object;
 	int				objects;

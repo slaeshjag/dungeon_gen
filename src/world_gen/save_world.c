@@ -99,13 +99,14 @@ int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l
 	struct savefile_dungeon_header h;
 	struct savefile_dungeon_floor l;
 	struct savefile_dungeon_object o;
+	struct dungeon_floor_info *fi;
 	char *data, *next, name[32];
 
 	size = sizeof(h) + sizeof(l) * dngu->floors;
 	size += (sizeof(struct dungeon_puzzle_part) * dngu->puzzles);
 	
 	for (i = 0; i < dngu->floors; i++)
-		size += (dngu->w[i] * dngu->h[i] * sizeof(unsigned int) * 2);
+		size += (dngu->floor_info[i].w * dngu->floor_info[i].h * sizeof(unsigned int) * 2);
 	size += dngu->objects * sizeof(o);
 	sprintf(name, "world/dungeon_%i.lvl", index);
 	fprintf(stderr, "calculated dungeon size to %i octets\n", size);
@@ -123,21 +124,22 @@ int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l
 	next += sizeof(h);
 
 	for (i = 0; i < dngu->floors; i++) {
-		l.stair_up = dngu->floor_info[i].stair_up;
-		l.stair_down = dngu->floor_info[i].stair_down;
-		l.floor_w = dngu->w[i];
-		l.floor_h = dngu->h[i];
+		fi = &dngu->floor_info[i];
+		l.stair_up = fi->stair_up;
+		l.stair_down = fi->stair_down;
+		l.floor_w = fi->w;
+		l.floor_h = fi->h;
 		d_util_endian_convert((void *) &l, sizeof(l) / sizeof(unsigned int));
 		memcpy(next, &l, sizeof(l));
 		next += sizeof(l);
-		d_util_endian_convert((void *) dngu->tile_data[i], dngu->w[i] * dngu->h[i]);
-		memcpy(next, dngu->tile_data[i], dngu->w[i] * dngu->h[i] * 4);
-		d_util_endian_convert((void *) dngu->tile_data[i], dngu->w[i] * dngu->h[i]);
-		next += (dngu->w[i] * dngu->h[i] * 4);
-		d_util_endian_convert((void *) dngu->overlay_data[i], dngu->w[i] * dngu->h[i]);
-		memcpy(next, dngu->overlay_data[i], dngu->w[i] * dngu->h[i] * 4);
-		d_util_endian_convert((void *) dngu->overlay_data[i], dngu->w[i] * dngu->h[i]);
-		next += (dngu->w[i] * dngu->h[i] * 4);
+		d_util_endian_convert((void *) fi->tile_data, fi->w * fi->h);
+		memcpy(next, fi->tile_data, fi->w * fi->h * 4);
+		d_util_endian_convert((void *) fi->tile_data, fi->w * fi->h);
+		next += (fi->w * fi->h * 4);
+		d_util_endian_convert((void *) fi->overlay_data, fi->w * fi->h);
+		memcpy(next, fi->overlay_data, fi->w * fi->h * 4);
+		d_util_endian_convert((void *) fi->overlay_data, fi->w * fi->h);
+		next += (fi->w * fi->h * 4);
 	}
 
 	for (i = 0; i < dngu->objects; i++) {
