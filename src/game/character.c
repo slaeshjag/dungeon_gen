@@ -316,76 +316,63 @@ int character_unload_graphics(unsigned int slot) {
 
 
 int character_test_map(int entry, int dx, int dy) {
-	int x, y, w, h, x2, y2, x3, y3, t, t2, t3, t4, dir, l;
+	int x, y, w, h, x2, y2, t1, t2, t3, t4, dir, d1, d2;
 	struct character_entry *ce;
 	struct aicomm_struct ac;
-	
+
 	ce = ws.char_data->entry[entry];
 	d_sprite_hitbox(ce->sprite, NULL, NULL, &w, &h);
 	x2 = ((ce->x + dx) >> 8);
 	y2 = ((ce->y + dy) >> 8);
 	x = (ce->x >> 8);
 	y = (ce->y >> 8);
-	l = ce->l;
 	if (x < 0 || x2 < 0 || y < 0 || y2 < 0)
 		return 1;
-
-	t3 = world_calc_tile(x2, y2, ce->l);
-	t4 = world_calc_tile(x, y, ce->l);
-	x3 = x2;
-	y3 = y2;
-
-	if (dx > 0) {
-		x += w;
-		x2 += w;
-	} else if (dy > 0) {
-		y += h;
-		y2 += h;
+	
+	if (!dx) {
+		x2 += (w - 1);
+		y += (dy > 0) ? h - 1 : 0;
+		y2 += (dy > 0) ? h - 1 : 0;
+		t1 = world_calc_tile(x, y, ce->l);
+		t2 = world_calc_tile(x, y2, ce->l);
+		t3 = world_calc_tile(x2, y, ce->l);
+		t4 = world_calc_tile(x2, y2, ce->l);
+		dir = (((dy < 0) ? 0x8 : 0x2) << 16);
+	} else if (!dy) {
+		y2 += (h - 1);
+		x += (dx > 0) ? w - 1 : 0;
+		x2 += (dx > 0) ? w - 1 : 0;
+		t1 = world_calc_tile(x, y, ce->l);
+		t2 = world_calc_tile(x2, y, ce->l);
+		t3 = world_calc_tile(x, y2, ce->l);
+		t4 = world_calc_tile(x2, y2, ce->l);
+		dir = (((dx < 0) ? 0x4 : 0x1) << 16);
 	}
-
-	t = world_calc_tile(x, y, ce->l);
-	t2 = world_calc_tile(x2, y2, ce->l);
-
-	if (t < 0 || t2 < 0 || t3 < 0)
+		
+	if (t1 < 0 || t2 < 0 || t3 < 0 || t4 < 0)
 		return 1;
-	if (dx < 0 || dy < 0) {
-		if (t == t2)
-			return 0;
-	} else {
-		if (t4 == t3)
-			return 0;
-	}
+	if (t1 == t2 && t3 == t4)
+		return 0;
 
-	if (dx) {
-		dir = (dx < 0) ? 0x4 : 0x1;
-		if (world_get_tile(x2, y2, l) & (dir << 16))
-			return 1;
-		if (world_get_tile(x2, y3, l) & (dir << 16))
-			return 1;
-	} else if (dy) {
-		dir = (dy < 0) ? 0x8 : 0x2;
-		if (world_get_tile(x2, y2, l) & (dir << 16))
-			return 1;
-		if (world_get_tile(x3, y2, l) & (dir << 16))
-			return 1;
-	}
+	d1 = world_get_tile_i(t2, ce->l);
+	d2 = world_get_tile_i(t4, ce->l);
 
 	ac.from = -1;
 	ac.msg = AICOMM_MSG_MAPE;
 	ac.self = entry;
-	if (world_get_tile(x, y, ce->l) & MAP_FLAG_EVENT) {
-		ac.arg[0] = t;
-		ac.arg[1] = world_get_tile(x, y, ce->l);
+	if (d1 & MAP_FLAG_EVENT) {
+		ac.arg[0] = t2;
+		ac.arg[1] = d1;
 		character_message_loop(ac);
 	}
 
-	if (world_get_tile(x2, y2, ce->l) & MAP_FLAG_EVENT) {
-		ac.arg[0] = t2;
-		ac.arg[1] = world_get_tile(x2, y2, ce->l);
+	if (d2 & MAP_FLAG_EVENT) {
+		ac.arg[0] = t4;
+		ac.arg[1] = d2;
 		character_message_loop(ac);
 	}
 	
-	return 0;
+	return ((d1 & dir) || (d2 & dir));
 }
 
 

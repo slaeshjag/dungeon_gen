@@ -25,5 +25,6 @@ void world_init();
 void world_loop();
 int world_calc_tile(int x, int y, int l);
 unsigned int world_get_tile(int x, int y, int l);
+unsigned int world_get_tile_i(int i, int l);
 
 #endif

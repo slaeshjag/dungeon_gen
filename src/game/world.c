@@ -140,3 +140,19 @@ unsigned int world_get_tile(int x, int y, int l) {
 
 	return 0;
 }
+
+
+unsigned int world_get_tile_i(int i, int l) {
+	if (i < 0)
+		return ~0;
+	switch (ws.state) {
+		case WORLD_STATE_DUNGEON:
+			return ws.dm->floor[l].tm->data[i];
+			break;
+		default:
+			return 0;
+			break;
+	}
+
+	return 0;
+}

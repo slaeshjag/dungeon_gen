@@ -21,11 +21,11 @@ static void diamond_square(unsigned int *map, int side_len) {
 		half=len/2;
 		for(y=0; y<side_len-1; y+=len)
 			for(x=0; x<side_len-1; x+=len)
-				map[INDEX(x+half, y+half)]=(map[INDEX(x, y)]+map[INDEX(x+len, y)]+map[INDEX(x, y+len)]+map[INDEX(x+len, y+len)])/4+rand()%r-r/2;
+				map[INDEX(x+half, y+half)]=(map[INDEX(x, y)]+map[INDEX(x+len, y)]+map[INDEX(x, y+len)]+map[INDEX(x+len, y+len)])/4+random_get()%r-r/2;
 		
 		for(y=0; y<side_len-1; y+=half)
 			for(x=(y+half)%len; x<side_len-1; x+=len) {
-				tmp=(map[INDEX((x-half+len)%side_len, y)]+map[INDEX((x+half)%side_len, y)]+map[INDEX(x, (y-half+len)%side_len)]+map[INDEX(x, (y+half)%side_len)])/4+rand()%r-r/2;
+				tmp=(map[INDEX((x-half+len)%side_len, y)]+map[INDEX((x+half)%side_len, y)]+map[INDEX(x, (y-half+len)%side_len)]+map[INDEX(x, (y+half)%side_len)])/4+random_get()%r-r/2;
 				map[INDEX(x, y)]=tmp;
 				if(!x)
 					map[INDEX(side_len-1, y)]=tmp;
