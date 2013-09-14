@@ -3,6 +3,7 @@
 
 #include "save_loader.h"
 #include "camera.h"
+#include "savedata.h"
 
 #define	WORLD_FADE_TIME			500
 
@@ -19,6 +20,7 @@ struct world_state {
 	struct dungeon_map		*dm;
 	struct character_data		*char_data;
 	struct camera			camera;
+	struct savedata			savedata;
 } ws;
 
 void world_init();
