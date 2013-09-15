@@ -23,6 +23,7 @@ struct world_state {
 	struct savedata			savedata;
 } ws;
 
+void world_load(int world_num);
 void world_init();
 void world_loop();
 int world_calc_tile(int x, int y, int l);

@@ -29,5 +29,7 @@ struct savedata {
 	unsigned int			bs;
 };
 
+void savedata_load(const char *fname);
+
 
 #endif

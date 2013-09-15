@@ -17,15 +17,9 @@ int main(int argc, char **argv) {
 
 	/* TODO: Move this into a separate function loading a world */
 	world_init();
-	d_fs_mount("world_0.save");
-	character_init();
-	save_load_deps();
 	
-	camera_init();
-	ws.camera.follow_char = 0;
-	ws.camera.player = 0;
-
-	ws.active_dungeon = 0;
+	world_load(0);
+	
 	ws.new_state = WORLD_STATE_DUNGEON;
 	world_loop();
 

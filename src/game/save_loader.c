@@ -3,6 +3,7 @@
 #include "string.h"
 #include <darnit/darnit.h>
 #include "character.h"
+#include "world.h"
 
 
 int character_gfx_data_characters() {
@@ -221,9 +222,16 @@ int save_load_deps() {
 				fprintf(stderr, "Unable to load required lib %s\n", line);
 				return 0;
 			}
+		} else if (!strcmp(cmd, "savedata_i")) {
+			ws.savedata.is = atoi(arg);
+			ws.savedata.i = calloc(sizeof(unsigned int), atoi(arg));
+		} else if (!strcmp(cmd, "savedata_b")) {
+			ws.savedata.bs = atoi(arg);
+			ws.savedata.b = calloc(atoi(arg), 1);
 		}
 	}
 
 	d_file_close(f);
+
 	return 1;
 }

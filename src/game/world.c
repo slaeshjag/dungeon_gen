@@ -31,6 +31,27 @@ void world_reset() {
 }
 
 
+void world_load(int world_num) {
+	char fname[64];
+
+	ws.savedata.is = ws.savedata.bs = 0;
+
+	sprintf(fname, "world_%i.save", world_num);
+	d_fs_mount(fname);
+	character_init();
+	save_load_deps();
+	savedata_load(fname);
+	camera_init();
+
+	/* FIXME: Temporary hack to test code */
+	ws.camera.follow_char = 0;
+	ws.camera.player = 0;
+	ws.active_dungeon = 0;
+
+	return;
+}
+
+
 void world_loop() {
 	int p, f;
 
