@@ -18,6 +18,8 @@ void world_init() {
 	ws.state = WORLD_STATE_MAINMENU;
 	ws.new_state = WORLD_STATE_MAINMENU;
 	ws.dm = NULL;
+
+	ws.font = d_font_load("res/mainfont.ttf", MAIN_FONT_SIZE, 512, 512);
 }
 
 
@@ -43,10 +45,13 @@ void world_load(int world_num) {
 	savedata_load(fname);
 	camera_init();
 
+	ws.savedata.world = world_num;
 	/* FIXME: Temporary hack to test code */
 	ws.camera.follow_char = 0;
 	ws.camera.player = 0;
 	ws.active_dungeon = 0;
+	savedata_save(fname);
+//	character_spawn_entry(0, "player_ai", ws.dm->entrance % ws.dm->floor->tm->w, ws.dm->entrance / ws.dm->floor->tm->w, 0);
 
 	return;
 }

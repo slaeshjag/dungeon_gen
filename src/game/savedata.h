@@ -27,9 +27,11 @@ struct savedata {
 	unsigned char			*b;
 	unsigned int			is;
 	unsigned int			bs;
+	unsigned int			world;
 };
 
 void savedata_load(const char *fname);
+void savedata_save(const char *file);
 
 
 #endif

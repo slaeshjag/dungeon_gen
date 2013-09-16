@@ -33,7 +33,7 @@ void generate_world(int saveslot) {
 	fprintf(stderr, "Generating dungeons... ");
 	generate_dungeons(&w);
 	fprintf(stderr, "Generating character graphics... ");
-	generate_character_graphics(&w, random_get() % 40 + 50);
+	generate_character_graphics(&w, 4);
 	fprintf(stderr, "\n");
 	save_map_info(w.lw);
 

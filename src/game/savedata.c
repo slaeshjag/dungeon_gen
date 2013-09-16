@@ -63,6 +63,7 @@ void savedata_save(const char *file) {
 	void *intz, *bytez;
 	DARNIT_FILE *f;
 
+	d_fs_unmount(file);
 	if (!(f = d_file_open(file, "r+"))) {
 		fprintf(stderr, "Unable to save %s\n", file);
 		return;
@@ -79,23 +80,36 @@ void savedata_save(const char *file) {
 	sh.infoz = 0;
 
 	d_util_endian_convert(ws.savedata.i, ws.savedata.is);
-	intz = malloc(sizeof(*ws.savedata.i) * ws.savedata.is);
-	bytez = malloc(ws.savedata.bs);
 
-	sh.intz = d_util_compress(ws.savedata.i, ws.savedata.is * 4, intz);
-	sh.bytez = d_util_compress(ws.savedata.b, ws.savedata.bs, bytez);
+	if (ws.savedata.is) {
+		intz = malloc(sizeof(*ws.savedata.i) * ws.savedata.is);
+		sh.intz = d_util_compress(ws.savedata.i, ws.savedata.is * 4, intz);
+	} else
+		sh.intz = 0;
+	if (ws.savedata.bs) {
+		bytez = malloc(ws.savedata.bs);
+		sh.bytez = d_util_compress(ws.savedata.b, ws.savedata.bs, bytez);
+	} else
+		sh.bytez = 0;
+
 	d_util_endian_convert(ws.savedata.i, ws.savedata.is);
 
 	d_file_write_ints(&sh, sizeof(sh) / 4, f);
-	d_file_write(intz, sh.intz, f);
-	d_file_write(bytez, sh.bytez, f);
-	free(intz);
-	free(bytez);
+	if (sh.intz) {
+		d_file_write(intz, sh.intz, f);
+		free(intz);
+	}
+	if (sh.bytez) {
+		d_file_write(bytez, sh.bytez, f);
+		free(bytez);
+	}
+
 	sf.magic = SAVEDATA_MAGIC;
 	sf.offset = d_file_tell(f) - pos;
 	d_file_write_ints(&sf, 2, f);
 
 	d_file_close(f);
+	d_fs_mount(file);
 
 	return;
 }

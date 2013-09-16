@@ -24,24 +24,38 @@ static void player_init(struct aicomm_struct ac, struct player_state *ps) {
 
 static void player_loop(struct aicomm_struct ac, struct player_state *ps) {
 	int self = ac.self;
+	int n;
 	DARNIT_KEYS keys;
 
 	keys = d_keys_get();
 
 	ac.ce[self]->dx = ac.ce[self]->dy = 0;
+	n = -1;
 	if (keys.left) {
 		ac.ce[self]->dx = PLAYER_SPEED * -1;
 		ac.ce[self]->dir = 0;
-	} else if (keys.right) {
+		n = 0;
+	}
+	
+	if (keys.right) {
 		ac.ce[self]->dx = PLAYER_SPEED;
 		ac.ce[self]->dir = 2;
-	} else if (keys.up) {
+		n = 0;
+	}
+	
+	if (keys.up) {
 		ac.ce[self]->dir = 1;
 		ac.ce[self]->dy = PLAYER_SPEED * -1;
-	} else if (keys.down) {
+		n = 0;
+	}
+	
+	if (keys.down) {
 		ac.ce[self]->dir = 3;
 		ac.ce[self]->dy = PLAYER_SPEED;
-	} else {
+		n = 0;
+	}
+	
+	if (n < 0) {
 		if (ac.ce[self]->special_action.animate) {
 			ac.ce[self]->special_action.animate = 0;
 			ac.msg = AICOMM_MSG_DIRU;

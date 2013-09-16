@@ -27,7 +27,7 @@ int util_dir_conv(int i, int dir, int w, int h) {
 void util_blt(unsigned int *dest, int dw, int dh, int dx, int dy, unsigned int *src, int sw, int sh, int sx, int sy) {
 	int i;
 
-	for (i = 0; i < sh && dy + i < dh; i++)
+	for (i = sy; i < sh && dy + i < dh; i++)
 		memcpy(&dest[dx + (dy + i) * dw], &src[sx + (sy + i) * sw], sw * sizeof(unsigned int));
 	return;
 }
