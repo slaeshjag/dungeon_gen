@@ -527,6 +527,11 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	ws.char_data->entry[i] = ce;
 	ws.char_data->entry[i]->self = i;
 	character_update_sprite(i);
+
+	/* TODO: Implement */
+	ce->save.i = NULL;
+	ce->save.b = NULL;
+	ce->save.is = ce->save.bs = 0;
 	
 	ce->loop = character_find_ai_func(ai);
 	ac.msg = AICOMM_MSG_INIT;

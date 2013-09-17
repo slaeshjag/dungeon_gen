@@ -38,6 +38,14 @@ struct aicomm_struct {
 };
 
 
+struct character_save {
+	unsigned int		*i;
+	unsigned int		is;
+	char			*b;
+	unsigned int		bs;
+};
+
+
 struct character_entry {
 	struct aicomm_struct	(*loop)(struct aicomm_struct ac);
 	/* X and Y is fix-point 24.8 */
@@ -63,6 +71,7 @@ struct character_entry {
 
 	DARNIT_SPRITE		*sprite;
 	void			*state;
+	struct character_save	save;
 };
 
 #endif

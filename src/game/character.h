@@ -6,6 +6,7 @@
 
 
 
+
 struct ai_lib {
 	void			*lib;
 	char			*ainame;
