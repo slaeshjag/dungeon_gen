@@ -1,5 +1,6 @@
 #include <darnit/darnit.h>
 
+#include "teleport.h"
 #include "world.h"
 #include "save_loader.h"
 #include "character.h"
@@ -42,6 +43,7 @@ void world_load(int world_num) {
 	d_fs_mount(fname);
 	character_init();
 	save_load_deps();
+	teleport_load();
 	savedata_load(fname);
 	camera_init();
 

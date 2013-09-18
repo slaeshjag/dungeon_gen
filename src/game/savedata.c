@@ -32,7 +32,7 @@ void savedata_load(const char *fname) {
 
 	if (!(pos = savedata_present(fname)))
 		return;
-	if (!(f = d_file_open(fname, "r+")))
+	if (!(f = d_file_open(fname, "r+b")))
 		return;
 	d_file_seek(f, pos, SEEK_SET);
 	d_file_read_ints(&sh, sizeof(sh) / 4, f);
@@ -43,12 +43,12 @@ void savedata_load(const char *fname) {
 
 	data = malloc(sh.intz);
 	d_file_read(data, sh.intz, f);
-	d_util_decompress(data, sh.intz, ws.savedata.i);
+	d_util_decompress(data, sh.intz, &ws.savedata.i);
 	d_util_endian_convert(ws.savedata.i, ws.savedata.is);
 
 	data = realloc(data, sh.bytez);
 	d_file_read(data, sh.bytez, f);
-	d_util_decompress(data, sh.bytez, ws.savedata.b);
+	d_util_decompress(data, sh.bytez, &ws.savedata.b);
 	
 	free(data);
 
@@ -64,7 +64,7 @@ void savedata_save(const char *file) {
 	DARNIT_FILE *f;
 
 	d_fs_unmount(file);
-	if (!(f = d_file_open(file, "r+"))) {
+	if (!(f = d_file_open(file, "r+b"))) {
 		fprintf(stderr, "Unable to save %s\n", file);
 		return;
 	}
@@ -82,13 +82,11 @@ void savedata_save(const char *file) {
 	d_util_endian_convert(ws.savedata.i, ws.savedata.is);
 
 	if (ws.savedata.is) {
-		intz = malloc(sizeof(*ws.savedata.i) * ws.savedata.is);
-		sh.intz = d_util_compress(ws.savedata.i, ws.savedata.is * 4, intz);
+		sh.intz = d_util_compress(ws.savedata.i, ws.savedata.is * 4, &intz);
 	} else
 		sh.intz = 0;
 	if (ws.savedata.bs) {
-		bytez = malloc(ws.savedata.bs);
-		sh.bytez = d_util_compress(ws.savedata.b, ws.savedata.bs, bytez);
+		sh.bytez = d_util_compress(ws.savedata.b, ws.savedata.bs, &bytez);
 	} else
 		sh.bytez = 0;
 

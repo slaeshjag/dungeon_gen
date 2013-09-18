@@ -3,7 +3,7 @@
 
 #include <darnit/darnit.h>
 #include "aicomm.h"
-
+#include "teleport.h"
 
 
 
@@ -23,6 +23,7 @@ struct character_data {
 	int			max_entries;
 	struct ai_lib		*ai_lib;
 	int			ai_libs;
+	struct teleport		teleport;
 };
 
 void character_init();

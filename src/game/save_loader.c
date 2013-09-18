@@ -224,10 +224,8 @@ int save_load_deps() {
 			}
 		} else if (!strcmp(cmd, "savedata_i")) {
 			ws.savedata.is = atoi(arg);
-			ws.savedata.i = calloc(sizeof(unsigned int), atoi(arg));
 		} else if (!strcmp(cmd, "savedata_b")) {
 			ws.savedata.bs = atoi(arg);
-			ws.savedata.b = calloc(atoi(arg), 1);
 		}
 	}
 

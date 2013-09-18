@@ -28,7 +28,7 @@ void util_blt(unsigned int *dest, int dw, int dh, int dx, int dy, unsigned int *
 	int i;
 
 	for (i = sy; i < sh && dy + i < dh; i++)
-		memcpy(&dest[dx + (dy + i) * dw], &src[sx + (sy + i) * sw], sw * sizeof(unsigned int));
+		memcpy(&dest[dx + (dy + i) * dw], &src[sx + (sy + i) * sw], (sw - sx) * sizeof(unsigned int));
 	return;
 }
 
