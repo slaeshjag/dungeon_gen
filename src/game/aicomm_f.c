@@ -5,8 +5,10 @@
 #include <string.h>
 
 
+int character_get_character_looked_at(int src);
 struct aicomm_struct character_message_next(struct aicomm_struct ac);
 void character_update_sprite(int entry);
+void character_despawn(int entry);
 
 
 struct aicomm_struct aicomm_f_diru(struct aicomm_struct ac) {
@@ -52,4 +54,75 @@ struct aicomm_struct aicomm_f_tpme(struct aicomm_struct ac) {
 	ws.char_data->teleport.to.room = t.room;
 
 	return character_message_next(ac);
+}
+
+
+struct aicomm_struct aicomm_f_folm(struct aicomm_struct ac) {
+	ws.camera.follow_char = ac.from;
+	ac.self = ac.from;
+	ac.from = -1;
+	ac.msg = AICOMM_MSG_NEXT;
+
+	return character_message_next(ac);
+}
+
+
+struct aicomm_struct aicomm_f_setp(struct aicomm_struct ac) {
+	ws.camera.player = ac.self;
+
+	return character_message_next(ac);
+}
+
+
+struct aicomm_struct aicomm_f_getp(struct aicomm_struct ac) {
+	ac.self = ac.from;
+	ac.from = ws.camera.player;
+	
+	return ac;
+}
+
+
+struct aicomm_struct aicomm_f_kill(struct aicomm_struct ac) {
+	character_despawn(ac.self);
+	return character_message_next(ac);
+}
+
+
+struct aicomm_struct aicomm_f_spwn(struct aicomm_struct ac) {
+	int x, y;
+
+	x = ac.arg[1] * ws.camera.tile_w * 256;
+	y = ac.arg[2] * ws.camera.tile_h * 256;
+	character_spawn_entry(ac.arg[0], ac.argp, x, y, ac.arg[3]);
+
+	return character_message_next(ac);
+}
+
+
+struct aicomm_struct aicomm_f_getf(struct aicomm_struct ac) {
+	ac.self = ac.from;
+	ac.from = character_get_character_looked_at(ac.self);
+
+	return ac;
+}
+
+
+struct aicomm_struct aicomm_f_camn(struct aicomm_struct ac) {
+	ws.camera.jump = 1;
+
+	return character_message_next(ac);
+}
+
+
+struct aicomm_struct aicomm_f_invm(struct aicomm_struct ac) {
+	ac.self = ac.from;
+	ac.from = -1;
+	ac.msg = AICOMM_MSG_INVM;
+
+	return ac;
+}
+
+
+struct aicomm_struct aicomm_f_dummy(struct aicomm_struct ac) {
+	return ac;
 }

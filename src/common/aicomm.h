@@ -25,6 +25,8 @@ enum aicomm_msg {
 	AICOMM_MSG_GETF,	/* Get character I'm facing */
 	AICOMM_MSG_MAPE,	/* Character triggered map event */
 	AICOMM_MSG_DESTROY,	/* Time to die! */
+
+	AICOMM_MSG_END		/* END OF LIST */
 };
 
 

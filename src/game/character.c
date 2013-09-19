@@ -4,6 +4,7 @@
 #include "world.h"
 #include "aicomm.h"
 #include "aicomm_f.h"
+#include "aicomm_handlers.h"
 
 void character_expand_entries();
 void character_update_sprite(int entry);
@@ -154,8 +155,6 @@ struct aicomm_struct character_message_next(struct aicomm_struct ac) {
 
 
 void character_message_loop(struct aicomm_struct ac) {
-	int x, y;
-
 	for (;;) {
 		ac.ce = ws.char_data->entry;
 		if (ac.self < 0)
@@ -185,57 +184,13 @@ void character_message_loop(struct aicomm_struct ac) {
 				fprintf(stderr, "WARNING: char %i returned invalid message %i\n",
 					ac.from, ac.msg);
 				return;
-			case AICOMM_MSG_COLL:
-			case AICOMM_MSG_SEND:
-			case AICOMM_MSG_INVM:
-			case AICOMM_MSG_NEXT:
-				/* These are just passed on */
-				break;
-			case AICOMM_MSG_FOLM:
-				ws.camera.follow_char = ac.from;
-				ac.self = ac.from;
-				ac.from = -1;
-				ac.msg = AICOMM_MSG_NEXT;
-				ac = character_message_next(ac);
-				break;
-			case AICOMM_MSG_DIRU:
-				ac = aicomm_f_diru(ac);
-				break;
-			case AICOMM_MSG_SETP:
-				ws.camera.player = ac.self;
-				ac = character_message_next(ac);
-				break;
-			case AICOMM_MSG_GETP:
-				ac.self = ac.from;
-				ac.from = ws.camera.player;
-				break;
-			case AICOMM_MSG_KILL:
-				character_despawn(ac.self);
-				ac = character_message_next(ac);
-				break;
-			case AICOMM_MSG_SPWN:
-				x = ac.arg[1] * ws.camera.tile_w * 256;
-				y = ac.arg[2] * ws.camera.tile_h * 256;
-				character_spawn_entry(ac.arg[0], ac.argp, x, y, ac.arg[3]);
-				ac = character_message_next(ac);
-				break;
-			case AICOMM_MSG_GETF:
-				ac.self = ac.from;
-				ac.from = character_get_character_looked_at(ac.self);
-				break;
-			case AICOMM_MSG_CAMN:
-				ac.self = ac.from;
-				ac.from = -1;
-				ac = character_message_next(ac);
-				ws.camera.jump = 1;
-				break;
-			case AICOMM_MSG_TPME:
-				ac = aicomm_f_tpme(ac);
-				break;
 			default:
-				ac.self = ac.from;
-				ac.from = -1;
-				ac.msg = AICOMM_MSG_INVM;
+				if (ac.msg >= AICOMM_MSG_END)
+					ac = aicomm_f_invm(ac);
+				else if (!aihandle[ac.msg])
+					ac = aicomm_f_invm(ac);
+				else
+					ac = aihandle[ac.msg](ac);
 				break;
 		}
 

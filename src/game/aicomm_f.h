@@ -3,7 +3,17 @@
 
 #include "aicomm.h"
 
+struct aicomm_struct aicomm_f_dummy(struct aicomm_struct ac);
+struct aicomm_struct aicomm_f_setp(struct aicomm_struct ac);
 struct aicomm_struct aicomm_f_tpme(struct aicomm_struct ac);
 struct aicomm_struct aicomm_f_diru(struct aicomm_struct ac);
+struct aicomm_struct aicomm_f_folm(struct aicomm_struct ac);
+struct aicomm_struct aicomm_f_getp(struct aicomm_struct ac);
+struct aicomm_struct aicomm_f_kill(struct aicomm_struct ac);
+struct aicomm_struct aicomm_f_spwn(struct aicomm_struct ac);
+struct aicomm_struct aicomm_f_getf(struct aicomm_struct ac);
+struct aicomm_struct aicomm_f_camn(struct aicomm_struct ac);
+struct aicomm_struct aicomm_f_invm(struct aicomm_struct ac);
+
 
 #endif

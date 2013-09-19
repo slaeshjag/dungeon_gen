@@ -136,6 +136,8 @@ void world_loop() {
 
 			/* TODO: Render a UI of some sort */
 			d_render_end();
+		default:
+			break;
 	}
 
 	return;
