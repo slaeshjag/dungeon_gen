@@ -319,6 +319,9 @@ int character_test_map(int entry, int dx, int dy) {
 	int x, y, w, h, x2, y2, t1, t2, t3, t4, dir, d1, d2;
 	struct character_entry *ce;
 	struct aicomm_struct ac;
+	
+	if (d_keys_get().l)
+		return 0;
 
 	ce = ws.char_data->entry[entry];
 	d_sprite_hitbox(ce->sprite, NULL, NULL, &w, &h);
@@ -380,6 +383,9 @@ int character_test_collision(int entry, int dx, int dy) {
 	struct aicomm_struct ac;
 	struct character_entry *ce;
 	int x, y, w, h, e, i, s, n;
+
+	if (d_keys_get().l)
+		return 0;
 
 	ce = ws.char_data->entry[entry];
 	d_sprite_hitbox(ce->sprite, &x, &y, &w, &h);

@@ -72,6 +72,10 @@ void world_loop() {
 					break;
 				case WORLD_STATE_DUNGEON:
 					ws.dm = dungeon_unload(ws.dm);
+				case WORLD_STATE_CHANGEMAP:
+					ws.dm = dungeon_unload(ws.dm);
+					ws.dm = dungeon_load(ws.char_data->teleport.to.dungeon);
+					//character_spawn_entry(
 					break;
 				default:
 					break;
@@ -86,6 +90,7 @@ void world_loop() {
 					character_spawn_entry(2, "player_ai", ws.dm->entrance % ws.dm->floor->tm->w * 32, 
 					ws.dm->entrance / ws.dm->floor->tm->w * 32, ws.dm->entrance_floor);
 					break;
+				case WORLD_STATE_CHANGEMAP:
 				default:
 					break;
 			}

@@ -10,9 +10,20 @@ void teleport_load();
 void teleport_unload();
 
 
+struct teleport_to {
+	int				slot;
+	unsigned int			x;
+	unsigned int			y;
+	unsigned int			l;
+	int				dungeon;
+	int				room;
+};
+
+
 struct teleport {
 	struct savefile_teleport_entry	*entry;
 	unsigned int			entries;
+	struct teleport_to		to;
 };
 
 
