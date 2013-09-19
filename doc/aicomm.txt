@@ -143,12 +143,14 @@ Teleport the character to a different location
 arg0 - Dungeon to teleport to (-1 for overworld)
 arg1 - Map X coordinate (for dungeon, leave as -1 for entrance)
 arg2 - Map Y coordinate (for dungeon, leave as -1 for entrance)
+arg3 - The layer/floor to teleport to
 
 ======
 
 AICOMM_MSG_TPME - Teleport using teleport table
 Teleport the character using the current maps teleportation table
 
+from - Who you are
 arg0 - Index in the teleportation table to use
 
 ======

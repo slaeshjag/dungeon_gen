@@ -1,2 +1,11 @@
+##### Vad spelmotorn väntar på att world_gen ska implementera #####
+Definerad spawnpoint när en ny värld skapas
+Mappning av databankar för objekt att spara data i
+Mapformat behöver utökas med index-offset för teleportdatabas
+Teleporteringspunkter samt databas (enl. common/savefile.h#savefile_teleport_entry)
+
+
+
+#################
 - Configure the autotiler for a tileset
 - Make sure dungeon_ entrance is reachable

@@ -72,6 +72,7 @@ struct character_entry {
 	DARNIT_SPRITE		*sprite;
 	void			*state;
 	struct character_save	save;
+	char			ai[32];
 };
 
 #endif

@@ -12,6 +12,7 @@ void teleport_unload();
 
 struct teleport_to {
 	int				slot;
+	char				ai[32];
 	unsigned int			x;
 	unsigned int			y;
 	unsigned int			l;

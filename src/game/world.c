@@ -61,6 +61,7 @@ void world_load(int world_num) {
 
 void world_loop() {
 	int p, f;
+	struct teleport_to t;	/* T för Taliban att Teleportera! */
 
 	if (ws.new_state != ws.state) {
 		if (!d_render_fade_status())
@@ -74,8 +75,15 @@ void world_loop() {
 					ws.dm = dungeon_unload(ws.dm);
 				case WORLD_STATE_CHANGEMAP:
 					ws.dm = dungeon_unload(ws.dm);
+					/* TODO: Implement overworld/rooms as well */
 					ws.dm = dungeon_load(ws.char_data->teleport.to.dungeon);
-					//character_spawn_entry(
+					t = ws.char_data->teleport.to;
+					t.x *= ws.camera.tile_w;
+					t.y *= ws.camera.tile_h;
+					if (t.slot > 0)
+						character_spawn_entry(t.slot, t.ai, t.x, t.y, t.l);
+					t.slot = -1;
+					ws.new_state = WORLD_STATE_DUNGEON;
 					break;
 				default:
 					break;

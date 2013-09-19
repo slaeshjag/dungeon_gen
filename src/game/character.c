@@ -3,6 +3,7 @@
 #include "character.h"
 #include "world.h"
 #include "aicomm.h"
+#include "aicomm_f.h"
 
 void character_expand_entries();
 void character_update_sprite(int entry);
@@ -198,15 +199,7 @@ void character_message_loop(struct aicomm_struct ac) {
 				ac = character_message_next(ac);
 				break;
 			case AICOMM_MSG_DIRU:
-				if (ac.from < 0 || ac.from >= ws.char_data->max_entries ||
-				    !ws.char_data->entry[ac.from]) {
-					ac.msg = AICOMM_MSG_NOAI;
-					ac.self = ac.from;
-					ac.from = -1;
-					break;
-				}
-				character_update_sprite(ac.from);
-				ac = character_message_next(ac);
+				ac = aicomm_f_diru(ac);
 				break;
 			case AICOMM_MSG_SETP:
 				ws.camera.player = ac.self;
@@ -235,6 +228,9 @@ void character_message_loop(struct aicomm_struct ac) {
 				ac.from = -1;
 				ac = character_message_next(ac);
 				ws.camera.jump = 1;
+				break;
+			case AICOMM_MSG_TPME:
+				ac = aicomm_f_tpme(ac);
 				break;
 			default:
 				ac.self = ac.from;
@@ -540,6 +536,7 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	ce->save.is = ce->save.bs = 0;
 	
 	ce->loop = character_find_ai_func(ai);
+	strcpy(ce->ai, ai);
 	ac.msg = AICOMM_MSG_INIT;
 	ac.from = -1;
 	ac.self = ce->self;
