@@ -1,6 +1,7 @@
 #include "aicomm.h"
 #include "player.h"
 #include "aicommon.h"
+#include "savefile.h"
 
 
 static void player_init(struct aicomm_struct ac, struct player_state *ps) {
@@ -81,6 +82,14 @@ struct aicomm_struct player_ai(struct aicomm_struct ac) {
 		player_init(ac, ps);
 	} else if (ac.msg == AICOMM_MSG_LOOP) {
 		player_loop(ac, ac.ce[ac.self]->state);
+	} else if (ac.msg == AICOMM_MSG_MAPE) {
+		ps = ac.ce[ac.self]->state;
+		if (ac.arg[1] & MAP_FLAG_TELEPORT) {
+			ac.msg = AICOMM_MSG_TPME;
+			ac.from = ac.self;
+			ac.arg[0] = ((unsigned) ac.arg[1]) >> 14;
+			aicom_msgbuf_push(ps->msg, ac);
+		}
 	} else if (ac.msg == AICOMM_MSG_DESTROY) {
 		ps = ac.ce[ac.self]->state;
 		aicom_msgbuf_free(ps->msg);

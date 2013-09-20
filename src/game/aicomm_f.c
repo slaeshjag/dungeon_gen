@@ -34,6 +34,8 @@ struct aicomm_struct aicomm_f_tpme(struct aicomm_struct ac) {
 		ac.msg = AICOMM_MSG_INVM;
 		return ac;
 	}
+	
+	/* TODO: Add teleport ID offset */
 	t = ws.char_data->teleport.entry[ac.arg[0]];
 
 	/* TODO: Implement overworld + room */

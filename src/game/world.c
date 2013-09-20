@@ -53,7 +53,6 @@ void world_load(int world_num) {
 	ws.camera.player = 0;
 	ws.active_dungeon = 0;
 	savedata_save(fname);
-//	character_spawn_entry(0, "player_ai", ws.dm->entrance % ws.dm->floor->tm->w, ws.dm->entrance / ws.dm->floor->tm->w, 0);
 
 	return;
 }
