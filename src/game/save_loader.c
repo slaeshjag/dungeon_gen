@@ -123,7 +123,7 @@ struct dungeon_map *dungeon_load(int dungeon_number) {
 	struct savefile_dungeon_object *dob;
 	struct savefile_dungeon_puzzle_part *dp;
 
-	sprintf(name, "world/dungeon_%i.lvl", dungeon_number);
+	sprintf(name, "world/map_%i.lvl", dungeon_number);
 	if (!(f = d_file_open(name, "rb"))) {
 		fprintf(stderr, "Unable to open %s\n", name);
 		exit(-1);

@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 	
 	world_load(0);
 	
-	ws.new_state = WORLD_STATE_DUNGEON;
+	ws.new_state = WORLD_STATE_MAPSTATE;
 	world_loop();
 
 

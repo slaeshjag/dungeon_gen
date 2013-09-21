@@ -68,9 +68,8 @@ void world_loop() {
 		else if (d_render_fade_status() == 2) {
 			switch (ws.state) {
 				case WORLD_STATE_MAINMENU:
-				case WORLD_STATE_OVERWORLD:
 					break;
-				case WORLD_STATE_DUNGEON:
+				case WORLD_STATE_MAPSTATE:
 					ws.dm = dungeon_unload(ws.dm);
 				case WORLD_STATE_CHANGEMAP:
 					ws.dm = dungeon_unload(ws.dm);
@@ -82,7 +81,7 @@ void world_loop() {
 					if (t.slot > 0)
 						character_spawn_entry(t.slot, t.ai, t.x, t.y, t.l);
 					t.slot = -1;
-					ws.new_state = WORLD_STATE_DUNGEON;
+					ws.new_state = WORLD_STATE_MAPSTATE;
 					break;
 				default:
 					break;
@@ -90,9 +89,8 @@ void world_loop() {
 
 			switch (ws.new_state) {
 				case WORLD_STATE_MAINMENU:
-				case WORLD_STATE_OVERWORLD:
 					break;
-				case WORLD_STATE_DUNGEON:
+				case WORLD_STATE_MAPSTATE:
 					ws.dm = dungeon_load(ws.active_dungeon);
 					character_spawn_entry(2, "player_ai", ws.dm->entrance % ws.dm->floor->tm->w * 32, 
 					ws.dm->entrance / ws.dm->floor->tm->w * 32, ws.dm->entrance_floor);
@@ -111,10 +109,9 @@ void world_loop() {
 
 	switch (ws.state) {
 		case WORLD_STATE_MAINMENU:
-		case WORLD_STATE_OVERWORLD:
 			/* TODO: Implement */
 			break;
-		case WORLD_STATE_DUNGEON:
+		case WORLD_STATE_MAPSTATE:
 			character_loop();
 			camera_loop();
 			p = ws.camera.player;
@@ -151,7 +148,7 @@ int world_calc_tile(int x, int y, int l) {
 	}
 
 	switch (ws.state) {
-		case WORLD_STATE_DUNGEON:
+		case WORLD_STATE_MAPSTATE:
 			if (x >= ws.dm->floor[l].tm->w)
 				return -1;
 			if (y >= ws.dm->floor[l].tm->h)
@@ -170,7 +167,7 @@ unsigned int world_get_tile_i(int i, int l) {
 	if (i < 0)
 		return ~0;
 	switch (ws.state) {
-		case WORLD_STATE_DUNGEON:
+		case WORLD_STATE_MAPSTATE:
 			return ws.dm->floor[l].tm->data[i];
 			break;
 		default:

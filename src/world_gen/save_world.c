@@ -108,7 +108,7 @@ int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l
 	for (i = 0; i < dngu->floors; i++)
 		size += (dngu->floor_info[i].w * dngu->floor_info[i].h * sizeof(unsigned int) * 2);
 	size += dngu->objects * sizeof(o);
-	sprintf(name, "world/dungeon_%i.lvl", index);
+	sprintf(name, "world/map_%i.lvl", index);
 	fprintf(stderr, "calculated dungeon size to %i octets\n", size);
 	data = next = malloc(size);
 
