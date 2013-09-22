@@ -15,7 +15,7 @@ void teleport_load() {
 	}
 
 	d_file_read_ints(&teleports, 1, f);
-	ws.char_data->teleport.entry = malloc(sizeof(*ws.char_data->teleport.entry));
+	ws.char_data->teleport.entry = malloc(sizeof(*ws.char_data->teleport.entry) * teleports);
 	ws.char_data->teleport.entries = teleports;
 	d_file_read_ints(&teleports, 1, f);
 

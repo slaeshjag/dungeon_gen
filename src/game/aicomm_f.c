@@ -46,7 +46,11 @@ struct aicomm_struct aicomm_f_tpme(struct aicomm_struct ac) {
 		return character_message_next(ac);
 	}
 
-	ws.new_state = WORLD_STATE_CHANGEMAP;
+	if (ws.char_data->teleport.to.room != 0)
+		ws.new_state = WORLD_STATE_SETROOM;
+	else
+		ws.new_state = (t.room > -1) ? WORLD_STATE_SETROOM : WORLD_STATE_CHANGEMAP;
+	
 	ws.char_data->teleport.to.slot = ac.ce[ac.from]->slot;
 	strcpy(ws.char_data->teleport.to.ai, ac.ce[ac.from]->ai);
 	ws.char_data->teleport.to.x = t.x;

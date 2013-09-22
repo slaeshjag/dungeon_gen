@@ -12,6 +12,7 @@ enum world_state_e {
 	WORLD_STATE_MAINMENU,
 	WORLD_STATE_MAPSTATE,
 	WORLD_STATE_CHANGEMAP,
+	WORLD_STATE_SETROOM,
 };
 
 struct world_state {

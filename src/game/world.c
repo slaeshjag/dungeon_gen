@@ -72,6 +72,8 @@ void world_loop() {
 				case WORLD_STATE_MAPSTATE:
 					ws.dm = dungeon_unload(ws.dm);
 				case WORLD_STATE_CHANGEMAP:
+					/* TODO: Insert music playback */
+				case WORLD_STATE_SETROOM:
 					ws.dm = dungeon_unload(ws.dm);
 					/* TODO: Implement overworld/rooms as well */
 					ws.dm = dungeon_load(ws.char_data->teleport.to.dungeon);
