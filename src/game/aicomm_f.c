@@ -38,8 +38,7 @@ struct aicomm_struct aicomm_f_tpme(struct aicomm_struct ac) {
 	/* TODO: Add teleport ID offset */
 	t = ws.char_data->teleport.entry[ac.arg[0]];
 
-	/* TODO: Implement overworld + room */
-	if (t.map == ws.active_dungeon) {
+	if (t.map == ws.active_world && t.room == ws.active_room) {
 		ac.ce[ac.from]->x = (t.x << 8) * ws.camera.tile_w;
 		ac.ce[ac.from]->y = (t.y << 8) * ws.camera.tile_h;
 		ac.ce[ac.from]->l = t.l;

@@ -7,15 +7,17 @@
 #include "camera.h"
 
 
-void world_dungeon_load(int dungeon) {
+void world_dungeon_load(int dungeon, int room) {
 	dungeon_unload(ws.dm);
+	ws.active_world = dungeon;
+	ws.active_room = room;
 	ws.dm = dungeon_load(dungeon);
-	ws.active_dungeon = dungeon;
 }
 
 
 void world_init() {
-	ws.active_dungeon = -1;
+	ws.active_world = -1;
+	ws.active_room = -1;
 	ws.state = WORLD_STATE_MAINMENU;
 	ws.new_state = WORLD_STATE_MAINMENU;
 	ws.dm = NULL;
@@ -25,7 +27,8 @@ void world_init() {
 
 
 void world_reset() {
-	ws.active_dungeon = -1;
+	ws.active_world = -1;
+	ws.active_room = -1;
 	ws.dm = dungeon_unload(ws.dm);
 	ws.camera.follow_char = -1;
 	character_destroy();
@@ -51,7 +54,8 @@ void world_load(int world_num) {
 	/* FIXME: Temporary hack to test code */
 	ws.camera.follow_char = 0;
 	ws.camera.player = 0;
-	ws.active_dungeon = 0;
+	ws.active_world = 0;
+	ws.active_room = -1;
 	savedata_save(fname);
 
 	return;
@@ -93,7 +97,7 @@ void world_loop() {
 				case WORLD_STATE_MAINMENU:
 					break;
 				case WORLD_STATE_MAPSTATE:
-					ws.dm = dungeon_load(ws.active_dungeon);
+					ws.dm = dungeon_load();
 					character_spawn_entry(2, "player_ai", ws.dm->entrance % ws.dm->floor->tm->w * 32, 
 					ws.dm->entrance / ws.dm->floor->tm->w * 32, ws.dm->entrance_floor);
 					break;

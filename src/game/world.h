@@ -18,7 +18,8 @@ enum world_state_e {
 struct world_state {
 	enum world_state_e		state;
 	enum world_state_e		new_state;
-	int				active_dungeon;
+	int				active_world;
+	int				active_room;
 	DARNIT_FONT			*font;
 	struct dungeon_map		*dm;
 	struct character_data		*char_data;

@@ -112,7 +112,7 @@ void *character_gfx_data_unload(struct char_gfx *cg) {
 }
 
 
-struct dungeon_map *dungeon_load(int dungeon_number) {
+struct dungeon_map *dungeon_load() {
 	char name[32], *buf, *data;
 	int i;
 	DARNIT_FILE *f;
@@ -123,10 +123,17 @@ struct dungeon_map *dungeon_load(int dungeon_number) {
 	struct savefile_dungeon_object *dob;
 	struct savefile_dungeon_puzzle_part *dp;
 
-	sprintf(name, "world/map_%i.lvl", dungeon_number);
+	if (ws.active_room < 0)
+		sprintf(name, "world/map_%i.lvl", ws.active_world);
+	else
+		sprintf(name, "world/rooms.lvb");
 	if (!(f = d_file_open(name, "rb"))) {
 		fprintf(stderr, "Unable to open %s\n", name);
 		exit(-1);
+	}
+
+	if (ws.active_room >= 0) {
+		/* TODO: Seek to the correct point in the file */
 	}
 
 	dm = malloc(sizeof(*dm));
