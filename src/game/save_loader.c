@@ -133,13 +133,22 @@ struct dungeon_map *dungeon_load() {
 	}
 
 	if (ws.active_room >= 0) {
-		/* TODO: Seek to the correct point in the file */
+		i = 0;
+		d_file_read_ints(&i, 1, f);
+		if (i <= ws.active_room)
+			return d_file_close(f);
+		d_file_seek(f, ws.active_room * 4, SEEK_CUR);
+		d_file_read_ints(&i, 1, f);
+		d_file_seek(f, i, SEEK_SET);
+		size = 0;
+		d_file_read_ints(&size, 1, f);
+	} else {
+		d_file_seek(f, 0, SEEK_END);
+		size = d_file_tell(f);
+		d_file_seek(f, 0, SEEK_SET);
 	}
 
 	dm = malloc(sizeof(*dm));
-	d_file_seek(f, 0, SEEK_END);
-	size = d_file_tell(f);
-	d_file_seek(f, 0, SEEK_SET);
 	buf = malloc(size);
 	d_file_read(buf, size, f);
 	size = d_util_decompress(buf, size, &data);
