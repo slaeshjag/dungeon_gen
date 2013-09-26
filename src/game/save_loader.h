@@ -7,6 +7,15 @@
 #define	TILE_W					32
 #define	TILE_H					32
 
+enum savefile_status {
+	SAVEFILE_STATUS_BLANK,
+	SAVEFILE_STATUS_NOSAVE,
+	SAVEFILE_STATUS_MISSING_EXP,
+	SAVEFILE_STATUS_INVALID,
+	SAVEFILE_STATUS_DATAOK,
+};
+
+
 struct char_gfx {
 	unsigned int				link;
 	unsigned int				face_w;
@@ -50,5 +59,6 @@ struct dungeon_map *dungeon_load();
 void *dungeon_unload(struct dungeon_map *dm);
 
 int save_load_deps();
+enum savefile_status save_load_validate(int save);
 
 #endif

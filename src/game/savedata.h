@@ -33,5 +33,6 @@ struct savedata {
 void savedata_load(const char *fname);
 void savedata_save(const char *file);
 
+off_t savedata_present(const char *fname);
 
 #endif

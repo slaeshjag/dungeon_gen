@@ -1,4 +1,5 @@
 #include "save_loader.h"
+#include "savedata.h"
 #include "common.h"
 #include "string.h"
 #include <darnit/darnit.h>
@@ -248,4 +249,19 @@ int save_load_deps() {
 	d_file_close(f);
 
 	return 1;
+}
+
+
+/* Validates a save-file */
+enum savefile_status save_load_validate(int save) {
+	char ch[64];
+	DARNIT_FILE *f;
+	
+	sprintf(ch, "world_%i.save", save);
+	if (!(f = d_file_open(ch, "r+b")))
+		return SAVEFILE_STATUS_BLANK;
+	d_file_close(f);
+	if (!savedata_present(ch))
+		return SAVEFILE_STATUS_NOSAVE;
+	return SAVEFILE_STATUS_DATAOK;
 }
