@@ -80,4 +80,19 @@ struct savefile_dungeon_object {
 };
 
 
+/*** ITEMS ***/
+
+enum savefile_item_flags {
+	SAVEFILE_ITEM_OVERWORLD		= 01,
+	SAVEFILE_ITEM_INVENTORY		= 02,
+	SAVEFILE_ITEM_SPECBATTLE	= 04,
+};
+
+struct savefile_item_entry {
+	unsigned int			gfx_slot;
+	enum savefile_item_flags	flags;
+	char				handler[32];
+};
+
+
 #endif
