@@ -4,6 +4,8 @@ Mappning av databankar för objekt att spara data i
 Mapformat behöver utökas med index-offset för teleportdatabas
 Teleporteringspunkter samt databas (enl. common/savefile.h#savefile_teleport_entry)
 
+Dungeon-format och room-format skall avskaffas och endast framtida overworld-formatet ska vara kvar. Varför jag delade upp det från början minns jag inte. Alla maps ska sparas till samma filbunke.
+
 
 
 #################

@@ -21,6 +21,7 @@ void world_init() {
 	ws.state = WORLD_STATE_MAINMENU;
 	ws.new_state = WORLD_STATE_MAINMENU;
 	ws.dm = NULL;
+	ws.textbox = NULL;
 
 	ws.font = d_font_load("res/mainfont.ttf", MAIN_FONT_SIZE, 512, 512);
 }
@@ -32,6 +33,7 @@ void world_reset() {
 	ws.dm = dungeon_unload(ws.dm);
 	ws.camera.follow_char = -1;
 	character_destroy();
+//	textbox_destroy();
 
 	return;
 }
@@ -45,6 +47,7 @@ void world_load(int world_num) {
 	sprintf(fname, "world_%i.save", world_num);
 	d_fs_mount(fname);
 	character_init();
+//	textbox_init();
 	save_load_deps();
 	teleport_load();
 	savedata_load(fname);

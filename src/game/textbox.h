@@ -12,6 +12,7 @@ struct textbox {
 	unsigned int		options;
 	DARNIT_TILE		*face;
 	DARNIT_TEXT_SURFACE	*text;
+	unsigned int		surface_w;
 };
 
 

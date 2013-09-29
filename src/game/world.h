@@ -4,6 +4,7 @@
 #include "save_loader.h"
 #include "camera.h"
 #include "savedata.h"
+#include "textbox.h"
 
 #define	WORLD_FADE_TIME			500
 #define	MAIN_FONT_SIZE			16
@@ -25,6 +26,7 @@ struct world_state {
 	struct character_data		*char_data;
 	struct camera			camera;
 	struct savedata			savedata;
+	struct textbox			*textbox;
 } ws;
 
 void world_load(int world_num);
