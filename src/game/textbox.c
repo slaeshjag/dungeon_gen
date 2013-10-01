@@ -51,18 +51,21 @@ void textbox_loop() {
 					d_text_surface_char_append(tb->text, "\n");
 			} else if (tb->message[tb->char_pos] == '\x01') {
 				tb->char_pos++;
-				i = (tb->char_pos << 2);
+				i = (((unsigned) tb->message[tb->char_pos]) << 2);
 				d_text_surface_color_next(tb->text, p[i], p[i+1], p[i+2]);
 				tb->char_pos++;
+				tb->dt += tb->ms_per_char;
 			} else if (tb->message[tb->char_pos] == '\x02') {
 				tb->char_pos++;
-				i = ((unsigned) tb->message[tb->char_pos]);
-				i <<= 2;
+				i = (((unsigned) tb->message[tb->char_pos]) << 2);
 				tb->ms_per_char = i;
+				tb->char_pos++;
+				tb->dt += tb->ms_per_char;
 			} else
 				tb->char_pos += d_text_surface_char_append(tb->text, 
 					&tb->message[tb->char_pos]);
-		}
+		} else
+			break;
 	}
 
 	return;

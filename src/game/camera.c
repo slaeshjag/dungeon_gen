@@ -18,7 +18,7 @@ void camera_init() {
 	ws.camera.player = -1;
 	ws.camera.tile_w = TILE_W;
 	ws.camera.tile_h = TILE_H;
-	ws.camera.scroll_speed = 400;		/* 400 pixels / second */
+	ws.camera.scroll_speed = 800;		/* 400 pixels / second */
 	ws.camera.jump = 0;
 
 	return;
@@ -62,6 +62,25 @@ void camera_loop() {
 		ws.camera.x = x;
 		ws.camera.y = y;
 	}
+
+	w = ws.dm->floor->tm->w * ws.camera.tile_w;
+	h = ws.dm->floor->tm->h * ws.camera.tile_h;
+	
+	if (ws.camera.screen_w < w) {
+		if (ws.camera.x + ws.camera.screen_w > w)
+			ws.camera.x = w - ws.camera.screen_w;
+		else if (ws.camera.x < 0)
+			ws.camera.x = 0;
+	} else
+		ws.camera.x = (ws.camera.screen_w - w) / 2;
+
+	if (ws.camera.screen_h < h) {
+		if (ws.camera.y + ws.camera.screen_h > h)
+			ws.camera.y = h - ws.camera.screen_h;
+		else if (ws.camera.y < 0)
+			ws.camera.y = 0;
+	} else
+		ws.camera.y = (ws.camera.screen_h - h) / 2;
 	
 	return;
 }
