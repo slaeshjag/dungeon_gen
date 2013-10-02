@@ -124,30 +124,15 @@ struct dungeon_map *dungeon_load() {
 	struct savefile_dungeon_object *dob;
 	struct savefile_dungeon_puzzle_part *dp;
 
-	if (ws.active_room < 0)
-		sprintf(name, "world/map_%i.lvl", ws.active_world);
-	else
-		sprintf(name, "world/rooms.lvb");
+	sprintf(name, "world/map_%i.lvl", ws.active_world);
 	if (!(f = d_file_open(name, "rb"))) {
 		fprintf(stderr, "Unable to open %s\n", name);
 		exit(-1);
 	}
 
-	if (ws.active_room >= 0) {
-		i = 0;
-		d_file_read_ints(&i, 1, f);
-		if (i <= ws.active_room)
-			return d_file_close(f);
-		d_file_seek(f, ws.active_room * 4, SEEK_CUR);
-		d_file_read_ints(&i, 1, f);
-		d_file_seek(f, i, SEEK_SET);
-		size = 0;
-		d_file_read_ints(&size, 1, f);
-	} else {
-		d_file_seek(f, 0, SEEK_END);
-		size = d_file_tell(f);
-		d_file_seek(f, 0, SEEK_SET);
-	}
+	d_file_seek(f, 0, SEEK_END);
+	size = d_file_tell(f);
+	d_file_seek(f, 0, SEEK_SET);
 
 	dm = malloc(sizeof(*dm));
 	buf = malloc(size);

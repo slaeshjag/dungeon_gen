@@ -7,17 +7,15 @@
 #include "camera.h"
 
 
-void world_dungeon_load(int dungeon, int room) {
+void world_dungeon_load(int dungeon) {
 	dungeon_unload(ws.dm);
 	ws.active_world = dungeon;
-	ws.active_room = room;
 	ws.dm = dungeon_load(dungeon);
 }
 
 
 void world_init() {
 	ws.active_world = -1;
-	ws.active_room = -1;
 	ws.state = WORLD_STATE_MAINMENU;
 	ws.new_state = WORLD_STATE_MAINMENU;
 	ws.dm = NULL;
@@ -29,7 +27,6 @@ void world_init() {
 
 void world_reset() {
 	ws.active_world = -1;
-	ws.active_room = -1;
 	ws.dm = dungeon_unload(ws.dm);
 	ws.camera.follow_char = -1;
 	character_destroy();
@@ -58,7 +55,6 @@ void world_load(int world_num) {
 	ws.camera.follow_char = 0;
 	ws.camera.player = 0;
 	ws.active_world = 0;
-	ws.active_room = -1;
 	savedata_save(fname);
 
 	return;
@@ -80,9 +76,7 @@ void world_loop() {
 					ws.dm = dungeon_unload(ws.dm);
 				case WORLD_STATE_CHANGEMAP:
 					/* TODO: Insert music playback */
-				case WORLD_STATE_SETROOM:
 					ws.dm = dungeon_unload(ws.dm);
-					/* TODO: Implement overworld/rooms as well */
 					ws.dm = dungeon_load(ws.char_data->teleport.to.dungeon);
 					t = ws.char_data->teleport.to;
 					t.x *= ws.camera.tile_w;

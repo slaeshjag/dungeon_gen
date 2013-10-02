@@ -33,7 +33,6 @@ struct savefile_character_gfx {
 struct savefile_teleport_entry {
 	/* -1 for overworld */
 	int				map;
-	int				room;
 	int				x;
 	int				y;
 	int				l;

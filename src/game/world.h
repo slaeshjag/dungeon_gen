@@ -13,14 +13,12 @@ enum world_state_e {
 	WORLD_STATE_MAINMENU,
 	WORLD_STATE_MAPSTATE,
 	WORLD_STATE_CHANGEMAP,
-	WORLD_STATE_SETROOM,
 };
 
 struct world_state {
 	enum world_state_e		state;
 	enum world_state_e		new_state;
 	int				active_world;
-	int				active_room;
 	DARNIT_FONT			*font;
 	struct dungeon_map		*dm;
 	struct character_data		*char_data;

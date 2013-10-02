@@ -38,17 +38,14 @@ struct aicomm_struct aicomm_f_tpme(struct aicomm_struct ac) {
 	/* TODO: Add teleport ID offset */
 	t = ws.char_data->teleport.entry[ac.arg[0]];
 
-	if (t.map == ws.active_world && t.room == ws.active_room) {
+	if (t.map == ws.active_world) {
 		ac.ce[ac.from]->x = (t.x << 8) * ws.camera.tile_w;
 		ac.ce[ac.from]->y = (t.y << 8) * ws.camera.tile_h;
 		ac.ce[ac.from]->l = t.l;
 		return character_message_next(ac);
 	}
 
-	if (ws.char_data->teleport.to.room != 0)
-		ws.new_state = WORLD_STATE_SETROOM;
-	else
-		ws.new_state = (t.room > -1) ? WORLD_STATE_SETROOM : WORLD_STATE_CHANGEMAP;
+	ws.new_state = WORLD_STATE_CHANGEMAP;
 	
 	ws.char_data->teleport.to.slot = ac.ce[ac.from]->slot;
 	strcpy(ws.char_data->teleport.to.ai, ac.ce[ac.from]->ai);
@@ -56,7 +53,6 @@ struct aicomm_struct aicomm_f_tpme(struct aicomm_struct ac) {
 	ws.char_data->teleport.to.y = t.y;
 	ws.char_data->teleport.to.l = t.l;
 	ws.char_data->teleport.to.dungeon = t.map;
-	ws.char_data->teleport.to.room = t.room;
 
 	return character_message_next(ac);
 }
