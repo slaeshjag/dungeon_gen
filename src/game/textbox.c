@@ -6,6 +6,8 @@
 
 void textbox_init(unsigned int w, unsigned int h, int x, int y) {
 	struct textbox *tb;
+	DARNIT_FILE *f;
+	int i;
 
 	tb = malloc(sizeof(*tb));
 
@@ -24,6 +26,11 @@ void textbox_init(unsigned int w, unsigned int h, int x, int y) {
 
 	tb->ms_per_char = 200;
 	tb->dt = 0;
+	if ((f = d_file_open("res/PALETTE.VGA", "rb"))) {
+		d_file_read(textbox_color_palette, 1024, f);
+		d_file_close(f);
+		for (i = 3; i < 1024; textbox_color_palette[i] = 0xFF, i += 4);
+	}
 
 	ws.textbox = tb;
 
