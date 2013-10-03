@@ -23,8 +23,6 @@ int main(int argc, char **argv) {
 	ws.new_state = WORLD_STATE_MAPSTATE;
 	world_loop();
 
-
-
 	for (;;) {
 		world_loop();
 		d_loop();

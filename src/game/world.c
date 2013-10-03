@@ -44,7 +44,11 @@ void world_load(int world_num) {
 	sprintf(fname, "world_%i.save", world_num);
 	d_fs_mount(fname);
 	character_init();
-//	textbox_init();
+
+	/* Just testing textbox */
+	textbox_init(800, 96, 0, 0);
+	textbox_add_message("Räksmörgås!\x01\x03  сыр вкуснее!\x01\x0F\x02\xFF\nDet var allt.");
+
 	save_load_deps();
 	teleport_load();
 	savedata_load(fname);
@@ -117,6 +121,7 @@ void world_loop() {
 		case WORLD_STATE_MAPSTATE:
 			character_loop();
 			camera_loop();
+			textbox_loop();
 			p = ws.camera.player;
 			f = ws.char_data->entry[p]->l;
 
@@ -132,6 +137,10 @@ void world_loop() {
 	
 			d_tilemap_camera_move(ws.dm->floor[f].overlay, ws.camera.x, ws.camera.y);
 			d_tilemap_draw(ws.dm->floor[f].overlay);
+
+			d_render_blend_enable();
+			textbox_draw();
+			d_render_blend_disable();
 
 			/* TODO: Render a UI of some sort */
 			d_render_end();

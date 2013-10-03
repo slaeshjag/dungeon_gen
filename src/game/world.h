@@ -7,7 +7,7 @@
 #include "textbox.h"
 
 #define	WORLD_FADE_TIME			500
-#define	MAIN_FONT_SIZE			16
+#define	MAIN_FONT_SIZE			24
 
 enum world_state_e {
 	WORLD_STATE_MAINMENU,

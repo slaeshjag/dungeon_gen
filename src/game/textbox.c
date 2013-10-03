@@ -1,6 +1,7 @@
 #define	_EMIT_PALETTE
 #include "textbox.h"
 #include "world.h"
+#include <string.h>
 
 
 void textbox_init(unsigned int w, unsigned int h, int x, int y) {
@@ -49,6 +50,8 @@ void textbox_loop() {
 				if (d_text_surface_pos(tb->text) + d_font_word_w(ws.font, 
 				    &tb->message[tb->char_pos], NULL) >= tb->surface_w)
 					d_text_surface_char_append(tb->text, "\n");
+				else
+					d_text_surface_char_append(tb->text, " ");
 			} else if (tb->message[tb->char_pos] == '\x01') {
 				tb->char_pos++;
 				i = (((unsigned) tb->message[tb->char_pos]) << 2);
@@ -57,16 +60,29 @@ void textbox_loop() {
 				tb->dt += tb->ms_per_char;
 			} else if (tb->message[tb->char_pos] == '\x02') {
 				tb->char_pos++;
-				i = (((unsigned) tb->message[tb->char_pos]) << 2);
-				tb->ms_per_char = i;
-				tb->char_pos++;
+				i = ((unsigned char) tb->message[tb->char_pos]);
 				tb->dt += tb->ms_per_char;
+				tb->ms_per_char = i << 2;
+				tb->char_pos++;
 			} else
 				tb->char_pos += d_text_surface_char_append(tb->text, 
 					&tb->message[tb->char_pos]);
 		} else
 			break;
 	}
+
+	return;
+}
+
+
+void textbox_add_message(const char *message) {
+	if (ws.textbox->message)
+		free(ws.textbox->message), ws.textbox->message = NULL;
+	ws.textbox->char_pos = 0;
+	ws.textbox->dt = 0;
+	
+	ws.textbox->message = malloc(strlen(message) + 1);
+	strcpy(ws.textbox->message, message);
 
 	return;
 }
