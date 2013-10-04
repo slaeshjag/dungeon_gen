@@ -1,4 +1,5 @@
 #include <darnit/darnit.h>
+#include <string.h>
 
 #include "teleport.h"
 #include "world.h"
@@ -37,7 +38,8 @@ void world_reset() {
 
 
 void world_load(int world_num) {
-	char fname[64];
+	char fname[256], bluh[8], blah[256];
+	int i;
 
 	ws.savedata.is = ws.savedata.bs = 0;
 
@@ -47,7 +49,14 @@ void world_load(int world_num) {
 
 	/* Just testing textbox */
 	textbox_init(800, 96, 0, 0);
-	textbox_add_message("Räksmörgås!\x01\x03  сыр вкуснее!\x01\x0F\x02\xFF\nDet var allt.");
+	*blah = 0;
+	for (i = 1; i < 16; i++) {
+		sprintf(bluh, "\x01%c#", i);
+		strcpy(&blah[(i - 1) * 3], bluh);
+	}
+
+	textbox_add_message(blah);
+//	textbox_add_message("Räksmörgås!\x01\x03  сыр вкуснее!\x01\x0F\x02\x10\nDet var allt.");
 
 	save_load_deps();
 	teleport_load();
