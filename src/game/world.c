@@ -31,7 +31,7 @@ void world_reset() {
 	ws.dm = dungeon_unload(ws.dm);
 	ws.camera.follow_char = -1;
 	character_destroy();
-//	textbox_destroy();
+	textbox_destroy();
 
 	return;
 }
@@ -46,9 +46,12 @@ void world_load(int world_num) {
 	sprintf(fname, "world_%i.save", world_num);
 	d_fs_mount(fname);
 	character_init();
+	camera_init();
+	ws.camera.sys = d_render_tilesheet_load("res/ui.png", ws.camera.tile_w, ws.camera.tile_h,
+		DARNIT_PFORMAT_RGB5A1);
 
 	/* Just testing textbox */
-	textbox_init(800, 96, 0, 0);
+	textbox_init(800, 96, 0, 480-96, 10, 10, 10, 10);
 	*blah = 0;
 	for (i = 1; i < 16; i++) {
 		sprintf(bluh, "\x01%c#", i);
@@ -61,7 +64,6 @@ void world_load(int world_num) {
 	save_load_deps();
 	teleport_load();
 	savedata_load(fname);
-	camera_init();
 
 	ws.savedata.world = world_num;
 	/* FIXME: Temporary hack to test code */

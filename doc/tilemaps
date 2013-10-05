@@ -1,0 +1,3 @@
+Följande tilemaps är inkorrekt implementerade och måste åtgärdas när olika upplösningar implementeras.
+
+ws.camera.sys - Laddas in i world_load

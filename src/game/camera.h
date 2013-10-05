@@ -1,6 +1,8 @@
 #ifndef __CAMERA_H__
 #define	__CAMERA_H__
 
+#include <darnit/darnit.h>
+
 struct camera {
 	int			x;
 	int			y;
@@ -12,6 +14,7 @@ struct camera {
 	int			tile_h;
 	int			scroll_speed;
 	int			jump;
+	DARNIT_TILESHEET	*sys;
 };
 
 

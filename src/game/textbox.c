@@ -4,10 +4,10 @@
 #include <string.h>
 
 
-void textbox_init(unsigned int w, unsigned int h, int x, int y) {
+void textbox_init(int w, int h, int x, int y, int pad_x, int pad_y, int pad_x2, int pad_y2) {
 	struct textbox *tb;
 	DARNIT_FILE *f;
-	int i;
+	int i, wt, ht;
 
 	tb = malloc(sizeof(*tb));
 
@@ -20,9 +20,16 @@ void textbox_init(unsigned int w, unsigned int h, int x, int y) {
 	tb->options = 0;
 
 	tb->face = NULL;
-	tb->text = d_text_surface_color_new(ws.font, 2048, w, x, y);
-	tb->rows = h / d_font_glyph_hs(ws.font);
-	tb->surface_w = w;
+	w -= (w % ws.camera.tile_w);
+	x += (w % ws.camera.tile_w) / 2;
+	h -= (h % ws.camera.tile_h);
+	y += (h % ws.camera.tile_h);
+
+	tb->surface_w = (w - pad_x - pad_x2);
+	tb->text = d_text_surface_color_new(ws.font, 2048, tb->surface_w, x + pad_x, y + pad_y);
+	tb->rows = (h - pad_y - pad_y2) / d_font_glyph_hs(ws.font);
+	tb->tc = d_tilemap_new(0xFF, ws.camera.sys, 0xFFF, w / ws.camera.tile_w, h / ws.camera.tile_h);
+	d_tilemap_camera_move(tb->tc, -x, -y);
 
 	tb->ms_per_char = 200;
 	tb->dt = 0;
@@ -31,6 +38,28 @@ void textbox_init(unsigned int w, unsigned int h, int x, int y) {
 		d_file_close(f);
 		for (i = 3; i < 1024; textbox_color_palette[i] = 0xFF, i += 4);
 	}
+
+	/* Generate textbox background */
+	wt = w / ws.camera.tile_w;
+	ht = h / ws.camera.tile_h;
+
+	for (i = 1; i < wt * ht; i++)
+		tb->tc->data[i] = 5;
+	for (i = 1; i < wt - 1; i++)
+		tb->tc->data[i] = 2;
+	for (i = wt * (ht - 1); i < wt * ht; i++)
+		tb->tc->data[i] = 8;
+	for (i = 0; i < wt * ht; i += wt)
+		tb->tc->data[i] = 4;
+	for (i = wt - 1; i < wt * ht; i += wt)
+		tb->tc->data[i] = 6;
+	tb->tc->data[0] = 1;
+	tb->tc->data[wt - 1] = 3;
+	tb->tc->data[wt * (ht - 1)] = 7;
+	/* TODO: Implement pagination mark */
+	tb->tc->data[wt * ht - 1] = 9;
+
+	d_tilemap_recalc(tb->tc);
 
 	ws.textbox = tb;
 
@@ -101,6 +130,7 @@ void textbox_draw() {
 	
 	if (!tb->message)
 		return;
+	d_tilemap_draw(tb->tc);
 	d_text_surface_draw(tb->text);
 
 	return;

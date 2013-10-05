@@ -35,6 +35,7 @@ struct textbox {
 	char			*option;
 	unsigned int		options;
 	DARNIT_TILE		*face;
+	DARNIT_TILEMAP		*tc;
 	DARNIT_TEXT_SURFACE	*text;
 	unsigned int		surface_w;
 
@@ -42,10 +43,11 @@ struct textbox {
 	int			dt;
 };
 
-void textbox_init(unsigned int w, unsigned int h, int x, int y);
+void textbox_init(int w, int h, int x, int y, int pad_x, int pad_y, int pad_x2, int pad_y2);
 void textbox_loop();
 void textbox_add_message(const char *message);
 void textbox_draw();
+void textbox_destroy();
 
 
 #endif
