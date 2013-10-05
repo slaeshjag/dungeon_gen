@@ -83,22 +83,38 @@ void textbox_loop() {
 
 
 void textbox_add_message(const char *message) {
-	if (ws.textbox->message)
-		free(ws.textbox->message), ws.textbox->message = NULL;
-	ws.textbox->char_pos = 0;
-	ws.textbox->dt = 0;
+	struct textbox *tb = ws.textbox;
+	if (tb)
+		free(tb->message), tb->message = NULL;
+	tb->char_pos = 0;
+	tb->dt = 0;
 	
-	ws.textbox->message = malloc(strlen(message) + 1);
-	strcpy(ws.textbox->message, message);
+	tb->message = malloc(strlen(message) + 1);
+	strcpy(tb->message, message);
 
 	return;
 }
 
 
 void textbox_draw() {
-	if (!ws.textbox->message)
+	struct textbox *tb = ws.textbox;
+	
+	if (!tb->message)
 		return;
-	d_text_surface_draw(ws.textbox->text);
+	d_text_surface_draw(tb->text);
 
 	return;
 }
+
+
+void textbox_destroy() {
+	struct textbox *tb = ws.textbox;
+	
+	free(tb->message);
+	d_text_surface_free(tb->text);
+	free(tb);
+	ws.textbox = NULL;
+
+	return;
+}
+
