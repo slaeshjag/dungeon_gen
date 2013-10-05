@@ -52,16 +52,16 @@ int save_characters(struct generated_char **gc, int characters, DARNIT_LDI_WRITE
 		scg.type = gc[i]->char_type;
 
 		d_util_endian_convert((void *) gc[i]->face, scg.face_w * scg.face_h);
-		scg.zface = d_util_compress(gc[i]->face, scg.face_w * scg.face_h * 4, &zdata);
+		scg.zface = d_util_compress(gc[i]->face, scg.face_w * scg.face_h * 4, (void **) &zdata);
 		
 		d_util_endian_convert((void *) gc[i]->sprite, 
 			scg.sprite_w * scg.sprite_h * scg.sprite_frames);
 		scg.zsprite = d_util_compress(gc[i]->sprite, 
-			scg.sprite_w * scg.sprite_h * 4 * scg.sprite_frames, &zdata2);
+			scg.sprite_w * scg.sprite_h * 4 * scg.sprite_frames, (void **) &zdata2);
 		
 		d_util_endian_convert((void *) gc[i]->sprite_data, gc[i]->sprite_data_len);
 		scg.zspritedata = d_util_compress(gc[i]->sprite_data, gc[i]->sprite_data_len * 4,
-			&zdata3);
+			(void **) &zdata3);
 		data = realloc(data, next + sizeof(scg) + scg.zface + scg.zsprite + scg.zspritedata
 			+ gc[i]->sprite_dirs * 16);
 		d_util_endian_convert((void *) &scg, sizeof(scg) / 4);
@@ -162,7 +162,7 @@ int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l
 	next += sizeof(*(dngu->puzzle)) * dngu->puzzles;
 	d_util_endian_convert((void *) dngu->puzzle, sizeof(*(dngu->puzzle)) / sizeof(unsigned int) * dngu->puzzles);
 	
-	size = d_util_compress(data, size, &next);
+	size = d_util_compress(data, size, (void **) &next);
 	d_file_ldi_write_file(lw, name, next, size);
 	free(data);
 	free(next);

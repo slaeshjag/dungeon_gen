@@ -21,7 +21,7 @@ void teleport_load() {
 
 	data = malloc(teleports);
 	d_file_read(data, teleports, f);
-	d_util_decompress(data, teleports, &ws.char_data->teleport.entry);
+	d_util_decompress(data, teleports, (void **) &ws.char_data->teleport.entry);
 	free(data);
 	d_util_endian_convert((void *) ws.char_data->teleport.entry, ws.char_data->teleport.entries);
 

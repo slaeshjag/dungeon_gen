@@ -48,7 +48,7 @@ struct char_gfx *character_gfx_data_load(unsigned int char_num) {
 
 	buff = malloc(scg.zface);
 	d_file_read(buff, scg.zface, f);
-	d_util_decompress(buff, scg.zface, &cg->face);
+	d_util_decompress(buff, scg.zface, (void **) &cg->face);
 	d_util_endian_convert(cg->face, cg->face_w * cg->face_h);
 	buff = realloc(buff, scg.zsprite);
 	d_file_read(buff, scg.zsprite, f);
@@ -91,7 +91,7 @@ struct char_gfx *character_gfx_data_load(unsigned int char_num) {
 	buff = realloc(buff, scg.zspritedata);
 	d_file_read(buff, scg.zspritedata, f);
 	d_util_endian_convert((void *) cg->sprite_data, 
-		d_util_decompress(buff, scg.zspritedata, &cg->sprite_data) / 4);
+		d_util_decompress(buff, scg.zspritedata, (void **) &cg->sprite_data) / 4);
 	cg->sprite_hitbox = malloc(cg->directions * 16);
 	d_file_read_ints(cg->sprite_hitbox, cg->directions * 4, f);
 	free(buff);
@@ -137,7 +137,7 @@ struct dungeon_map *dungeon_load() {
 	dm = malloc(sizeof(*dm));
 	buf = malloc(size);
 	d_file_read(buf, size, f);
-	size = d_util_decompress(buf, size, &data);
+	size = d_util_decompress(buf, size, (void **) &data);
 	free(buf);
 	buf = data;
 	

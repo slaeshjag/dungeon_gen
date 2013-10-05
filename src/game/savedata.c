@@ -43,12 +43,12 @@ void savedata_load(const char *fname) {
 
 	data = malloc(sh.intz);
 	d_file_read(data, sh.intz, f);
-	d_util_decompress(data, sh.intz, &ws.savedata.i);
+	d_util_decompress(data, sh.intz, (void **) &ws.savedata.i);
 	d_util_endian_convert(ws.savedata.i, ws.savedata.is);
 
 	data = realloc(data, sh.bytez);
 	d_file_read(data, sh.bytez, f);
-	d_util_decompress(data, sh.bytez, &ws.savedata.b);
+	d_util_decompress(data, sh.bytez, (void **) &ws.savedata.b);
 	
 	free(data);
 
