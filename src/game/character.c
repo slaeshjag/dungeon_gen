@@ -179,6 +179,7 @@ void character_message_loop(struct aicomm_struct ac) {
 			case AICOMM_MSG_INIT:
 			case AICOMM_MSG_NOAI:
 			case AICOMM_MSG_DESTROY:
+			case AICOMM_MSG_SILE:
 			case AICOMM_MSG_LOOP:
 				/* Invalid return messages */
 				fprintf(stderr, "WARNING: char %i returned invalid message %i\n",
@@ -196,6 +197,15 @@ void character_message_loop(struct aicomm_struct ac) {
 
 	}
 
+	return;
+}
+
+
+void character_tell_all(struct aicomm_struct ac) {
+	int i;
+
+	for (i = 0; i < ws.char_data->max_entries; i++)
+		ac.self = i, character_message_loop(ac);
 	return;
 }
 

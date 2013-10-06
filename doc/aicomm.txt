@@ -75,6 +75,12 @@ ac.arg1 - Tile value
 
 ======
 
+AICOMM_MSG_SILE - Character should ignore input
+
+ac.arg0 - 1 if ignore should be enabled, 0 if disable
+
+======
+
 *** Messages that can be sent by AI handler ***
 
 Note: When sending a message, ac.self needs to be the reciever, and ac.from

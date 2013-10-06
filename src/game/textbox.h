@@ -3,6 +3,8 @@
 
 #include <darnit/darnit.h>
 
+#define	DEFAULT_TEXT_SPEED	30
+
 
 #ifdef _EMIT_PALETTE
 static unsigned char textbox_color_palette[1024] = {
@@ -38,6 +40,8 @@ struct textbox {
 	DARNIT_TILEMAP		*tc;
 	DARNIT_TEXT_SURFACE	*text;
 	unsigned int		surface_w;
+	unsigned int		current_surface_w;
+	unsigned int		pad_start;
 
 	int			ms_per_char;
 	int			dt;
