@@ -16,6 +16,7 @@ static struct aicomm_struct(*aihandle[AICOMM_MSG_END])(struct aicomm_struct) = {
 	[AICOMM_MSG_SPWN] = aicomm_f_spwn,
 	[AICOMM_MSG_GETF] = aicomm_f_getf,
 	[AICOMM_MSG_CAMN] = aicomm_f_camn,
+	[AICOMM_MSG_TBOX] = aicomm_f_tbox,
 	[AICOMM_MSG_TPME] = aicomm_f_tpme,
 };
 

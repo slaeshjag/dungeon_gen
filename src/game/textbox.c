@@ -22,7 +22,8 @@ void textbox_init(int w, int h, int x, int y, int pad_x, int pad_y, int pad_x2, 
 	tb->option = NULL;
 	tb->options = 0;
 
-	tb->face = NULL;
+	tb->face = d_render_tile_new(1, NULL);
+	tb->face_ts = NULL;
 	w -= (w % ws.camera.tile_w);
 	x += (w % ws.camera.tile_w) / 2;
 	h -= (h % ws.camera.tile_h);
@@ -33,6 +34,7 @@ void textbox_init(int w, int h, int x, int y, int pad_x, int pad_y, int pad_x2, 
 	tb->rows = (h - pad_y - pad_y2) / d_font_glyph_hs(ws.font);
 	tb->tc = d_tilemap_new(0xFF, ws.camera.sys, 0xFFF, w / ws.camera.tile_w, h / ws.camera.tile_h);
 	d_tilemap_camera_move(tb->tc, -x, -y);
+	tb->w = w, tb->h = h, tb->x = x, tb->y = y;
 
 	tb->ms_per_char = DEFAULT_TEXT_SPEED;
 	tb->dt = 0;
@@ -59,7 +61,6 @@ void textbox_init(int w, int h, int x, int y, int pad_x, int pad_y, int pad_x2, 
 	tb->tc->data[0] = 1;
 	tb->tc->data[wt - 1] = 3;
 	tb->tc->data[wt * (ht - 1)] = 7;
-	/* TODO: Implement pagination mark */
 	tb->tc->data[wt * ht - 1] = 9;
 
 	d_tilemap_recalc(tb->tc);
@@ -110,13 +111,14 @@ void textbox_loop() {
 				d_text_surface_char_append(tb->text, " ");
 				if (d_text_surface_pos(tb->text) + d_font_word_w(ws.font, 
 				    &tb->message[tb->char_pos], NULL) >= tb->current_surface_w) {
-					d_text_surface_offset_next_set(tb->text, tb->pad_start);
 					d_text_surface_char_append(tb->text, "\n");
+					d_text_surface_offset_next_set(tb->text, tb->pad_start);
 					tb->row++;
 				}
 			} else if (tb->message[tb->char_pos] == '\n') {
 				tb->char_pos++;
 				d_text_surface_char_append(tb->text, "\n");
+				d_text_surface_offset_next_set(tb->text, tb->pad_start);
 				tb->row++;
 			} else if (tb->message[tb->char_pos] == '\x01') {
 				tb->char_pos++;
@@ -162,6 +164,7 @@ void textbox_loop() {
 		tb->tc->data[tb->tc->w * tb->tc->h - 1] = 9;
 		d_tilemap_recalc(tb->tc);
 		d_text_surface_reset(tb->text);
+		d_text_surface_offset_next_set(tb->text, tb->pad_start);
 		tb->row = 0;
 		next = 0;
 	}
@@ -170,19 +173,47 @@ void textbox_loop() {
 }
 
 
-void textbox_add_message(const char *message) {
+void textbox_add_message(const char *message, const char *question, int face) {
 	struct textbox *tb = ws.textbox;
+	struct char_gfx *cg;
+	int blol;
+
 	if (tb)
 		free(tb->message), tb->message = NULL;
 	tb->char_pos = 0;
 	tb->row = 0;
 	tb->dt = 0;
-	tb->current_surface_w = tb->surface_w;
-	tb->pad_start = 0;
+	if (tb->face_ts) {
+		d_render_tilesheet_free(tb->face_ts), tb->face_ts = NULL;
+		character_unload_graphics(tb->face_id);
+	}
+	if (face >= 0) {
+		character_load_graphics(face);
+		tb->face_id = face;
+		cg = ws.char_data->gfx[face];
+		tb->face_ts = d_render_tilesheet_new(1, 1, cg->face_w, cg->face_h, 
+			DARNIT_PFORMAT_RGB5A1);
+		d_render_tilesheet_update(tb->face_ts, 0, 0, cg->face_w, cg->face_h, cg->face);
+		d_render_tile_tilesheet(tb->face, tb->face_ts);
+		d_render_tile_move(tb->face, 0, tb->x + 8, (tb->h - cg->face_h) / 2 + tb->y);
+		d_render_tile_set(tb->face, 0, 0);
+		blol = cg->face_w + 16;
+	} else
+		blol = 0;
+
+	tb->current_surface_w = tb->surface_w - blol;
+	tb->pad_start = blol;
 	d_text_surface_reset(tb->text);
 
 	tb->message = malloc(strlen(message) + 1);
 	strcpy(tb->message, message);
+	if (question) {
+		tb->option = malloc(strlen(question) + 1);
+		strcpy(tb->option, question);
+	} else
+		tb->option = NULL, tb->options = 0;
+	
+	d_text_surface_offset_next_set(tb->text, tb->pad_start);
 
 	return;
 }

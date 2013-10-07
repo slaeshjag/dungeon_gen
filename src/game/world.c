@@ -59,7 +59,7 @@ void world_load(int world_num) {
 	}
 
 //	textbox_add_message(blah);
-	textbox_add_message("Räksmörgås!\x01\x03  сыр вкуснее!\x01\x0F\x02\x10\nDet var allt.\x03\nFast egentligen inte, jag har mycket mer saker att säga, så här kommer du få jobba lite! Du vet, typ trycka vänster ALT några gånger i bland medans all den här jobbiga texten scrollar. Det här fungerar va? Annars blir jag ledsen i ögat.. :'(");
+	textbox_add_message("Räksmörgås!\x01\x03  сыр вкуснее!\x01\x0F\x02\x10\nDet var allt.\x03\nFast egentligen inte, jag har mycket mer saker att säga, så här kommer du få jobba lite! Du vet, typ trycka vänster ALT några gånger i bland medans all den här jobbiga texten scrollar. Det här fungerar va? Annars blir jag ledsen i ögat.. :'(", NULL, 0);
 
 	save_load_deps();
 	teleport_load();

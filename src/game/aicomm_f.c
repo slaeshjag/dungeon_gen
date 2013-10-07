@@ -1,6 +1,7 @@
 #include "character.h"
 #include "aicomm_f.h"
 #include "savefile.h"
+#include "textbox.h"
 #include "world.h"
 #include <string.h>
 
@@ -111,6 +112,16 @@ struct aicomm_struct aicomm_f_getf(struct aicomm_struct ac) {
 struct aicomm_struct aicomm_f_camn(struct aicomm_struct ac) {
 	ws.camera.jump = 1;
 
+	return character_message_next(ac);
+}
+
+
+struct aicomm_struct aicomm_f_tbox(struct aicomm_struct ac) {
+	struct textbox_properties *tp;
+
+	tp = ac.argp;
+	if (tp)
+		textbox_add_message(tp->message, tp->question, ac.arg[0]);
 	return character_message_next(ac);
 }
 
