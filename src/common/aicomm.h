@@ -20,6 +20,7 @@ enum aicomm_msg {
 	AICOMM_MSG_TELP,	/* Teleport me! */
 	AICOMM_MSG_TPME,	/* Teleport character using 
 					teleport table */
+	AICOMM_MSG_BOXR,	/* Return value from textbox */
 	AICOMM_MSG_KILL,	/* Kill a character */
 	AICOMM_MSG_SPWN,	/* Spawn a character */
 	AICOMM_MSG_GETF,	/* Get character I'm facing */

@@ -180,6 +180,7 @@ void character_message_loop(struct aicomm_struct ac) {
 			case AICOMM_MSG_NOAI:
 			case AICOMM_MSG_DESTROY:
 			case AICOMM_MSG_SILE:
+			case AICOMM_MSG_BOXR:
 			case AICOMM_MSG_LOOP:
 				/* Invalid return messages */
 				fprintf(stderr, "WARNING: char %i returned invalid message %i\n",

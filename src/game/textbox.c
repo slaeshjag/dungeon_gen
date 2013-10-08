@@ -151,10 +151,17 @@ void textbox_loop() {
 			
 			/* Close textbox */
 			free(tb->message), tb->message = NULL;
-			/* TODO: Free face */
+			d_render_tilesheet_free(tb->face_ts);
+			tb->face_ts = NULL;
+
+			ac.msg = AICOMM_MSG_BOXR;
+			ac.from = -1;
+			/* TODO: Actual return value */
+			ac.arg[0] = -1;
+			character_message_loop(ac);
+
 			ac.msg = AICOMM_MSG_SILE;
 			ac.arg[0] = 0;
-			ac.from = -1;
 			character_tell_all(ac);
 			return;
 		}
@@ -173,7 +180,7 @@ void textbox_loop() {
 }
 
 
-void textbox_add_message(const char *message, const char *question, int face) {
+void textbox_add_message(const char *message, const char *question, int face, int pingback) {
 	struct textbox *tb = ws.textbox;
 	struct char_gfx *cg;
 	int blol;
@@ -183,6 +190,7 @@ void textbox_add_message(const char *message, const char *question, int face) {
 	tb->char_pos = 0;
 	tb->row = 0;
 	tb->dt = 0;
+	tb->char_pingback = pingback;
 	if (tb->face_ts) {
 		d_render_tilesheet_free(tb->face_ts), tb->face_ts = NULL;
 		character_unload_graphics(tb->face_id);

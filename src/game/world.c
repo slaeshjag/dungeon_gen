@@ -38,8 +38,7 @@ void world_reset() {
 
 
 void world_load(int world_num) {
-	char fname[256], bluh[8], blah[256];
-	int i;
+	char fname[256];
 
 	ws.savedata.is = ws.savedata.bs = 0;
 
@@ -52,14 +51,6 @@ void world_load(int world_num) {
 
 	/* Just testing textbox */
 	textbox_init(800, 96, 0, 480-96, 10, 10, 10, 10);
-	*blah = 0;
-	for (i = 1; i < 16; i++) {
-		sprintf(bluh, "\x01%c#", i);
-		strcpy(&blah[(i - 1) * 3], bluh);
-	}
-
-//	textbox_add_message(blah);
-	textbox_add_message("Räksmörgås!\x01\x03  сыр вкуснее!\x01\x0F\x02\x10\nDet var allt.\x03\nFast egentligen inte, jag har mycket mer saker att säga, så här kommer du få jobba lite! Du vet, typ trycka vänster ALT några gånger i bland medans all den här jobbiga texten scrollar. Det här fungerar va? Annars blir jag ledsen i ögat.. :'(", NULL, 0);
 
 	save_load_deps();
 	teleport_load();

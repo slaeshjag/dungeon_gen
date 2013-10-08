@@ -121,7 +121,7 @@ struct aicomm_struct aicomm_f_tbox(struct aicomm_struct ac) {
 
 	tp = ac.argp;
 	if (tp)
-		textbox_add_message(tp->message, tp->question, ac.arg[0]);
+		textbox_add_message(tp->message, tp->question, ac.arg[0], ac.from);
 	return character_message_next(ac);
 }
 
