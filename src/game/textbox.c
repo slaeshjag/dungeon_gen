@@ -183,6 +183,7 @@ void textbox_loop() {
 void textbox_add_message(const char *message, const char *question, int face, int pingback) {
 	struct textbox *tb = ws.textbox;
 	struct char_gfx *cg;
+	struct aicomm_struct ac;
 	int blol;
 
 	if (tb)
@@ -222,6 +223,11 @@ void textbox_add_message(const char *message, const char *question, int face, in
 		tb->option = NULL, tb->options = 0;
 	
 	d_text_surface_offset_next_set(tb->text, tb->pad_start);
+
+	ac.from = -1;
+	ac.msg = AICOMM_MSG_SILE;
+	ac.arg[0] = 1;
+	character_tell_all(ac);
 
 	return;
 }

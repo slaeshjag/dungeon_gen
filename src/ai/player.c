@@ -39,6 +39,8 @@ static void player_loop(struct aicomm_struct ac, struct player_state *ps) {
 
 	ac.ce[self]->dx = ac.ce[self]->dy = 0;
 	n = -1;
+	if (ps->freeze)
+		goto nomove;
 	if (keys.left) {
 		ac.ce[self]->dx = PLAYER_SPEED * -1;
 		ac.ce[self]->dir = 0;
@@ -62,6 +64,8 @@ static void player_loop(struct aicomm_struct ac, struct player_state *ps) {
 		ac.ce[self]->dy = PLAYER_SPEED;
 		n = 0;
 	}
+
+	nomove:
 	
 	if (n < 0) {
 		if (ac.ce[self]->special_action.animate) {
@@ -86,6 +90,7 @@ struct aicomm_struct player_ai(struct aicomm_struct ac) {
 		ac.ce[ac.self]->state = malloc(sizeof(struct player_state));
 		ps = ac.ce[ac.self]->state;
 		ps->init = 0;
+		ps->freeze = 0;
 		player_init(ac, ps);
 	} else if (ac.msg == AICOMM_MSG_LOOP) {
 		player_loop(ac, ac.ce[ac.self]->state);
@@ -97,6 +102,10 @@ struct aicomm_struct player_ai(struct aicomm_struct ac) {
 			ac.arg[0] = ((unsigned) ac.arg[1]) >> 14;
 			aicom_msgbuf_push(ps->msg, ac);
 		}
+	} else if (ac.msg == AICOMM_MSG_SILE) {
+		ps = ac.ce[ac.self]->state;
+		ps->freeze = ac.arg[0];
+		ac.from = ac.self;
 	} else if (ac.msg == AICOMM_MSG_DESTROY) {
 		ps = ac.ce[ac.self]->state;
 		aicom_msgbuf_free(ps->msg);

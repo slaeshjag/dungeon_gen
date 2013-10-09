@@ -11,6 +11,7 @@ struct player_state {
 	unsigned int			init;
 	struct ai_msgbuf		*msg;
 	struct textbox_properties	tbp;
+	int				freeze;
 };
 
 #endif
