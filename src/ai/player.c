@@ -26,6 +26,8 @@ static void player_init(struct aicomm_struct ac, struct player_state *ps) {
 	ac.argp = &ps->tbp;
 	aicom_msgbuf_push(ps->msg, ac);
 
+	ac.ce[self]->special_action.solid = 1;
+
 	return;
 }
 
@@ -65,6 +67,24 @@ static void player_loop(struct aicomm_struct ac, struct player_state *ps) {
 		n = 0;
 	}
 
+	if (keys.select) {
+		ac.msg = AICOMM_MSG_SPWN;
+		ac.arg[0] = 0;
+		ac.arg[1] = (ac.ce[ac.self]->x >> 8) / 32 - 2;
+		ac.arg[2] = (ac.ce[ac.self]->y >> 8) / 32 - 2;
+		ac.arg[3] = ac.ce[ac.self]->l;
+		ac.argp = "box_ai";
+		ac.from = ac.self;
+		aicom_msgbuf_push(ps->msg, ac);
+	}
+
+	if (keys.BUTTON_ACCEPT) {
+		ac.msg = AICOMM_MSG_GETF;
+		ac.from = ac.self;
+		aicom_msgbuf_push(ps->msg, ac);
+		d_keys_set(d_keys_get());
+	}
+
 	nomove:
 	
 	if (n < 0) {
@@ -85,6 +105,7 @@ static void player_loop(struct aicomm_struct ac, struct player_state *ps) {
 
 struct aicomm_struct player_ai(struct aicomm_struct ac) {
 	struct player_state *ps;
+	int n;
 
 	if (ac.msg == AICOMM_MSG_INIT) {
 		ac.ce[ac.self]->state = malloc(sizeof(struct player_state));
@@ -106,6 +127,15 @@ struct aicomm_struct player_ai(struct aicomm_struct ac) {
 		ps = ac.ce[ac.self]->state;
 		ps->freeze = ac.arg[0];
 		ac.from = ac.self;
+	} else if (ac.msg == AICOMM_MSG_GETF) {
+		ps = ac.ce[ac.self]->state;
+		n = ac.self;
+		ac.self = ac.from;
+		ac.from = n;
+		ac.arg[0] = 0;
+		ac.msg = AICOMM_MSG_SEND;
+		aicom_msgbuf_push(ps->msg, ac);
+		ac.self = n;
 	} else if (ac.msg == AICOMM_MSG_DESTROY) {
 		ps = ac.ce[ac.self]->state;
 		aicom_msgbuf_free(ps->msg);

@@ -516,7 +516,6 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 void character_loop_entry(struct character_entry *ce) {
 	struct aicomm_struct ac;
 
-
 	ac.msg = AICOMM_MSG_LOOP;
 	ac.self = ce->self;
 	ac.from = -1;
