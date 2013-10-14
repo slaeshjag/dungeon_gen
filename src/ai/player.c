@@ -32,6 +32,36 @@ static void player_init(struct aicomm_struct ac, struct player_state *ps) {
 }
 
 
+static void player_handle_send(struct aicomm_struct ac, struct player_state *ps) {
+	int t;
+
+	if (ac.self == ac.from)
+		return;
+
+	/* Get progress */
+	if (ac.arg[0] == 1) {
+		if (ac.arg[1] >= (signed) ac.ce[ac.self]->save.is || ac.arg[1] < 0)
+			ac.arg[0] = 0;
+		else
+			ac.arg[0] = ac.ce[ac.self]->save.i[ac.arg[1]];
+	} else if (ac.arg[0] == 2) {	/* Set progress */
+		if (ac.arg[1] >= (signed) ac.ce[ac.self]->save.is || ac.arg[1] < 0)
+			ac.arg[0] = 0;
+		else {
+			ac.ce[ac.self]->save.i[ac.arg[1]] = ac.arg[2];
+			ac.arg[0] = ac.arg[2];
+		}
+	} else 
+		ac.arg[0] = 0;
+	t = ac.self;
+	ac.self = ac.from;
+	ac.from = t;
+	aicom_msgbuf_push(ps->msg, ac);
+
+	return;
+}
+
+
 static void player_loop(struct aicomm_struct ac, struct player_state *ps) {
 	int self = ac.self;
 	int n;
@@ -127,6 +157,8 @@ struct aicomm_struct player_ai(struct aicomm_struct ac) {
 		ps = ac.ce[ac.self]->state;
 		ps->freeze = ac.arg[0];
 		ac.from = ac.self;
+	} else if (ac.msg == AICOMM_MSG_SEND) {
+		player_handle_send(ac, ac.ce[ac.self]->state);
 	} else if (ac.msg == AICOMM_MSG_GETF) {
 		ps = ac.ce[ac.self]->state;
 		n = ac.self;
