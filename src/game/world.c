@@ -37,6 +37,17 @@ void world_reset() {
 }
 
 
+void world_save() {
+	char fname[256];
+
+	sprintf(fname, "world_%i.save", ws.savedata.world);
+	savedata_save(fname);
+
+	return;
+}
+
+
+
 void world_load(int world_num) {
 	char fname[256];
 

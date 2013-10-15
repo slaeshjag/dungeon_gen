@@ -28,6 +28,7 @@ struct world_state {
 } ws;
 
 void world_load(int world_num);
+void world_save();
 void world_init();
 void world_loop();
 int world_calc_tile(int x, int y, int l);
