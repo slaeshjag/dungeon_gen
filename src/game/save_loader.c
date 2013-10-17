@@ -160,8 +160,6 @@ struct dungeon_map *dungeon_load() {
 		df = (void *) buf;
 		buf += sizeof(*df);
 		d_util_endian_convert((void *) df, INTS(*df));
-		dm->floor[i].stair_up = df->stair_up;
-		dm->floor[i].stair_down = df->stair_down;
 
 		dm->floor[i].tm = d_tilemap_new(0xFFF, dm->ts, 0xFFF, df->floor_w, df->floor_h);
 		d_util_endian_convert((void *) buf, df->floor_w * df->floor_h);
