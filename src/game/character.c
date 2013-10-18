@@ -180,6 +180,7 @@ void character_message_loop(struct aicomm_struct ac) {
 			case AICOMM_MSG_NOAI:
 			case AICOMM_MSG_DESTROY:
 			case AICOMM_MSG_SILE:
+			case AICOMM_MSG_BOXR:
 			case AICOMM_MSG_LOOP:
 				/* Invalid return messages */
 				fprintf(stderr, "WARNING: char %i returned invalid message %i\n",
@@ -514,7 +515,6 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 
 void character_loop_entry(struct character_entry *ce) {
 	struct aicomm_struct ac;
-
 
 	ac.msg = AICOMM_MSG_LOOP;
 	ac.self = ce->self;

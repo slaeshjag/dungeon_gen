@@ -1,6 +1,7 @@
 #include "character.h"
 #include "aicomm_f.h"
 #include "savefile.h"
+#include "textbox.h"
 #include "world.h"
 #include <string.h>
 
@@ -92,8 +93,8 @@ struct aicomm_struct aicomm_f_kill(struct aicomm_struct ac) {
 struct aicomm_struct aicomm_f_spwn(struct aicomm_struct ac) {
 	int x, y;
 
-	x = ac.arg[1] * ws.camera.tile_w * 256;
-	y = ac.arg[2] * ws.camera.tile_h * 256;
+	x = ac.arg[1] * ws.camera.tile_w;
+	y = ac.arg[2] * ws.camera.tile_h;
 	character_spawn_entry(ac.arg[0], ac.argp, x, y, ac.arg[3]);
 
 	return character_message_next(ac);
@@ -111,6 +112,16 @@ struct aicomm_struct aicomm_f_getf(struct aicomm_struct ac) {
 struct aicomm_struct aicomm_f_camn(struct aicomm_struct ac) {
 	ws.camera.jump = 1;
 
+	return character_message_next(ac);
+}
+
+
+struct aicomm_struct aicomm_f_tbox(struct aicomm_struct ac) {
+	struct textbox_properties *tp;
+
+	tp = ac.argp;
+	if (tp)
+		textbox_add_message(tp->message, tp->question, ac.arg[0], ac.from);
 	return character_message_next(ac);
 }
 

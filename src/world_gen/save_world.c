@@ -125,8 +125,6 @@ int save_world_dungeon(struct dungeon_use *dngu, int index, DARNIT_LDI_WRITER *l
 
 	for (i = 0; i < dngu->floors; i++) {
 		fi = &dngu->floor_info[i];
-		l.stair_up = fi->stair_up;
-		l.stair_down = fi->stair_down;
 		l.floor_w = fi->w;
 		l.floor_h = fi->h;
 		d_util_endian_convert((void *) &l, sizeof(l) / sizeof(unsigned int));

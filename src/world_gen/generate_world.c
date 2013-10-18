@@ -65,9 +65,8 @@ void generate_character_graphics(struct generate_world *w, int characters) {
 	
 
 void generate_dungeons(struct generate_world *w) {
-	int i, j, floors, n;
+	int i, floors, n;
 	unsigned int *tmp_tile;
-//	struct dungeon *dungeon;
 	struct dungeon_use *dngu;
 	struct autotile *at;
 

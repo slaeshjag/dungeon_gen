@@ -20,11 +20,13 @@ enum aicomm_msg {
 	AICOMM_MSG_TELP,	/* Teleport me! */
 	AICOMM_MSG_TPME,	/* Teleport character using 
 					teleport table */
+	AICOMM_MSG_BOXR,	/* Return value from textbox */
 	AICOMM_MSG_KILL,	/* Kill a character */
 	AICOMM_MSG_SPWN,	/* Spawn a character */
 	AICOMM_MSG_GETF,	/* Get character I'm facing */
 	AICOMM_MSG_MAPE,	/* Character triggered map event */
 	AICOMM_MSG_SILE,	/* Silence! Ignore input */
+	AICOMM_MSG_TBOX,	/* Spawn a textbox */
 	AICOMM_MSG_DESTROY,	/* Time to die! */
 
 	AICOMM_MSG_END		/* END OF LIST */
@@ -46,6 +48,12 @@ struct character_save {
 	unsigned int		is;
 	char			*b;
 	unsigned int		bs;
+};
+
+
+struct textbox_properties {
+	const char		*message;
+	const char		*question;
 };
 
 

@@ -40,7 +40,9 @@ struct savefile_teleport_entry {
 
 
 /*** FOR SAVING DUNGEONS ***/
+
 struct savefile_dungeon_header {
+	/* TODO: Rename to layers. There won't be any "floors" */
 	unsigned int			floors;
 	unsigned int			objects;
 	unsigned int			puzzles;
@@ -51,8 +53,6 @@ struct savefile_dungeon_header {
 
 
 struct savefile_dungeon_floor {
-	int				stair_up;
-	int				stair_down;
 	int				floor_w;
 	int				floor_h;
 };
@@ -76,6 +76,13 @@ struct savefile_dungeon_object {
 	int				save_slot;
 	char				ai_func[32];
 };
+
+
+struct savefile_dungeon_metadata {
+	const char			music[32];
+	int				neighbours[8];
+};
+
 
 
 /*** ITEMS ***/
