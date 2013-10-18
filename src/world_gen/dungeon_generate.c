@@ -10,7 +10,7 @@
 static unsigned int structure[256];
 #define	CLEAR_STRUCTURE()		(memset(structure, 0, sizeof(int) * 256));
 
-static void diamond_square(unsigned int *map, int side_len) {
+static void diamond_square(int *map, int side_len) {
 	#define INDEX(x, y) ((y)*side_len+(x))
 	
 	int x, y, len=side_len, half, r=5000, tmp;
@@ -20,12 +20,25 @@ static void diamond_square(unsigned int *map, int side_len) {
 	for(len=side_len-1; len>=2; len/=2, r/=2) {
 		half=len/2;
 		for(y=0; y<side_len-1; y+=len)
-			for(x=0; x<side_len-1; x+=len)
-				map[INDEX(x+half, y+half)]=(map[INDEX(x, y)]+map[INDEX(x+len, y)]+map[INDEX(x, y+len)]+map[INDEX(x+len, y+len)])/4+random_get()%r-r/2;
+			for(x=0; x<side_len-1; x+=len) {
+				if(map[INDEX(x+half, y+half)])
+					continue;
+				map[INDEX(x+half, y+half)]=(map[INDEX(x, y)]+map[INDEX(x+len, y)]+map[INDEX(x, y+len)]+map[INDEX(x+len, y+len)])/4+random_get()%r;
+				if(r<5000)
+					map[INDEX(x+half, y+half)]-=r/2;
+				else
+					map[INDEX(x+half, y+half)]=0;
+			}
 		
 		for(y=0; y<side_len-1; y+=half)
 			for(x=(y+half)%len; x<side_len-1; x+=len) {
-				tmp=(map[INDEX((x-half+len)%side_len, y)]+map[INDEX((x+half)%side_len, y)]+map[INDEX(x, (y-half+len)%side_len)]+map[INDEX(x, (y+half)%side_len)])/4+random_get()%r-r/2;
+				if(map[INDEX(x, y)])
+					continue;
+				tmp=(map[INDEX((x-half+len)%side_len, y)]+map[INDEX((x+half)%side_len, y)]+map[INDEX(x, (y-half+len)%side_len)]+map[INDEX(x, (y+half)%side_len)])/4+random_get()%r;
+				if(r<5000)
+					tmp-=r/2;
+				else
+					tmp=0;
 				map[INDEX(x, y)]=tmp;
 				if(!x)
 					map[INDEX(side_len-1, y)]=tmp;
@@ -37,10 +50,10 @@ static void diamond_square(unsigned int *map, int side_len) {
 	#undef INDEX
 }
 
-struct dungeon_use *dungeon_generate_diamond_square(int size) {
+struct dungeon_use *dungeon_generate_diamond_square(int size, int *seed) {
 	struct dungeon_use *du;
 	void *tmp_data;
-	int i;
+	int i, tile_norm=0;
 
 	du = malloc(sizeof(*du));
 	du->floor_info = malloc(sizeof(*du->floor_info));
@@ -57,15 +70,18 @@ struct dungeon_use *dungeon_generate_diamond_square(int size) {
 	du->puzzles = 0;
 	du->entrance = 4 * size;
 	du->entrance_floor = 0;
-	tmp_data = malloc((size + 1) * (size + 1) * sizeof(int));
+	tmp_data = seed ? seed : calloc((size + 1) * (size + 1) * sizeof(int), 1);
 	diamond_square(tmp_data, size + 1);
 	util_blt(du->floor_info[0].tile_data, size, size, 0, 0, tmp_data, size + 1, size + 1, 1, 1);
-
+	
 	for (i = 0; i < size * size; i++) {
-		du->floor_info[0].tile_data[i] = du->floor_info[0].tile_data[i] > 2500 ? 0 : 1;
-		du->floor_info[0].tile_data[i] = (du->floor_info[0].tile_data[i]) ? (du->entrance = i, ROOM_TILE_FLOOR) : 0xF0000;
+		//du->floor_info[0].tile_data[i] = du->floor_info[0].tile_data[i] > 5000 ? 0 : 1;
+		//du->floor_info[0].tile_data[i] = (du->floor_info[0].tile_data[i]) ? (du->entrance = i, ROOM_TILE_FLOOR) : 0xF0000;
+		du->floor_info[0].tile_data[i]=(du->floor_info[0].tile_data[i]==0?0:5000/du->floor_info[0].tile_data[i])>0?0xF0000:(du->entrance = i, ROOM_TILE_FLOOR);
 	}
-	free(tmp_data);
+	
+	if(!seed)
+		free(tmp_data);
 	
 	return du;
 }

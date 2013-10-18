@@ -94,7 +94,7 @@ void generate_dungeons(struct generate_world *w) {
 	
 		dungeon_free_generate_dungeon(dungeon);
 		#else
-		dngu = dungeon_generate_diamond_square(64);
+		dngu = dungeon_generate_diamond_square(64, NULL);
 		#endif
 
 		save_world_dungeon(dngu, i, w->lw, 0);
