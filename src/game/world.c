@@ -79,7 +79,7 @@ void world_load(int world_num) {
 
 
 void world_loop() {
-	int p, f;
+	int i;
 	struct teleport_to t;	/* T för Taliban att Teleportera! */
 
 	if (ws.new_state != ws.state) {
@@ -112,8 +112,8 @@ void world_loop() {
 					break;
 				case WORLD_STATE_MAPSTATE:
 					ws.dm = dungeon_load();
-					character_spawn_entry(2, "player_ai", ws.dm->entrance % ws.dm->floor->tm->w * 32, 
-					ws.dm->entrance / ws.dm->floor->tm->w * 32, ws.dm->entrance_floor);
+					/* TODO: Replace with proper code */
+					character_spawn_entry(0, "player_ai", 400, 400, 0);
 					break;
 				case WORLD_STATE_CHANGEMAP:
 				default:
@@ -135,22 +135,19 @@ void world_loop() {
 			character_loop();
 			camera_loop();
 			textbox_loop();
-			p = ws.camera.player;
-			f = ws.char_data->entry[p]->l;
 
 			d_render_begin();
-			d_tilemap_camera_move(ws.dm->floor[f].tm, ws.camera.x, ws.camera.y);
-			d_tilemap_draw(ws.dm->floor[f].tm);
-			/* NOTE: This depends on the collision buffer not changing */
-			d_render_offset(ws.camera.x, ws.camera.y);
-			d_render_blend_enable();
-			character_render_layer(character_find_visible(), f);
-			d_render_blend_disable();
-			d_render_offset(0, 0);
+			for (i = 0; i < ws.dm->layers; i++) {
+				d_tilemap_camera_move(ws.dm->layer[i], ws.camera.x, ws.camera.y);
+				d_tilemap_draw(ws.dm->layer[i]);
+				/* NOTE: This depends on the collision buffer not changing */
+				d_render_offset(ws.camera.x, ws.camera.y);
+				d_render_blend_enable();
+				character_render_layer(character_find_visible(), i);
+				d_render_blend_disable();
+				d_render_offset(0, 0);
+			}
 	
-			d_tilemap_camera_move(ws.dm->floor[f].overlay, ws.camera.x, ws.camera.y);
-			d_tilemap_draw(ws.dm->floor[f].overlay);
-
 			d_render_blend_enable();
 			textbox_draw();
 			d_render_blend_disable();
@@ -174,11 +171,11 @@ int world_calc_tile(int x, int y, int l) {
 
 	switch (ws.state) {
 		case WORLD_STATE_MAPSTATE:
-			if (x >= ws.dm->floor[l].tm->w)
+			if (x >= ws.dm->layer[l]->w)
 				return -1;
-			if (y >= ws.dm->floor[l].tm->h)
+			if (y >= ws.dm->layer[l]->h)
 				return -1;
-			return x + y * ws.dm->floor[l].tm->w;
+			return x + y * ws.dm->layer[l]->w;
 			break;
 		default:
 			return 0;
@@ -193,7 +190,7 @@ unsigned int world_get_tile_i(int i, int l) {
 		return ~0;
 	switch (ws.state) {
 		case WORLD_STATE_MAPSTATE:
-			return ws.dm->floor[l].tm->data[i];
+			return ws.dm->layer[l]->data[i];
 			break;
 		default:
 			return 0;

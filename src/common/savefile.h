@@ -1,7 +1,7 @@
 #ifndef __SAVEFILE_H__
 #define	__SAVEFILE_H__
 
-#define	SAVEFILE_VERSION		0x10001
+#define	SAVEFILE_VERSION		0x10002
 
 #define	MAP_FLAG_EVENT			0x100000
 #define	MAP_FLAG_TELEPORT		0x200000
@@ -31,7 +31,6 @@ struct savefile_character_gfx {
 /*** FOR BOTH OVERWORLD AND DUNGEON */
 
 struct savefile_teleport_entry {
-	/* -1 for overworld */
 	int				map;
 	int				x;
 	int				y;
@@ -42,28 +41,15 @@ struct savefile_teleport_entry {
 /*** FOR SAVING DUNGEONS ***/
 
 struct savefile_dungeon_header {
-	/* TODO: Rename to layers. There won't be any "floors" */
-	unsigned int			floors;
+	unsigned int			version;
 	unsigned int			objects;
-	unsigned int			puzzles;
 	unsigned int			tileset;
-	unsigned int			entrance;
-	unsigned int			entrance_floor;
-};
-
-
-struct savefile_dungeon_floor {
-	int				floor_w;
-	int				floor_h;
-};
-
-
-struct savefile_dungeon_puzzle_part {
-	int				link;
-	int				floor;
-	int				group;
-	int				depend;
-	int				provide;
+	unsigned int			map_w;
+	unsigned int			map_h;
+	unsigned int			layers;
+	const char			area_name[32];
+	const char			music[32];
+	int				neighbours[8];
 };
 
 
@@ -76,13 +62,6 @@ struct savefile_dungeon_object {
 	int				save_slot;
 	char				ai_func[32];
 };
-
-
-struct savefile_dungeon_metadata {
-	const char			music[32];
-	int				neighbours[8];
-};
-
 
 
 /*** ITEMS ***/

@@ -31,23 +31,11 @@ struct char_gfx {
 };
 
 
-struct dungeon_map_floor {
-	DARNIT_TILEMAP				*tm;
-	DARNIT_TILEMAP				*overlay;
-	int					stair_up;
-	int					stair_down;
-};
-
-
 struct dungeon_map {
-	struct dungeon_map_floor		*floor;
-	int					floors;
+	DARNIT_TILEMAP				**layer;
+	int					layers;
 	struct savefile_dungeon_object		*object;
 	int					objects;
-	struct savefile_dungeon_puzzle_part	*puzzle;
-	int					puzzles;
-	int					entrance_floor;
-	int					entrance;
 	DARNIT_TILESHEET			*ts;
 };
 

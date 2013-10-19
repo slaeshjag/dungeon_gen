@@ -492,6 +492,7 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	for (i = 0; i < ws.char_data->max_entries; i++)
 		if (!ws.char_data->entry[i])
 			break;
+	ws.char_data->entries++;
 	ws.char_data->entry[i] = ce;
 	ws.char_data->entry[i]->self = i;
 	character_update_sprite(i);
@@ -561,6 +562,8 @@ void character_despawn(int entry) {
 
 	if (ws.camera.player == entry)
 		ws.camera.player = -1;
+
+	ws.char_data->entries--;
 
 	return;
 }

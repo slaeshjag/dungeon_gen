@@ -120,9 +120,7 @@ struct dungeon_map *dungeon_load() {
 	off_t size;
 	struct dungeon_map *dm;
 	struct savefile_dungeon_header *dh;
-	struct savefile_dungeon_floor *df;
 	struct savefile_dungeon_object *dob;
-	struct savefile_dungeon_puzzle_part *dp;
 
 	sprintf(name, "world/map_%i.lvl", ws.active_world);
 	if (!(f = d_file_open(name, "rb"))) {
@@ -145,45 +143,26 @@ struct dungeon_map *dungeon_load() {
 	buf += sizeof(*dh);
 	d_util_endian_convert((void *) dh, INTS(*dh));
 	
-	dm->floors = dh->floors;
-	dm->floor = malloc(sizeof(*dm->floor) * dh->floors);
+	dm->layers = dh->layers;
+	dm->layer = malloc(sizeof(*dm->layer) * dh->layers);
 	dm->objects = dh->objects;
 	dm->object = malloc(sizeof(*dm->object) * dh->objects);
-	dm->puzzles = dh->puzzles;
-	dm->puzzle = malloc(sizeof(*dm->puzzle) * dh->puzzles);
-	dm->entrance_floor = dh->entrance_floor;
-	dm->entrance = dh->entrance;
 	sprintf(name, "res/tileset_%i.png", dh->tileset);
 	dm->ts = d_render_tilesheet_load(name, TILE_W, TILE_H, DARNIT_PFORMAT_RGB5A1);
 
-	for (i = 0; i < dm->floors; i++) {
-		df = (void *) buf;
-		buf += sizeof(*df);
-		d_util_endian_convert((void *) df, INTS(*df));
+	for (i = 0; i < dm->layers; i++) {
+		dm->layer[i] = d_tilemap_new(0xFFF, dm->ts, 0xFFF, dh->map_w, dh->map_h);
+		d_util_endian_convert((void *) buf, dh->map_w * dh->map_h);
+		memcpy(dm->layer[i]->data, buf, dh->map_w * dh->map_h * sizeof(int));
+		buf += dh->map_w * dh->map_h * sizeof(int);
 
-		dm->floor[i].tm = d_tilemap_new(0xFFF, dm->ts, 0xFFF, df->floor_w, df->floor_h);
-		d_util_endian_convert((void *) buf, df->floor_w * df->floor_h);
-		memcpy(dm->floor[i].tm->data, buf, df->floor_w * df->floor_h * sizeof(int));
-		buf += df->floor_w * df->floor_h * sizeof(int);
-
-		dm->floor[i].overlay = d_tilemap_new(0xFFF, dm->ts, 0xFFF, df->floor_w, df->floor_h);
-		d_util_endian_convert((void *) buf, df->floor_w * df->floor_h);
-		memcpy(dm->floor[i].overlay->data, buf, df->floor_w * df->floor_h * sizeof(int));
-		buf += df->floor_w * df->floor_h * sizeof(int);
-
-		d_tilemap_recalc(dm->floor[i].tm);
-		d_tilemap_recalc(dm->floor[i].overlay);
+		d_tilemap_recalc(dm->layer[i]);
 	}
 
 	dob = (void *) buf;
 	buf += sizeof(*dob) * dm->objects;
 	d_util_endian_convert((void *) dob, INTS(*dob) * dm->objects);
 	memcpy(dm->object, dob, sizeof(*dm->object) * dm->objects);
-
-	dp = (void *) buf;
-	buf += (sizeof(*dp) * dm->puzzles);
-	d_util_endian_convert((void *) dp, INTS(*dp) * dm->puzzles);
-	memcpy(dm->puzzle, dp, sizeof(*dm->puzzle) * dm->puzzles);
 
 	free(data);
 	d_file_close(f);
@@ -197,10 +176,9 @@ void *dungeon_unload(struct dungeon_map *dm) {
 
 	if (!dm)
 		return NULL;
-	for (i = 0; i < dm->floors; i++)
-		d_tilemap_free(dm->floor[i].tm);
-	free(dm->floor);
-	free(dm->puzzle);
+	for (i = 0; i < dm->layers; i++)
+		d_tilemap_free(dm->layer[i]);
+	free(dm->layer);
 	free(dm->object);
 	d_render_tilesheet_free(dm->ts);
 
