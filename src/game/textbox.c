@@ -158,6 +158,7 @@ void textbox_loop() {
 			ac.from = -1;
 			/* TODO: Actual return value */
 			ac.arg[0] = -1;
+			ac.self = tb->char_pingback;
 			character_message_loop(ac);
 
 			ac.msg = AICOMM_MSG_SILE;
