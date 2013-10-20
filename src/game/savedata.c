@@ -78,6 +78,7 @@ void savedata_save(const char *file) {
 	sh.bytes = ws.savedata.bs;
 	sh.info = 0;
 	sh.infoz = 0;
+	sh.map = ws.active_world;
 
 	d_util_endian_convert(ws.savedata.i, ws.savedata.is);
 

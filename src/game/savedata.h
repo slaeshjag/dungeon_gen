@@ -13,6 +13,7 @@ struct savedata_header {
 	unsigned int			bytez;
 	unsigned int			info;
 	unsigned int			infoz;
+	unsigned int			map;
 };
 
 
