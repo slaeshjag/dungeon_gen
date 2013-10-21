@@ -31,9 +31,15 @@ struct char_gfx {
 };
 
 
-struct dungeon_map {
+struct dungeon_map_map {
 	DARNIT_TILEMAP				**layer;
 	int					layers;
+};
+
+
+struct dungeon_map {
+	/* 3x3-matris där 5 är mitten, alla runt om är grannkartor. */
+	struct dungeon_map_map			grid[9];
 	struct savefile_dungeon_object		*object;
 	int					objects;
 	DARNIT_TILESHEET			*ts;
@@ -43,7 +49,7 @@ int character_gfx_data_characters();
 struct char_gfx *character_gfx_data_load(unsigned int char_num);
 void *character_gfx_data_unload(struct char_gfx *cg);
 
-struct dungeon_map *dungeon_load();
+struct dungeon_map *dungeon_load(int ns);
 void *dungeon_unload(struct dungeon_map *dm);
 
 int save_load_deps();

@@ -63,8 +63,8 @@ void camera_loop() {
 		ws.camera.y = y;
 	}
 
-	w = (*ws.dm->layer)->w * ws.camera.tile_w;
-	h = (*ws.dm->layer)->h * ws.camera.tile_h;
+	w = (*ws.dm->grid[4].layer)->w * ws.camera.tile_w;
+	h = (*ws.dm->grid[4].layer)->h * ws.camera.tile_h;
 
 	
 	if (ws.camera.screen_w < w) {

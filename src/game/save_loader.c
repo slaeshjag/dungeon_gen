@@ -113,7 +113,8 @@ void *character_gfx_data_unload(struct char_gfx *cg) {
 }
 
 
-struct dungeon_map *dungeon_load() {
+/* ns for neighbour slot */
+struct dungeon_map *dungeon_load(int ns) {
 	char name[32], *buf, *data;
 	int i;
 	DARNIT_FILE *f;
@@ -142,21 +143,22 @@ struct dungeon_map *dungeon_load() {
 	dh = (void *) buf;
 	buf += sizeof(*dh);
 	d_util_endian_convert((void *) dh, INTS(*dh));
-	
-	dm->layers = dh->layers;
-	dm->layer = malloc(sizeof(*dm->layer) * dh->layers);
+
+	fprintf(stderr, "Loading %i\n", ns);
+	dm->grid[ns].layers = dh->layers;
+	dm->grid[ns].layer = malloc(sizeof(*dm->grid[ns].layer) * dh->layers);
 	dm->objects = dh->objects;
 	dm->object = malloc(sizeof(*dm->object) * dh->objects);
 	sprintf(name, "res/tileset_%i.png", dh->tileset);
 	dm->ts = d_render_tilesheet_load(name, TILE_W, TILE_H, DARNIT_PFORMAT_RGB5A1);
 
-	for (i = 0; i < dm->layers; i++) {
-		dm->layer[i] = d_tilemap_new(0xFFF, dm->ts, 0xFFF, dh->map_w, dh->map_h);
+	for (i = 0; i < dm->grid[ns].layers; i++) {
+		dm->grid[ns].layer[i] = d_tilemap_new(0xFFF, dm->ts, 0xFFF, dh->map_w, dh->map_h);
 		d_util_endian_convert((void *) buf, dh->map_w * dh->map_h);
-		memcpy(dm->layer[i]->data, buf, dh->map_w * dh->map_h * sizeof(int));
+		memcpy(dm->grid[ns].layer[i]->data, buf, dh->map_w * dh->map_h * sizeof(int));
 		buf += dh->map_w * dh->map_h * sizeof(int);
 
-		d_tilemap_recalc(dm->layer[i]);
+		d_tilemap_recalc(dm->grid[ns].layer[i]);
 	}
 
 	dob = (void *) buf;
@@ -171,14 +173,26 @@ struct dungeon_map *dungeon_load() {
 }
 
 
+void dungeon_unload_slot(struct dungeon_map *dm, int ns) {
+	int i;
+
+	for (i = 0; i < dm->grid[ns].layers; i++)
+		d_tilemap_free(dm->grid[ns].layer[i]);
+	free(dm->grid[ns].layer);
+	dm->grid[ns].layer = NULL;
+	dm->grid[ns].layers = 0;
+
+	return;
+}
+
+
 void *dungeon_unload(struct dungeon_map *dm) {
 	int i;
 
 	if (!dm)
 		return NULL;
-	for (i = 0; i < dm->layers; i++)
-		d_tilemap_free(dm->layer[i]);
-	free(dm->layer);
+	for (i = 0; i < 9; i++)
+		dungeon_unload_slot(dm, i);
 	free(dm->object);
 	d_render_tilesheet_free(dm->ts);
 

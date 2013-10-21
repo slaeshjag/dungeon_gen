@@ -94,7 +94,7 @@ void world_loop() {
 				case WORLD_STATE_CHANGEMAP:
 					/* TODO: Insert music playback */
 					ws.dm = dungeon_unload(ws.dm);
-					ws.dm = dungeon_load(ws.char_data->teleport.to.dungeon);
+					ws.dm = dungeon_load(4);
 					t = ws.char_data->teleport.to;
 					t.x *= ws.camera.tile_w;
 					t.y *= ws.camera.tile_h;
@@ -111,7 +111,7 @@ void world_loop() {
 				case WORLD_STATE_MAINMENU:
 					break;
 				case WORLD_STATE_MAPSTATE:
-					ws.dm = dungeon_load();
+					ws.dm = dungeon_load(4);
 					/* TODO: Replace with proper code */
 					character_spawn_entry(0, "player_ai", 400, 400, 0);
 					break;
@@ -137,9 +137,10 @@ void world_loop() {
 			textbox_loop();
 
 			d_render_begin();
-			for (i = 0; i < ws.dm->layers; i++) {
-				d_tilemap_camera_move(ws.dm->layer[i], ws.camera.x, ws.camera.y);
-				d_tilemap_draw(ws.dm->layer[i]);
+			for (i = 0; i < ws.dm->grid[4].layers; i++) {
+				fprintf(stderr, "render..\n");
+				d_tilemap_camera_move(ws.dm->grid[4].layer[i], ws.camera.x, ws.camera.y);
+				d_tilemap_draw(ws.dm->grid[4].layer[i]);
 				/* NOTE: This depends on the collision buffer not changing */
 				d_render_offset(ws.camera.x, ws.camera.y);
 				d_render_blend_enable();
@@ -171,11 +172,11 @@ int world_calc_tile(int x, int y, int l) {
 
 	switch (ws.state) {
 		case WORLD_STATE_MAPSTATE:
-			if (x >= ws.dm->layer[l]->w)
+			if (x >= ws.dm->grid[4].layer[l]->w)
 				return -1;
-			if (y >= ws.dm->layer[l]->h)
+			if (y >= ws.dm->grid[4].layer[l]->h)
 				return -1;
-			return x + y * ws.dm->layer[l]->w;
+			return x + y * ws.dm->grid[4].layer[l]->w;
 			break;
 		default:
 			return 0;
@@ -190,7 +191,7 @@ unsigned int world_get_tile_i(int i, int l) {
 		return ~0;
 	switch (ws.state) {
 		case WORLD_STATE_MAPSTATE:
-			return ws.dm->layer[l]->data[i];
+			return ws.dm->grid[4].layer[l]->data[i];
 			break;
 		default:
 			return 0;
