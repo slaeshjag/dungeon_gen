@@ -49,6 +49,11 @@ void savedata_load(const char *fname) {
 	data = realloc(data, sh.bytez);
 	d_file_read(data, sh.bytez, f);
 	d_util_decompress(data, sh.bytez, (void **) &ws.savedata.b);
+
+	ws.active_world = sh.map;
+	ws.state = WORLD_STATE_MAPSTATE;
+
+
 	
 	free(data);
 

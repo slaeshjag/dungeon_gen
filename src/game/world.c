@@ -138,7 +138,6 @@ void world_loop() {
 
 			d_render_begin();
 			for (i = 0; i < ws.dm->grid[4].layers; i++) {
-				fprintf(stderr, "render..\n");
 				d_tilemap_camera_move(ws.dm->grid[4].layer[i], ws.camera.x, ws.camera.y);
 				d_tilemap_draw(ws.dm->grid[4].layer[i]);
 				/* NOTE: This depends on the collision buffer not changing */

@@ -13,6 +13,8 @@ struct savedata_header {
 	unsigned int			bytez;
 	unsigned int			info;
 	unsigned int			infoz;
+	unsigned int			objects;
+	unsigned int			objectz;
 	unsigned int			map;
 };
 
@@ -20,6 +22,15 @@ struct savedata_header {
 struct savedata_footer {
 	unsigned int			magic;
 	unsigned int			offset;
+};
+
+
+struct savedata_object {
+	int				x;
+	int				y;
+	int				l;
+	int				slot;
+	const char			ai[32];
 };
 
 
