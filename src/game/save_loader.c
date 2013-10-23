@@ -145,6 +145,7 @@ struct dungeon_map *dungeon_load(int ns) {
 	d_util_endian_convert((void *) dh, INTS(*dh));
 
 	fprintf(stderr, "Loading %i\n", ns);
+	memcpy(dm->grid[ns].neighbours, dh->neighbours, 32);
 	dm->grid[ns].layers = dh->layers;
 	dm->grid[ns].layer = malloc(sizeof(*dm->grid[ns].layer) * dh->layers);
 	dm->objects = dh->objects;

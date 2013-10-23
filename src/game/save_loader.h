@@ -34,6 +34,7 @@ struct char_gfx {
 struct dungeon_map_map {
 	DARNIT_TILEMAP				**layer;
 	int					layers;
+	int					neighbours[8];
 };
 
 
