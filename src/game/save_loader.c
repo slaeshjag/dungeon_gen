@@ -116,14 +116,24 @@ void *character_gfx_data_unload(struct char_gfx *cg) {
 /* ns for neighbour slot */
 struct dungeon_map *dungeon_load(int ns) {
 	char name[32], *buf, *data;
-	int i;
+	int i, n;
 	DARNIT_FILE *f;
 	off_t size;
 	struct dungeon_map *dm;
 	struct savefile_dungeon_header *dh;
 	struct savefile_dungeon_object *dob;
 
-	sprintf(name, "world/map_%i.lvl", ws.active_world);
+	n = ns;
+	
+	if (n != 4) {
+		if (n > 4)
+			n -= 1;
+		if (ws.dm->grid[4].neighbours[n] == -1)
+			return NULL;
+	} else
+		n = ws.active_world;
+
+	sprintf(name, "world/map_%i.lvl", n);
 	if (!(f = d_file_open(name, "rb"))) {
 		fprintf(stderr, "Unable to open %s\n", name);
 		exit(-1);
@@ -172,6 +182,9 @@ struct dungeon_map *dungeon_load(int ns) {
 
 	return dm;
 }
+
+
+
 
 
 void dungeon_unload_slot(struct dungeon_map *dm, int ns) {
