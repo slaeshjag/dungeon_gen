@@ -63,6 +63,7 @@ struct character_entry {
 	int			x;
 	int			y;
 	int			l;
+	int			map;
 	int			dir;
 	int			slot;
 	int			self;

@@ -95,7 +95,7 @@ struct aicomm_struct aicomm_f_spwn(struct aicomm_struct ac) {
 
 	x = ac.arg[1] * ws.camera.tile_w;
 	y = ac.arg[2] * ws.camera.tile_h;
-	character_spawn_entry(ac.arg[0], ac.argp, x, y, ac.arg[3]);
+	character_spawn_entry(ac.arg[0], ac.argp, x, y, ac.arg[3], 4, -1);
 
 	return character_message_next(ac);
 }

@@ -447,7 +447,7 @@ void character_handle_movement(int entry) {
 }
 
 
-int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l) {
+int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l, int map, int save) {
 	int i, j, k, h;
 	struct character_entry *ce;
 	struct char_gfx *cg;
@@ -480,6 +480,7 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	ce->x = x << 8;
 	ce->y = y << 8;
 	ce->l = l;
+	ce->map = map;
 	ce->dx = ce->dy = 0;
 	ce->slot = slot;
 	ce->dir = 0;
@@ -498,6 +499,7 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	character_update_sprite(i);
 
 	/* TODO: Implement */
+	fprintf(stderr, "TODO: Load savebank %i\n", save);
 	ce->save.i = NULL;
 	ce->save.b = NULL;
 	ce->save.is = ce->save.bs = 0;
@@ -511,6 +513,21 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	character_set_hitbox(i);
 
 	return i;
+}
+
+
+void character_spawn_map(int map_slot) {
+	int i;
+	struct savefile_dungeon_object obj;
+
+	for (i = 0; i < ws.dm->grid[map_slot].objects; i++) {
+		obj = ws.dm->grid[map_slot].object[i];
+		
+		character_spawn_entry(obj.gfx_slot, obj.ai_func, obj.x * ws.camera.tile_w,
+			obj.y * ws.camera.tile_h, obj.f, ws.dm->grid[map_slot].id, obj.save_slot);
+	}
+
+	return;
 }
 
 
@@ -565,6 +582,20 @@ void character_despawn(int entry) {
 
 	ws.char_data->entries--;
 
+	return;
+}
+
+
+void character_despawn_map(int map) {
+	int i;
+
+	for (i = 0; i < ws.char_data->entries; i++) {
+		if (!ws.char_data->entry[i])
+			continue;
+		if (ws.char_data->entry[i]->map == ws.dm->grid[map].id)
+			character_despawn(i);
+	}
+	
 	return;
 }
 

@@ -99,7 +99,7 @@ void world_loop() {
 					t.x *= ws.camera.tile_w;
 					t.y *= ws.camera.tile_h;
 					if (t.slot > 0)
-						character_spawn_entry(t.slot, t.ai, t.x, t.y, t.l);
+						character_spawn_entry(t.slot, t.ai, t.x, t.y, t.l, 4, -1);
 					t.slot = -1;
 					ws.new_state = WORLD_STATE_MAPSTATE;
 					break;
@@ -113,7 +113,7 @@ void world_loop() {
 				case WORLD_STATE_MAPSTATE:
 					ws.dm = dungeon_load(4);
 					/* TODO: Replace with proper code */
-					character_spawn_entry(0, "player_ai", 400, 400, 0);
+					character_spawn_entry(0, "player_ai", 400, 400, 0, 4, -1);
 					break;
 				case WORLD_STATE_CHANGEMAP:
 				default:

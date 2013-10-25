@@ -32,6 +32,7 @@ struct char_gfx {
 
 
 struct dungeon_map_map {
+	int					id;
 	DARNIT_TILESHEET			*ts;
 	DARNIT_TILEMAP				**layer;
 	int					layers;

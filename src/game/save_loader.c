@@ -184,9 +184,6 @@ struct dungeon_map *dungeon_load(int ns) {
 }
 
 
-
-
-
 void dungeon_unload_slot(struct dungeon_map *dm, int ns) {
 	int i;
 
