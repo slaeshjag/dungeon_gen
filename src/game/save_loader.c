@@ -190,6 +190,9 @@ struct dungeon_map *dungeon_load(int ns) {
 void dungeon_unload_slot(struct dungeon_map *dm, int ns) {
 	int i;
 
+	if (!dm->grid[ns].layer)
+		return;
+
 	for (i = 0; i < dm->grid[ns].layers; i++)
 		d_tilemap_free(dm->grid[ns].layer[i]);
 	free(dm->grid[ns].layer);
@@ -212,6 +215,57 @@ void *dungeon_unload(struct dungeon_map *dm) {
 
 	return NULL;
 }
+
+
+void dungeon_do_shift(int op[24]) {
+	int i;
+
+	if (*op == -1)
+		return;
+	for (i = 0; i < 3; i++)
+		dungeon_unload_slot(ws.dm, op[i]);
+	for (i = 0; i < 6; i++) {
+		ws.dm->grid[op[4 + (i << 1)]] = ws.dm->grid[op[3 + (i << 1)]];
+		ws.dm->grid[op[3 + (1 << 1)]].layers = 0;
+		ws.dm->grid[op[3 + (1 << 1)]].layer = NULL;
+	}
+	for (i = 0; i < 3; i++)
+		dungeon_load(op[23 - i]);
+	return;
+}
+
+
+void dungeon_shift_slot(int x, int y) {
+	int num[24];
+
+	if (!x && !y)
+		return;
+	if (y < 0) {
+		int t[] = { 6, 7, 8, 3, 6, 4, 7, 5, 8, 0, 3, 1, 4, 2, 5, 0, 1, 2 };
+		memcpy(num, t, sizeof(t));
+	} else if (!y)
+		*num = -1;
+	else {
+		int t[] = { 0, 1, 2, 3, 0, 4, 1, 5, 2, 6, 3, 7, 4, 8, 5, 6, 7, 8 };
+		memcpy(num, t, sizeof(t));
+	}
+
+	dungeon_do_shift(num);
+
+	if (x < 0) {
+		int t[] = { 2, 5, 8, 1, 2, 4, 5, 7, 8, 0, 1, 3, 4, 6, 7, 0, 3, 6 };
+		memcpy(num, t, sizeof(t));
+	} else if (!y)
+		*num = -1;
+	else {
+		int t[] = { 0, 3, 6, 1, 0, 4, 3, 7, 6, 2, 1, 5, 4, 8, 7, 2, 5, 8 };
+		memcpy(num, t, sizeof(t));
+	}
+
+	dungeon_do_shift(num);
+}
+
+		
 
 
 int save_load_deps() {
