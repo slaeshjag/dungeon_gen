@@ -32,18 +32,18 @@ struct char_gfx {
 
 
 struct dungeon_map_map {
+	DARNIT_TILESHEET			*ts;
 	DARNIT_TILEMAP				**layer;
 	int					layers;
 	int					neighbours[8];
+	struct savefile_dungeon_object		*object;
+	int					objects;
 };
 
 
 struct dungeon_map {
 	/* 3x3-matris där 5 är mitten, alla runt om är grannkartor. */
 	struct dungeon_map_map			grid[9];
-	struct savefile_dungeon_object		*object;
-	int					objects;
-	DARNIT_TILESHEET			*ts;
 };
 
 int character_gfx_data_characters();

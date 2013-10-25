@@ -158,13 +158,13 @@ struct dungeon_map *dungeon_load(int ns) {
 	memcpy(dm->grid[ns].neighbours, dh->neighbours, 32);
 	dm->grid[ns].layers = dh->layers;
 	dm->grid[ns].layer = malloc(sizeof(*dm->grid[ns].layer) * dh->layers);
-	dm->objects = dh->objects;
-	dm->object = malloc(sizeof(*dm->object) * dh->objects);
+	dm->grid[ns].objects = dh->objects;
+	dm->grid[ns].object = malloc(sizeof(*dm->grid[ns].object) * dh->objects);
 	sprintf(name, "res/tileset_%i.png", dh->tileset);
-	dm->ts = d_render_tilesheet_load(name, TILE_W, TILE_H, DARNIT_PFORMAT_RGB5A1);
+	dm->grid[ns].ts = d_render_tilesheet_load(name, TILE_W, TILE_H, DARNIT_PFORMAT_RGB5A1);
 
 	for (i = 0; i < dm->grid[ns].layers; i++) {
-		dm->grid[ns].layer[i] = d_tilemap_new(0xFFF, dm->ts, 0xFFF, dh->map_w, dh->map_h);
+		dm->grid[ns].layer[i] = d_tilemap_new(0xFFF, dm->grid[ns].ts, 0xFFF, dh->map_w, dh->map_h);
 		d_util_endian_convert((void *) buf, dh->map_w * dh->map_h);
 		memcpy(dm->grid[ns].layer[i]->data, buf, dh->map_w * dh->map_h * sizeof(int));
 		buf += dh->map_w * dh->map_h * sizeof(int);
@@ -173,9 +173,9 @@ struct dungeon_map *dungeon_load(int ns) {
 	}
 
 	dob = (void *) buf;
-	buf += sizeof(*dob) * dm->objects;
-	d_util_endian_convert((void *) dob, INTS(*dob) * dm->objects);
-	memcpy(dm->object, dob, sizeof(*dm->object) * dm->objects);
+	buf += sizeof(*dob) * dm->grid[ns].objects;
+	d_util_endian_convert((void *) dob, INTS(*dob) * dm->grid[ns].objects);
+	memcpy(dm->grid[ns].object, dob, sizeof(*dm->grid[ns].object) * dm->grid[ns].objects);
 
 	free(data);
 	d_file_close(f);
@@ -198,6 +198,10 @@ void dungeon_unload_slot(struct dungeon_map *dm, int ns) {
 	free(dm->grid[ns].layer);
 	dm->grid[ns].layer = NULL;
 	dm->grid[ns].layers = 0;
+	free(dm->grid[ns].object);
+	dm->grid[ns].object = NULL;
+	dm->grid[ns].objects = 0;
+	d_render_tilesheet_free(dm->grid[ns].ts);
 
 	return;
 }
@@ -210,8 +214,6 @@ void *dungeon_unload(struct dungeon_map *dm) {
 		return NULL;
 	for (i = 0; i < 9; i++)
 		dungeon_unload_slot(dm, i);
-	free(dm->object);
-	d_render_tilesheet_free(dm->ts);
 
 	return NULL;
 }
