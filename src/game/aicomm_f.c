@@ -53,6 +53,7 @@ struct aicomm_struct aicomm_f_tpme(struct aicomm_struct ac) {
 	ws.char_data->teleport.to.x = t.x;
 	ws.char_data->teleport.to.y = t.y;
 	ws.char_data->teleport.to.l = t.l;
+	ac.ce[ac.from]->map = t.map;
 	ws.char_data->teleport.to.dungeon = t.map;
 
 	return character_message_next(ac);

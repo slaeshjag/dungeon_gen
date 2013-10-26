@@ -199,6 +199,8 @@ void dungeon_unload_slot(struct dungeon_map *dm, int ns) {
 	dm->grid[ns].object = NULL;
 	dm->grid[ns].objects = 0;
 	d_render_tilesheet_free(dm->grid[ns].ts);
+	character_despawn_map(dm->grid[ns].id);
+	dm->grid[ns].id = -1;
 
 	return;
 }

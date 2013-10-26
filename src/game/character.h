@@ -32,6 +32,7 @@ int character_load_ai_lib(const char *fname);
 int character_load_graphics(unsigned int slot);
 int character_unload_graphics(unsigned int slot);
 int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l, int map, int save);
+void character_spawn_map(int map_slot);
 int character_find_visible();
 void character_tell_all(struct aicomm_struct ac);
 void character_message_loop(struct aicomm_struct ac);
