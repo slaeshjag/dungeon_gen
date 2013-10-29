@@ -113,13 +113,20 @@ void *character_gfx_data_unload(struct char_gfx *cg) {
 }
 
 
+void dungeon_init() {
+	ws.dm = calloc(sizeof(*ws.dm), 1);
+
+	return;
+}
+
+
 /* ns for neighbour slot */
-struct dungeon_map *dungeon_load(int ns) {
+void dungeon_load(int ns) {
 	char name[32], *buf, *data;
 	int i, n;
 	DARNIT_FILE *f;
 	off_t size;
-	struct dungeon_map *dm;
+	struct dungeon_map *dm = ws.dm;
 	struct savefile_dungeon_header *dh;
 	struct savefile_dungeon_object *dob;
 
@@ -129,7 +136,7 @@ struct dungeon_map *dungeon_load(int ns) {
 		if (n > 4)
 			n -= 1;
 		if (ws.dm->grid[4].neighbours[n] == -1)
-			return NULL;
+			return;
 	} else
 		n = ws.active_world;
 
@@ -143,7 +150,6 @@ struct dungeon_map *dungeon_load(int ns) {
 	size = d_file_tell(f);
 	d_file_seek(f, 0, SEEK_SET);
 
-	dm = malloc(sizeof(*dm));
 	buf = malloc(size);
 	d_file_read(buf, size, f);
 	size = d_util_decompress(buf, size, (void **) &data);
@@ -179,13 +185,15 @@ struct dungeon_map *dungeon_load(int ns) {
 
 	free(data);
 	d_file_close(f);
+	character_spawn_map(ns);
 
-	return dm;
+	return;
 }
 
 
-void dungeon_unload_slot(struct dungeon_map *dm, int ns) {
+void dungeon_unload_slot(int ns) {
 	int i;
+	struct dungeon_map *dm = ws.dm;
 
 	if (!dm->grid[ns].layer)
 		return;
@@ -206,15 +214,16 @@ void dungeon_unload_slot(struct dungeon_map *dm, int ns) {
 }
 
 
-void *dungeon_unload(struct dungeon_map *dm) {
+void dungeon_unload() {
 	int i;
 
-	if (!dm)
-		return NULL;
+	if (!ws.dm)
+		return;
 	for (i = 0; i < 9; i++)
-		dungeon_unload_slot(dm, i);
+		dungeon_unload_slot(i);
 
-	return NULL;
+	ws.dm = NULL;
+	return;
 }
 
 
@@ -224,7 +233,7 @@ void dungeon_do_shift(int op[24]) {
 	if (*op == -1)
 		return;
 	for (i = 0; i < 3; i++)
-		dungeon_unload_slot(ws.dm, op[i]);
+		dungeon_unload_slot(op[i]);
 	for (i = 0; i < 6; i++) {
 		ws.dm->grid[op[4 + (i << 1)]] = ws.dm->grid[op[3 + (i << 1)]];
 		ws.dm->grid[op[3 + (1 << 1)]].layers = 0;

@@ -11,8 +11,8 @@ void character_update_sprite(int entry);
 
 
 int character_get_character_looked_at(int src) {
-	int x, y, w, h, xt, yt, n;
-	unsigned int t;
+	int x, y, w, h, xt, yt, n, i;
+	unsigned int t[9];
 
 	if (src < 0 || src >= ws.char_data->max_entries)
 		return -1;
@@ -60,10 +60,13 @@ int character_get_character_looked_at(int src) {
 			break;
 	}
 
-	n = d_bbox_test(ws.char_data->bbox, xt, yt, (w >> 1), (h >> 1), &t, 1);
+	n = d_bbox_test(ws.char_data->bbox, xt, yt, (w >> 1), (h >> 1), t, 9);
 	if (!n)
 		return -1;
-	return t;
+	for (i = 0; i < 9; i++)
+		if (ws.char_data->entry[t[i]]->map == ws.dm->grid[4].id)
+			return t[i];
+	return -1;
 }
 			
 
@@ -365,6 +368,8 @@ int character_test_collision(int entry, int dx, int dy) {
 			continue;
 		if (e == ce->self)
 			continue;
+		if (ws.char_data->entry[e]->map != ws.dm->grid[4].id)
+			continue;
 		ac.arg[0] = ce->self;
 		ac.self = e;
 		character_message_loop(ac);
@@ -615,6 +620,8 @@ void character_render_layer(int hits, int layer) {
 		if (!ws.char_data->entry[e])
 			continue;
 		if (ws.char_data->entry[e]->l != layer)
+			continue;
+		if (ws.char_data->entry[e]->map != ws.dm->grid[4].id)
 			continue;
 		d_sprite_draw(ws.char_data->entry[e]->sprite);
 	}

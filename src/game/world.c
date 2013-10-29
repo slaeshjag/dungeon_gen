@@ -9,9 +9,10 @@
 
 
 void world_dungeon_load(int dungeon) {
-	dungeon_unload(ws.dm);
+	/* TODO: Fix */
+	dungeon_unload();
 	ws.active_world = dungeon;
-	ws.dm = dungeon_load(dungeon);
+	dungeon_load(dungeon);
 }
 
 
@@ -28,7 +29,7 @@ void world_init() {
 
 void world_reset() {
 	ws.active_world = -1;
-	ws.dm = dungeon_unload(ws.dm);
+	dungeon_unload(ws.dm);
 	ws.camera.follow_char = -1;
 	character_destroy();
 	textbox_destroy();
@@ -59,6 +60,7 @@ void world_load(int world_num) {
 	camera_init();
 	ws.camera.sys = d_render_tilesheet_load("res/ui.png", ws.camera.tile_w, ws.camera.tile_h,
 		DARNIT_PFORMAT_RGB5A1);
+	dungeon_init();
 
 	/* Just testing textbox */
 	textbox_init(800, 96, 0, 480-96, 10, 10, 10, 10);
@@ -90,11 +92,11 @@ void world_loop() {
 				case WORLD_STATE_MAINMENU:
 					break;
 				case WORLD_STATE_MAPSTATE:
-					ws.dm = dungeon_unload(ws.dm);
+					dungeon_unload();
 				case WORLD_STATE_CHANGEMAP:
 					/* TODO: Insert music playback */
-					ws.dm = dungeon_unload(ws.dm);
-					ws.dm = dungeon_load(4);
+					dungeon_unload();
+					dungeon_load(4);
 					t = ws.char_data->teleport.to;
 					t.x *= ws.camera.tile_w;
 					t.y *= ws.camera.tile_h;
@@ -111,9 +113,9 @@ void world_loop() {
 				case WORLD_STATE_MAINMENU:
 					break;
 				case WORLD_STATE_MAPSTATE:
-					ws.dm = dungeon_load(4);
+					dungeon_load(4);
 					/* TODO: Replace with proper code */
-					character_spawn_entry(0, "player_ai", 400, 400, 0, 4, -1);
+					character_spawn_entry(0, "player_ai", 400, 400, 0, 0, -1);
 					break;
 				case WORLD_STATE_CHANGEMAP:
 				default:

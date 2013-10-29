@@ -51,8 +51,10 @@ int character_gfx_data_characters();
 struct char_gfx *character_gfx_data_load(unsigned int char_num);
 void *character_gfx_data_unload(struct char_gfx *cg);
 
-struct dungeon_map *dungeon_load(int ns);
-void *dungeon_unload(struct dungeon_map *dm);
+void dungeon_init();
+void dungeon_load(int ns);
+void dungeon_unload();
+void dungeon_unload_slot(int ns);
 
 int save_load_deps();
 enum savefile_status save_load_validate(int save);
