@@ -489,6 +489,8 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	ce->dx = ce->dy = 0;
 	ce->slot = slot;
 	ce->dir = 0;
+	ce->stat = NULL;
+	ce->stats = 0;
 	ce->state = NULL;
 	*((unsigned int *) (&ce->special_action)) = 0;
 

@@ -54,6 +54,7 @@ void world_load(int world_num) {
 
 	ws.savedata.is = ws.savedata.bs = 0;
 
+	ws.loading_from_save = 1;
 	sprintf(fname, "world_%i.save", world_num);
 	d_fs_mount(fname);
 	character_init();
@@ -116,6 +117,7 @@ void world_loop() {
 					dungeon_load(4);
 					/* TODO: Replace with proper code */
 					character_spawn_entry(0, "player_ai", 400, 400, 0, 0, -1);
+					ws.loading_from_save = 0;
 					break;
 				case WORLD_STATE_CHANGEMAP:
 				default:

@@ -57,6 +57,12 @@ struct textbox_properties {
 };
 
 
+struct stat_list {
+	unsigned int		cur;
+	unsigned int		max;
+};
+
+
 struct character_entry {
 	struct aicomm_struct	(*loop)(struct aicomm_struct ac);
 	/* X and Y is fix-point 24.8 */
@@ -80,6 +86,11 @@ struct character_entry {
 		unsigned int	solid		: 1;
 		unsigned int	invisible	: 1;
 	} special_action;
+
+	/* Stats, implement! */
+	struct stat_list	*stat;
+	unsigned int		stats;
+	
 
 	DARNIT_SPRITE		*sprite;
 	void			*state;

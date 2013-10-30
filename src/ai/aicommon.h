@@ -3,6 +3,16 @@
 
 #include "aicomm.h"
 
+enum {
+	CHAR_STAT_HP		= 0,
+	CHAR_STAT_MP		= 1,
+	CHAR_STAT_ATT		= 2,
+	CHAR_STAT_DEF		= 3,
+	CHAR_STAT_SPD		= 4,
+} char_stat;
+
+#define	CHAR_STAT_TOTAL		5
+
 struct ai_msgbuf {
 	struct aicomm_struct	*msg;
 	int			max_msg;

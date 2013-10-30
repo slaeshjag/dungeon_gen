@@ -25,6 +25,7 @@ struct world_state {
 	struct camera			camera;
 	struct savedata			savedata;
 	struct textbox			*textbox;
+	int				loading_from_save;
 } ws;
 
 void world_load(int world_num);

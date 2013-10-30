@@ -4,7 +4,8 @@
 #include "aicommon.h"
 #include "aicomm.h"
 
-#define	PLAYER_SPEED (256 << 8)
+#define	PLAYER_SPEED 		(256 << 8)
+#define	PLAYER_PROG_OFFSET	CHAR_STAT_TOTAL
 
 
 struct player_state {

@@ -4,6 +4,13 @@
 #include "savefile.h"
 
 
+void player_init_stats(struct character_entry *ce) {
+	ce->stat[CHAR_STAT_HP].cur = 10;
+	ce->stat[CHAR_STAT_HP].max = 15;
+
+}
+
+
 static void player_init(struct aicomm_struct ac, struct player_state *ps) {
 	int self = ac.self;
 
@@ -26,6 +33,10 @@ static void player_init(struct aicomm_struct ac, struct player_state *ps) {
 	ac.argp = &ps->tbp;
 	aicom_msgbuf_push(ps->msg, ac);
 
+	ac.ce[ac.self]->stat = malloc(sizeof(*ac.ce[ac.self]->stat) * CHAR_STAT_TOTAL);
+	ac.ce[ac.self]->stats = CHAR_STAT_TOTAL - 1;
+	player_init_stats(ac.ce[ac.self]);
+
 	ac.ce[self]->special_action.solid = 1;
 
 	return;
@@ -37,6 +48,7 @@ static void player_handle_send(struct aicomm_struct ac, struct player_state *ps)
 
 	if (ac.self == ac.from)
 		return;
+	ac.arg[1] += PLAYER_PROG_OFFSET;
 
 	/* Get progress */
 	if (ac.arg[0] == 1) {
@@ -53,6 +65,8 @@ static void player_handle_send(struct aicomm_struct ac, struct player_state *ps)
 		}
 	} else 
 		ac.arg[0] = 0;
+	
+	ac.arg[1] -= PLAYER_PROG_OFFSET;
 	t = ac.self;
 	ac.self = ac.from;
 	ac.from = t;
