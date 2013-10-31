@@ -122,6 +122,22 @@ static void player_loop(struct aicomm_struct ac, struct player_state *ps) {
 		aicom_msgbuf_push(ps->msg, ac);
 	}
 
+
+	if (keys.y) {
+		ac.msg = AICOMM_MSG_TXTE;
+		ac.arg[0] = 2000;
+		ac.arg[1] = (ac.ce[ac.self]->x >> 8) + 16;
+		ac.arg[2] = (ac.ce[ac.self]->y >> 8) - 32;
+		ac.arg[3] = 400;
+		ac.arg[4] = 255;
+		ac.arg[5] = 127;
+		ac.arg[6] = 127;
+		ac.argp = "Fiskmåsar i sjön\n+ 10 XP";
+		ac.from = ac.self;
+		aicom_msgbuf_push(ps->msg, ac);
+		d_keys_set(d_keys_get());
+	}
+
 	if (keys.BUTTON_ACCEPT) {
 		ac.msg = AICOMM_MSG_GETF;
 		ac.from = ac.self;

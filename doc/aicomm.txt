@@ -189,3 +189,17 @@ AICOMM_MSG_CAMN - Make camera jump to followed character
 ac.from - Who you are
 
 ======
+
+AICOMM_MSG_TXTE - Make a text string appear, which then fades out
+
+ac.from - Who you are
+argp - A pointer to a string
+arg0 - How many milliseconds before the string has faded out
+arg1 - X position to render at (center)
+arg2 - Y position to render at
+arg3 - Line length
+arg4 - R color channel (0..255)
+arg5 - G color channel (0..255)
+arg6 - B color channel (0..255)
+
+======

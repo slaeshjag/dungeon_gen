@@ -24,6 +24,7 @@ void world_init() {
 	ws.textbox = NULL;
 
 	ws.font = d_font_load("res/mainfont.ttf", MAIN_FONT_SIZE, 512, 512);
+	ws.te.font = d_font_load("res/mainfont.ttf", TEXTEFFECT_FONT_SIZE, 256, 256);
 }
 
 
@@ -33,6 +34,7 @@ void world_reset() {
 	ws.camera.follow_char = -1;
 	character_destroy();
 	textbox_destroy();
+	texteffect_done();
 
 	return;
 }
@@ -62,6 +64,7 @@ void world_load(int world_num) {
 	ws.camera.sys = d_render_tilesheet_load("res/ui.png", ws.camera.tile_w, ws.camera.tile_h,
 		DARNIT_PFORMAT_RGB5A1);
 	dungeon_init();
+	texteffect_init();
 
 	/* Just testing textbox */
 	textbox_init(800, 96, 0, 480-96, 10, 10, 10, 10);
@@ -153,6 +156,9 @@ void world_loop() {
 			}
 	
 			d_render_blend_enable();
+			d_render_offset(ws.camera.x, ws.camera.y);
+			texteffect_loop();
+			d_render_offset(0, 0);
 			textbox_draw();
 			d_render_blend_disable();
 

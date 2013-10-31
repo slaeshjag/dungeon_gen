@@ -136,6 +136,17 @@ struct aicomm_struct aicomm_f_invm(struct aicomm_struct ac) {
 }
 
 
+struct aicomm_struct aicomm_f_txte(struct aicomm_struct ac) {
+	ac.arg[0] = texteffect_add(ac.argp, ac.arg[0], ac.arg[1], ac.arg[2], ac.arg[3], ac.arg[4], ac.arg[5], ac.arg[6]);
+	
+	ac.self = ac.from;
+	ac.from = -1;
+	ac.msg = AICOMM_MSG_TXTE;
+
+	return ac;
+}
+
+
 struct aicomm_struct aicomm_f_dummy(struct aicomm_struct ac) {
 	return ac;
 }

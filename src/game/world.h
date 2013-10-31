@@ -5,6 +5,7 @@
 #include "camera.h"
 #include "savedata.h"
 #include "textbox.h"
+#include "texteffects.h"
 
 #define	WORLD_FADE_TIME			500
 #define	MAIN_FONT_SIZE			24
@@ -25,6 +26,7 @@ struct world_state {
 	struct camera			camera;
 	struct savedata			savedata;
 	struct textbox			*textbox;
+	struct texteffect		te;
 	int				loading_from_save;
 } ws;
 
