@@ -53,7 +53,7 @@ int texteffect_add(const char *str, int time, int x, int y, int linel, unsigned 
 			break;
 	}
 
-	/* Grr. I want to use strdup. But windows.. */
+	j = 0;
 	y -= d_font_string_geometrics_o(ws.te.font, str, linel, &j);
 	ws.te.te[i].s = d_text_surface_color_new(ws.te.font, strlen(str), linel, x - (j >> 1), y);
 	ws.te.te[i].time_left = time;

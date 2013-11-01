@@ -127,7 +127,7 @@ static void player_loop(struct aicomm_struct ac, struct player_state *ps) {
 		ac.msg = AICOMM_MSG_TXTE;
 		ac.arg[0] = 2000;
 		ac.arg[1] = (ac.ce[ac.self]->x >> 8) + 16;
-		ac.arg[2] = (ac.ce[ac.self]->y >> 8) - 32;
+		ac.arg[2] = (ac.ce[ac.self]->y >> 8) - 64;
 		ac.arg[3] = 400;
 		ac.arg[4] = 255;
 		ac.arg[5] = 127;
