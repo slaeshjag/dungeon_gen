@@ -10,6 +10,7 @@ static struct aicomm_struct(*aihandle[AICOMM_MSG_END])(struct aicomm_struct) = {
 
 	[AICOMM_MSG_FOLM] = aicomm_f_folm,
 	[AICOMM_MSG_DIRU] = aicomm_f_diru,
+	[AICOMM_MSG_NSPR] = aicomm_f_nspr,
 	[AICOMM_MSG_SETP] = aicomm_f_setp,
 	[AICOMM_MSG_GETP] = aicomm_f_getp,
 	[AICOMM_MSG_KILL] = aicomm_f_kill,

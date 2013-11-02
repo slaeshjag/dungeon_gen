@@ -30,6 +30,7 @@ void character_init();
 void character_destroy();
 int character_load_ai_lib(const char *fname);
 int character_load_graphics(unsigned int slot);
+void character_enable_graphics(int entry);
 int character_unload_graphics(unsigned int slot);
 int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l, int map, int save);
 void character_spawn_map(int map_slot);

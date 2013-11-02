@@ -110,6 +110,13 @@ ac.from - Which sprite to update direction for
 
 ======
 
+AICOMM_MSG_NSPR - Replace current sprite with a new one
+
+ac.from - Which character to load a new sprite for
+ac.arg0 - The sprite index to load instead
+
+======
+
 AICOMM_MSG_DONE - Breaks the message loop
 Tells the message handler that this character is done for now.
 

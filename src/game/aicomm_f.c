@@ -26,6 +26,26 @@ struct aicomm_struct aicomm_f_diru(struct aicomm_struct ac) {
 }
 
 
+struct aicomm_struct aicomm_f_nspr(struct aicomm_struct ac) {
+	if (ac.from < 0 || ac.from >= ws.char_data->max_entries ||
+	    !ws.char_data->entry[ac.from]) {
+		ac.msg = AICOMM_MSG_NOAI;
+		ac.self = ac.from;
+		ac.from = -1;
+		return ac;
+	}
+
+	d_sprite_free(ws.char_data->entry[ac.from]->sprite);
+	character_unload_graphics(ws.char_data->entry[ac.from]->slot);
+	ws.char_data->entry[ac.from]->slot = ac.arg[0];
+	character_load_graphics(ws.char_data->entry[ac.from]->slot);
+	character_enable_graphics(ac.from);
+	character_update_sprite(ac.from);
+
+	return character_message_next(ac);
+}
+
+
 struct aicomm_struct aicomm_f_tpme(struct aicomm_struct ac) {
 	struct savefile_teleport_entry t;
 	

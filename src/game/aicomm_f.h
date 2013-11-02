@@ -7,6 +7,7 @@ struct aicomm_struct aicomm_f_dummy(struct aicomm_struct ac);
 struct aicomm_struct aicomm_f_setp(struct aicomm_struct ac);
 struct aicomm_struct aicomm_f_tpme(struct aicomm_struct ac);
 struct aicomm_struct aicomm_f_diru(struct aicomm_struct ac);
+struct aicomm_struct aicomm_f_nspr(struct aicomm_struct ac);
 struct aicomm_struct aicomm_f_folm(struct aicomm_struct ac);
 struct aicomm_struct aicomm_f_getp(struct aicomm_struct ac);
 struct aicomm_struct aicomm_f_kill(struct aicomm_struct ac);

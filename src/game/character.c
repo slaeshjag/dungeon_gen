@@ -452,6 +452,35 @@ void character_handle_movement(int entry) {
 }
 
 
+void character_enable_graphics(int entry) {
+	int i, j, k, h, slot;
+	struct char_gfx *cg;
+	struct {
+		int		tile;
+		int		time;
+	} *sprite;
+
+	slot = ws.char_data->entry[entry]->slot;
+	cg = ws.char_data->gfx[slot];
+	sprite = (void *) ws.char_data->gfx[ws.char_data->entry[entry]->slot]->sprite_data;
+	ws.char_data->entry[entry]->sprite = d_sprite_new(ws.char_data->gfx[ws.char_data->entry[entry]->slot]->sprite_ts);
+	
+	for (i = j = k = 0; sprite[i].tile != -1 || sprite[i].time != -1; i++) {
+		h = j * 4;
+		if (sprite[i].tile >= 0) {
+			d_sprite_hitbox_set(ws.char_data->entry[entry]->sprite, j, k, cg->sprite_hitbox[h], 
+			    cg->sprite_hitbox[h+1], cg->sprite_hitbox[h+2],cg->sprite_hitbox[h+3]);
+			d_sprite_frame_entry_set(ws.char_data->entry[entry]->sprite, j, k++, sprite[i].tile, sprite[i].time);
+		} else
+			j++, k = 0;
+	}
+	
+	d_sprite_activate(ws.char_data->entry[entry]->sprite, 0);
+
+	return;
+}
+
+
 int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l, int map, int save) {
 	int i, j, k, h;
 	struct character_entry *ce;

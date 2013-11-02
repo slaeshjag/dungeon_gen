@@ -138,6 +138,13 @@ static void player_loop(struct aicomm_struct ac, struct player_state *ps) {
 		d_keys_set(d_keys_get());
 	}
 
+	if (keys.x) {
+		ac.msg = AICOMM_MSG_NSPR;
+		ac.from = ac.self;
+		ac.arg[0] = 2;
+		aicom_msgbuf_push(ps->msg, ac);
+	}
+
 	if (keys.BUTTON_ACCEPT) {
 		ac.msg = AICOMM_MSG_GETF;
 		ac.from = ac.self;

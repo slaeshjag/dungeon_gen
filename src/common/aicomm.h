@@ -10,6 +10,7 @@ enum aicomm_msg {
 	AICOMM_MSG_SEND,	/* Pass this on */
 	AICOMM_MSG_INVM,	/* Invalid message */
 	AICOMM_MSG_DIRU,	/* Update sprite */
+	AICOMM_MSG_NSPR,	/* Request new sprite */
 	AICOMM_MSG_DONE,
 	AICOMM_MSG_NOAI,
 	AICOMM_MSG_NEXT,	/* Next message! */
