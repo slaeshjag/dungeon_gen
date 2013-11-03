@@ -83,8 +83,8 @@ void textbox_update_pointers(struct textbox *tb) {
 	y = d_font_glyph_hs(ws.font);
 	y *= tb->selection;
 	y += tb->y_selection;
-/*	y -= ws.camera.tile_h / 2;
-	y += (d_font_glyph_hs(ws.font) / 2);*/
+	y -= ws.camera.tile_h / 2;
+	y += (d_font_glyph_hs(ws.font) / 2);
 
 	d_render_tile_move(tb->pointer, 0, ws.camera.screen_w - ws.camera.tile_w  * tb->qt->w, y);
 	d_render_tile_move(tb->pointer, 1, ws.camera.screen_w - ws.camera.tile_w, y);
@@ -324,7 +324,6 @@ void textbox_add_message(const char *message, const char *question, int face, in
 
 void textbox_draw() {
 	struct textbox *tb = ws.textbox;
-	int y;
 	
 	if (!tb->message)
 		return;
@@ -338,16 +337,6 @@ void textbox_draw() {
 	d_render_tile_draw(tb->face, 1);
 
 	if (tb->option) {
-		#if 0
-		y += (d_font_glyph_hs(ws.font) / 2);
-		#endif
-		y = d_font_glyph_hs(ws.font);
-		y *= tb->selection;
-		y += tb->y_selection;
-/*		y -= ws.camera.tile_h / 2;
-		y += (d_font_glyph_hs(ws.font) / 2);*/
-		d_render_tile_blit(ws.camera.sys, 12, ws.camera.screen_w - ws.camera.tile_w * tb->qt->w, y);
-		d_render_tile_blit(ws.camera.sys, 13, ws.camera.screen_w - ws.camera.tile_w, y);
 		d_render_tile_draw(tb->pointer, 2);
 	}
 
