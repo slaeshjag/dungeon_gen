@@ -6,7 +6,7 @@ void engine_api_send(struct ai_msgbuf *buf, int from, int to, void *data, int ar
 
 	ac.msg = AICOMM_MSG_SEND;
 	ac.argp = data;
-	memcpy(ac.argp, arg, 4 * args);
+	memcpy(ac.arg, arg, 4 * args);
 	ac.from = from;
 	ac.self = to;
 	

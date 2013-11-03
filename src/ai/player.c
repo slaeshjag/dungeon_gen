@@ -1,6 +1,7 @@
 #include "aicomm.h"
 #include "player.h"
 #include "aicommon.h"
+#include "engine_api.h"
 #include "savefile.h"
 
 
@@ -17,21 +18,14 @@ static void player_init(struct aicomm_struct ac, struct player_state *ps) {
 	ps->msg = aicom_msgbuf_new(32);
 	ac.from = self;
 
-	ac.msg = AICOMM_MSG_SETP;
-	aicom_msgbuf_push(ps->msg, ac);
+	engine_api_set_player(ps->msg, self, self);
+	engine_api_follow_me(ps->msg, self);
+	engine_api_camera_jump(ps->msg, self);
 
-	ac.msg = AICOMM_MSG_FOLM;
-	aicom_msgbuf_push(ps->msg, ac);
-
-	ac.msg = AICOMM_MSG_CAMN;
-	aicom_msgbuf_push(ps->msg, ac);
 	
 	ps->tbp.message = "Räksmörgås!\x01\x03  сыр вкуснее!\x01\x0F\x02\x10\nDet var allt.\x03\nFast egentligen inte, jag har mycket mer saker att säga, så här kommer du få jobba lite! Du vet, typ trycka vänster ALT några gånger i bland medans all den här jobbiga texten scrollar. Det här fungerar va? Annars blir jag ledsen i ögat.. :'(";
 	ps->tbp.question = NULL;
-	ac.msg = AICOMM_MSG_TBOX;
-	ac.arg[0] = 0;
-	ac.argp = &ps->tbp;
-	aicom_msgbuf_push(ps->msg, ac);
+	engine_api_textbox(ps->msg, &ps->tbp, self, 0);
 
 	ac.ce[ac.self]->stat = malloc(sizeof(*ac.ce[ac.self]->stat) * CHAR_STAT_TOTAL);
 	ac.ce[ac.self]->stats = CHAR_STAT_TOTAL - 1;
@@ -111,44 +105,22 @@ static void player_loop(struct aicomm_struct ac, struct player_state *ps) {
 		n = 0;
 	}
 
-	if (keys.select) {
-		ac.msg = AICOMM_MSG_SPWN;
-		ac.arg[0] = 0;
-		ac.arg[1] = (ac.ce[ac.self]->x >> 8) / 32 - 2;
-		ac.arg[2] = (ac.ce[ac.self]->y >> 8) / 32 - 2;
-		ac.arg[3] = ac.ce[ac.self]->l;
-		ac.argp = "box_ai";
-		ac.from = ac.self;
-		aicom_msgbuf_push(ps->msg, ac);
-	}
+	if (keys.select)
+		engine_api_spawn(ps->msg, ac.self, 0, (ac.ce[ac.self]->x >> 8) / 32 - 2,
+			(ac.ce[ac.self]->y >> 8) / 32 - 2, ac.ce[ac.self]->l, "box_ai");
 
 
 	if (keys.y) {
-		ac.msg = AICOMM_MSG_TXTE;
-		ac.arg[0] = 2000;
-		ac.arg[1] = (ac.ce[ac.self]->x >> 8) + 16;
-		ac.arg[2] = (ac.ce[ac.self]->y >> 8) - 64;
-		ac.arg[3] = 400;
-		ac.arg[4] = 255;
-		ac.arg[5] = 127;
-		ac.arg[6] = 127;
-		ac.argp = "Fiskmåsar i sjön\n+ 10 XP";
-		ac.from = ac.self;
-		aicom_msgbuf_push(ps->msg, ac);
+		engine_api_text_effect(ps->msg, ac.self, 2000, (ac.ce[ac.self]->x >> 8) + 16,
+			(ac.ce[ac.self]->y >> 8) - 64, 400, 255, 127, 127, "Fiskmåsar i sjön\n+10 XP");
 		d_keys_set(d_keys_get());
 	}
 
-	if (keys.x) {
-		ac.msg = AICOMM_MSG_NSPR;
-		ac.from = ac.self;
-		ac.arg[0] = 2;
-		aicom_msgbuf_push(ps->msg, ac);
-	}
+	if (keys.x) 
+		engine_api_replace_sprite(ps->msg, ac.self, 2);
 
 	if (keys.BUTTON_ACCEPT) {
-		ac.msg = AICOMM_MSG_GETF;
-		ac.from = ac.self;
-		aicom_msgbuf_push(ps->msg, ac);
+		engine_api_request_faced(ps->msg, ac.self);
 		d_keys_set(d_keys_get());
 	}
 
@@ -157,9 +129,7 @@ static void player_loop(struct aicomm_struct ac, struct player_state *ps) {
 	if (n < 0) {
 		if (ac.ce[self]->special_action.animate) {
 			ac.ce[self]->special_action.animate = 0;
-			ac.msg = AICOMM_MSG_DIRU;
-			ac.from = self;
-			aicom_msgbuf_push(ps->msg, ac);
+			engine_api_direction_update(ps->msg, ac.self);
 			return;
 		}
 	}
@@ -172,7 +142,7 @@ static void player_loop(struct aicomm_struct ac, struct player_state *ps) {
 
 struct aicomm_struct player_ai(struct aicomm_struct ac) {
 	struct player_state *ps;
-	int n;
+	int argv[8];
 
 	if (ac.msg == AICOMM_MSG_INIT) {
 		ac.ce[ac.self]->state = malloc(sizeof(struct player_state));
@@ -185,9 +155,7 @@ struct aicomm_struct player_ai(struct aicomm_struct ac) {
 	} else if (ac.msg == AICOMM_MSG_MAPE) {
 		ps = ac.ce[ac.self]->state;
 		if (ac.arg[1] & MAP_FLAG_TELEPORT) {
-			ac.msg = AICOMM_MSG_TPME;
-			ac.from = ac.self;
-			ac.arg[0] = ((unsigned) ac.arg[1]) >> 14;
+			engine_api_teleport_table(ps->msg, ac.self, ((unsigned) ac.arg[1]) >> 14);
 			aicom_msgbuf_push(ps->msg, ac);
 		}
 	} else if (ac.msg == AICOMM_MSG_SILE) {
@@ -198,13 +166,8 @@ struct aicomm_struct player_ai(struct aicomm_struct ac) {
 		player_handle_send(ac, ac.ce[ac.self]->state);
 	} else if (ac.msg == AICOMM_MSG_GETF) {
 		ps = ac.ce[ac.self]->state;
-		n = ac.self;
-		ac.self = ac.from;
-		ac.from = n;
-		ac.arg[0] = 0;
-		ac.msg = AICOMM_MSG_SEND;
-		aicom_msgbuf_push(ps->msg, ac);
-		ac.self = n;
+		argv[0] = 0;
+		engine_api_send(ps->msg, ac.self, ac.from, NULL, argv, 1);
 	} else if (ac.msg == AICOMM_MSG_DESTROY) {
 		ps = ac.ce[ac.self]->state;
 		aicom_msgbuf_free(ps->msg);
