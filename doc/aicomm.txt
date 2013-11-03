@@ -197,7 +197,7 @@ ac.from - Who you are
 
 ======
 
-AICOMM_MSG_TXTE - Make a text string appear, which then fades out
+AICOMM_MSG_TXTE - Make a text string appear, which scrolls up and disappear
 
 ac.from - Who you are
 argp - A pointer to a string
