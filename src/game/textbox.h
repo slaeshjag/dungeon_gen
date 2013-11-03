@@ -39,8 +39,18 @@ struct textbox {
 	DARNIT_TILESHEET	*face_ts;
 	DARNIT_TILE		*face;
 	int			face_id;
+	/* Textbox */
 	DARNIT_TILEMAP		*tc;
 	DARNIT_TEXT_SURFACE	*text;
+
+	/* Question box */
+	DARNIT_TILEMAP		*qt;
+	DARNIT_TEXT_SURFACE	*qts;
+	DARNIT_TILE		*pointer;
+
+	int			selection;
+	int			y_selection;
+
 	unsigned int		surface_w;
 	unsigned int		current_surface_w;
 	unsigned int		pad_start;

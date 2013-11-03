@@ -20,7 +20,7 @@ struct aicomm_struct box_ai(struct aicomm_struct ac) {
 			ac.from = ac.self;
 			ac.arg[0] = ac.ce[ac.self]->slot;
 			tb.message = "Boo!";
-			tb.question = NULL;
+			tb.question = "Yes\nNo\nMaybe\nNever";
 			ac.argp = &tb;
 			return ac;
 	}

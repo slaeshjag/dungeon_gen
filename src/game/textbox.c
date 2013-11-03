@@ -7,10 +7,36 @@
 #include <limits.h>
 
 
+void textbox_init_background(DARNIT_TILEMAP *tc, int w, int h) {
+	int wt, ht, i;
+
+	/* Generate textbox background */
+	wt = w / ws.camera.tile_w;
+	ht = h / ws.camera.tile_h;
+
+	for (i = 1; i < wt * ht; i++)
+		tc->data[i] = 5;
+	for (i = 1; i < wt - 1; i++)
+		tc->data[i] = 2;
+	for (i = wt * (ht - 1); i < wt * ht; i++)
+		tc->data[i] = 8;
+	for (i = 0; i < wt * ht; i += wt)
+		tc->data[i] = 4;
+	for (i = wt - 1; i < wt * ht; i += wt)
+		tc->data[i] = 6;
+	tc->data[0] = 1;
+	tc->data[wt - 1] = 3;
+	tc->data[wt * (ht - 1)] = 7;
+	tc->data[wt * ht - 1] = 9;
+
+	d_tilemap_recalc(tc);
+}
+
+
 void textbox_init(int w, int h, int x, int y, int pad_x, int pad_y, int pad_x2, int pad_y2) {
 	struct textbox *tb;
 	DARNIT_FILE *f;
-	int i, wt, ht;
+	int i;
 
 	tb = malloc(sizeof(*tb));
 
@@ -44,28 +70,24 @@ void textbox_init(int w, int h, int x, int y, int pad_x, int pad_y, int pad_x2, 
 		for (i = 3; i < 1024; textbox_color_palette[i] = 0xFF, i += 4);
 	}
 
-	/* Generate textbox background */
-	wt = w / ws.camera.tile_w;
-	ht = h / ws.camera.tile_h;
-
-	for (i = 1; i < wt * ht; i++)
-		tb->tc->data[i] = 5;
-	for (i = 1; i < wt - 1; i++)
-		tb->tc->data[i] = 2;
-	for (i = wt * (ht - 1); i < wt * ht; i++)
-		tb->tc->data[i] = 8;
-	for (i = 0; i < wt * ht; i += wt)
-		tb->tc->data[i] = 4;
-	for (i = wt - 1; i < wt * ht; i += wt)
-		tb->tc->data[i] = 6;
-	tb->tc->data[0] = 1;
-	tb->tc->data[wt - 1] = 3;
-	tb->tc->data[wt * (ht - 1)] = 7;
-	tb->tc->data[wt * ht - 1] = 9;
-
-	d_tilemap_recalc(tb->tc);
-
+	textbox_init_background(tb->tc, w, h);
 	ws.textbox = tb;
+
+	return;
+}
+
+
+void textbox_update_pointers(struct textbox *tb) {
+	int y;
+
+	y = d_font_glyph_hs(ws.font);
+	y *= tb->selection;
+	y += tb->y_selection;
+/*	y -= ws.camera.tile_h / 2;
+	y += (d_font_glyph_hs(ws.font) / 2);*/
+
+	d_render_tile_move(tb->pointer, 0, ws.camera.screen_w - ws.camera.tile_w  * tb->qt->w, y);
+	d_render_tile_move(tb->pointer, 1, ws.camera.screen_w - ws.camera.tile_w, y);
 
 	return;
 }
@@ -143,6 +165,26 @@ void textbox_loop() {
 			break;
 	}
 
+	if (d_keys_get().down) {
+		tb->selection++;
+		if (tb->selection >= (signed) tb->options)
+			tb->selection = 0;
+		k = d_keys_zero();
+		k.down = 1;
+		textbox_update_pointers(tb);
+		d_keys_set(k);
+	}
+
+	if (d_keys_get().up) {
+		tb->selection--;
+		if (tb->selection < 0)
+			tb->selection = tb->options - 1;
+		k = d_keys_zero();
+		k.up = 1;
+		textbox_update_pointers(tb);
+		d_keys_set(k);
+	}
+
 	if (!tb->message[tb->char_pos]) {
 		if (d_keys_get().BUTTON_ACCEPT || next) {
 			k = d_keys_zero();
@@ -152,12 +194,15 @@ void textbox_loop() {
 			/* Close textbox */
 			free(tb->message), tb->message = NULL;
 			d_render_tilesheet_free(tb->face_ts);
+			d_tilemap_free(tb->qt);
+			d_text_surface_free(tb->qts);
+			d_render_tile_free(tb->pointer);
 			tb->face_ts = NULL;
+			free(tb->option), tb->option = NULL;
 
 			ac.msg = AICOMM_MSG_BOXR;
 			ac.from = -1;
-			/* TODO: Actual return value */
-			ac.arg[0] = -1;
+			ac.arg[0] = tb->selection;
 			ac.self = tb->char_pingback;
 			character_message_loop(ac);
 
@@ -185,7 +230,8 @@ void textbox_add_message(const char *message, const char *question, int face, in
 	struct textbox *tb = ws.textbox;
 	struct char_gfx *cg;
 	struct aicomm_struct ac;
-	int blol;
+	int blol, w, h, wt, ht, x, y, i;
+	const void *bluh;
 
 	if (tb)
 		free(tb->message), tb->message = NULL;
@@ -230,18 +276,81 @@ void textbox_add_message(const char *message, const char *question, int face, in
 	ac.arg[0] = 1;
 	character_tell_all(ac);
 
+	/* Figure out question box */
+
+	if (!question)
+		question = "";
+	w = 0;
+	h = d_font_string_geometrics_o(ws.font, question, ws.camera.screen_w / 2, &w);
+	w += ws.camera.tile_w * 2 + 5;
+	h += 16;
+	wt = w / ws.camera.tile_w;
+	if (w % ws.camera.tile_w)
+		wt++;
+	ht = h / ws.camera.tile_h;
+	if (h % ws.camera.tile_h)
+		ht++;
+
+	tb->pointer = d_render_tile_new(2, ws.camera.sys);
+	d_render_tile_set(tb->pointer, 0, 12);
+	d_render_tile_set(tb->pointer, 1, 13);
+
+	tb->qt = d_tilemap_new(0xFFF, ws.camera.sys, 0xFFF, wt, ht);
+	textbox_init_background(tb->qt, wt * ws.camera.tile_w, ht * ws.camera.tile_h);
+	d_tilemap_camera_move(tb->qt, -(ws.camera.screen_w - wt * ws.camera.tile_w), -(ws.camera.screen_h - (ht + tb->tc->h) * ws.camera.tile_h));
+
+	x = y = 0;
+	x = ws.camera.screen_w - ws.camera.tile_w * wt;
+	x += (wt * ws.camera.tile_w - w) / 2 + ws.camera.tile_w;
+	y = ws.camera.screen_h - ht * ws.camera.tile_h;
+	y -= (tb->tc->h * ws.camera.tile_h);
+	y += (ws.camera.tile_h * ht - h) / 2;
+	tb->qts = d_text_surface_new(ws.font, strlen(question), w - 2 * ws.camera.tile_w, x, y);
+	d_text_surface_string_append(tb->qts, question);
+	bluh = question;
+	if (!strlen(question))
+		i = 0;
+	else
+		for (i = 0; bluh; i++)
+			bluh = strchr(bluh + 1, '\n');
+	tb->options = i;
+	tb->y_selection = y;
+	tb->selection = 0;
+	textbox_update_pointers(tb);
+
 	return;
 }
 
 
 void textbox_draw() {
 	struct textbox *tb = ws.textbox;
+	int y;
 	
 	if (!tb->message)
 		return;
 	d_tilemap_draw(tb->tc);
+	if (tb->option)
+		d_tilemap_draw(tb->qt);
+	
 	d_text_surface_draw(tb->text);
+	if (tb->option)
+		d_text_surface_draw(tb->qts);
 	d_render_tile_draw(tb->face, 1);
+
+	if (tb->option) {
+		#if 0
+		y += (d_font_glyph_hs(ws.font) / 2);
+		#endif
+		y = d_font_glyph_hs(ws.font);
+		y *= tb->selection;
+		y += tb->y_selection;
+/*		y -= ws.camera.tile_h / 2;
+		y += (d_font_glyph_hs(ws.font) / 2);*/
+		d_render_tile_blit(ws.camera.sys, 12, ws.camera.screen_w - ws.camera.tile_w * tb->qt->w, y);
+		d_render_tile_blit(ws.camera.sys, 13, ws.camera.screen_w - ws.camera.tile_w, y);
+		d_render_tile_draw(tb->pointer, 2);
+	}
+
 
 	return;
 }
