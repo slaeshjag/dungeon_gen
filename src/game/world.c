@@ -79,6 +79,7 @@ void world_load(int world_num) {
 	ws.camera.player = 0;
 	ws.active_world = 0;
 	savedata_save(fname);
+	item_destroy(item_init("res/item.list"));
 
 	return;
 }
