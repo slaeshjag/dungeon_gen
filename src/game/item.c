@@ -15,6 +15,8 @@ struct item *item_init(const char *item_table) {
 	if (!(f = d_file_open(item_table, "rb")))
 		return NULL;
 	item = malloc(sizeof(*item));
+	item->type = NULL;
+	item->types = 0;
 
 	/* TODO: Read item table */
 	while (!d_file_eof(f)) {
