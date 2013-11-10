@@ -27,6 +27,7 @@ struct world_state {
 	struct savedata			savedata;
 	struct textbox			*textbox;
 	struct texteffect		te;
+	struct item			*item;
 	int				loading_from_save;
 } ws;
 

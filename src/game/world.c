@@ -6,6 +6,7 @@
 #include "save_loader.h"
 #include "character.h"
 #include "camera.h"
+#include "item.h"
 
 
 void world_dungeon_load(int dungeon) {
@@ -35,6 +36,7 @@ void world_reset() {
 	character_destroy();
 	textbox_destroy();
 	texteffect_done();
+	ws.item = item_destroy(ws.item);
 
 	return;
 }
@@ -79,7 +81,7 @@ void world_load(int world_num) {
 	ws.camera.player = 0;
 	ws.active_world = 0;
 	savedata_save(fname);
-	item_destroy(item_init("res/item.list"));
+	ws.item = item_init("res/item.list");
 
 	return;
 }
