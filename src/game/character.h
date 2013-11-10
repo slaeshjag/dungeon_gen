@@ -29,6 +29,7 @@ struct character_data {
 void character_init();
 void character_destroy();
 int character_load_ai_lib(const char *fname);
+void *character_find_ai_func(const char *name);
 int character_load_graphics(unsigned int slot);
 void character_enable_graphics(int entry);
 int character_unload_graphics(unsigned int slot);

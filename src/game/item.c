@@ -1,6 +1,8 @@
 #include "savefile.h"
+#include "character.h"
 #include "item.h"
 #include <stdlib.h>
+#include <string.h>
 #include <darnit/darnit.h>
 
 
@@ -21,11 +23,16 @@ struct item *item_init(const char *item_table) {
 		sscanf(buff, "%[^\t] %[^\t] %s %i %i", namebuff, descbuff, handler, &dataval, &stack);
 		if (!*handler)
 			continue;
+		item->type = realloc(item->type, sizeof(*item->type) * (item->types + 1));
+		item->type[item->types].name = strdup(namebuff);
+		item->type[item->types].description = strdup(descbuff);
+		item->type[item->types].datavalue = dataval;
+		item->type[item->types].max_stack = stack;
+		item->type[item->types].handler = character_find_ai_func(handler);
+		item->types++;
 		fprintf(stderr, "%s: <%s> by %s;; %i %i\n", namebuff, descbuff, handler, dataval, stack);
 	}
 	
-	item->type = NULL;
-	item->types = 0;
 
 	d_file_close(f);
 

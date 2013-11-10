@@ -8,6 +8,7 @@
 void player_init_stats(struct character_entry *ce) {
 	ce->stat[CHAR_STAT_HP].cur = 10;
 	ce->stat[CHAR_STAT_HP].max = 15;
+	ce->stat[CHAR_STAT_HP].name = "hp";
 
 }
 

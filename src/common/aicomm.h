@@ -60,6 +60,7 @@ struct textbox_properties {
 
 
 struct stat_list {
+	const char		*name;
 	unsigned int		cur;
 	unsigned int		max;
 };

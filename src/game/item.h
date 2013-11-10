@@ -1,11 +1,13 @@
 #ifndef __ITEM_H__
 #define __ITEM_H__
 
+#include "aicomm.h"
 
 struct item_type {
 	char				*name;
 	char				*description;
 	/* TODO: Insert function pointer for handler */
+	int				(*handler)(int dataval, struct character_entry *src, struct character_entry *dst);
 	int				datavalue;
 	int				max_stack;
 };
