@@ -32,7 +32,6 @@ struct item *item_init(const char *item_table) {
 		item->type[item->types].max_stack = stack;
 		item->type[item->types].handler = character_find_ai_func(handler);
 		item->types++;
-		fprintf(stderr, "%s: <%s> by %s;; %i %i\n", namebuff, descbuff, handler, dataval, stack);
 	}
 	
 

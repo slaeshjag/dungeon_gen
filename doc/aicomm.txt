@@ -81,6 +81,14 @@ ac.arg0 - 1 if ignore should be enabled, 0 if disable
 
 ======
 
+AICOMM_MSG_STAT - Status for the character changed
+
+ac.arg0 - Difference in status
+ac.argp - Points to a string with the name of the changed status
+ac.from - Who caused this status change
+
+======
+
 *** Messages that can be sent by AI handler ***
 
 Note: When sending a message, ac.self needs to be the reciever, and ac.from
