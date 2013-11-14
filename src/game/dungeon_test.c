@@ -13,7 +13,8 @@ int main(int argc, char **argv) {
 	random_seed(time(NULL));
 
 	if (argc > 1)
-		generate_world(0);
+		if (!strcmp(argv[1], "new"))
+			generate_world(0);
 
 	/* TODO: Move this into a separate function loading a world */
 	world_init();

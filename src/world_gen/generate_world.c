@@ -65,7 +65,7 @@ void generate_character_graphics(struct generate_world *w, int characters) {
 	
 
 void generate_dungeons(struct generate_world *w) {
-	int i, floors, n;
+	int i, n;
 	unsigned int *tmp_tile;
 	struct dungeon_use *dngu;
 	struct autotile *at;
@@ -77,24 +77,7 @@ void generate_dungeons(struct generate_world *w) {
 
 	for (i = 0; i < n; i++) {
 		/* TODO: Select a fitting autotiler */
-		floors = random_get() % (FLOORS_MAX - FLOORS_MIN) + FLOORS_MIN;
-		#if 0		/* Testing h4xxel's generator */
-		dungeon = dungeon_layout_new(ROOMS_W, ROOMS_H, ROOM_MAX, ROOM_MIN, 1, floors);
-
-		/* FIXME: Pay more attention to entrance floor (last arg.) */
-		dungeon_init_floor(dungeon, ROOM_W, ROOM_H, ENEMY_MAX, 0);
-		dngu = dungeon_make_usable(dungeon);
-		
-		for (j = 0; j < dngu->floors; j++) {
-			tmp_tile = realloc(tmp_tile, sizeof(*tmp_tile) * dngu->w[j] * dngu->h[j]);
-			autotile_run(at, dngu->tile_data[j], tmp_tile, dngu->w[j], dngu->h[j]);
-			memcpy(dngu->tile_data[j], tmp_tile, sizeof(*tmp_tile) * dngu->w[j] * dngu->h[j]);
-		}
-	
-		dungeon_free_generate_dungeon(dungeon);
-		#else
 		dngu = dungeon_generate_diamond_square(64, NULL);
-		#endif
 
 		save_world_dungeon(dngu, i, w->lw, 0);
 		dungeon_free_usable(dngu);

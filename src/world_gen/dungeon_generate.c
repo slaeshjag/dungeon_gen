@@ -7,7 +7,7 @@
 #include "util.h"
 #include "random.h"
 
-static unsigned int structure[256];
+//static unsigned int structure[256];
 #define	CLEAR_STRUCTURE()		(memset(structure, 0, sizeof(int) * 256));
 
 static void diamond_square(int *map, int side_len) {
@@ -53,7 +53,8 @@ static void diamond_square(int *map, int side_len) {
 struct dungeon_use *dungeon_generate_diamond_square(int size, int *seed) {
 	struct dungeon_use *du;
 	void *tmp_data;
-	int i, tile_norm=0;
+	int i;
+	//int tile_norm = 0;
 
 	du = malloc(sizeof(*du));
 	du->floor_info = malloc(sizeof(*du->floor_info));
