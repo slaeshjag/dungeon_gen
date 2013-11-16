@@ -71,3 +71,5 @@ struct inventory *inventory_destroy(struct inventory *inv) {
 
 	return NULL;
 }
+
+
