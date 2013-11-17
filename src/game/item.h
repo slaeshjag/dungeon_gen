@@ -33,10 +33,11 @@ struct inventory {
 };
 
 
-struct item *item_init(const char *item_table);
-struct item *item_destroy(struct item *item);
+void item_init(const char *item_table);
+void item_destroy();
 struct inventory *inventory_new(int size);
 struct inventory *inventory_destroy(struct inventory *inv);
+void item_use(struct inventory *inv, int item, int char_src, int char_dst);
 
 
 #endif

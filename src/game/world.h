@@ -6,6 +6,7 @@
 #include "savedata.h"
 #include "textbox.h"
 #include "texteffects.h"
+#include "item.h"
 
 #define	WORLD_FADE_TIME			500
 #define	MAIN_FONT_SIZE			24
@@ -27,8 +28,12 @@ struct world_state {
 	struct savedata			savedata;
 	struct textbox			*textbox;
 	struct texteffect		te;
-	struct item			*item;
+	struct item			item;
 	int				loading_from_save;
+
+
+	/* Just testing */
+	struct inventory		*inv;
 } ws;
 
 void world_load(int world_num);

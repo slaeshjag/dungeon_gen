@@ -36,7 +36,7 @@ void world_reset() {
 	character_destroy();
 	textbox_destroy();
 	texteffect_done();
-	ws.item = item_destroy(ws.item);
+	item_destroy(ws.item);
 
 	return;
 }
@@ -81,7 +81,12 @@ void world_load(int world_num) {
 	ws.camera.player = 0;
 	ws.active_world = 0;
 	savedata_save(fname);
-	ws.item = item_init("res/item.list");
+
+	item_init("res/item.list");
+	ws.inv = inventory_new(1);
+	ws.inv->entry[0].type = 0;
+	ws.inv->entry[0].amount = 1;
+
 
 	return;
 }
@@ -164,6 +169,8 @@ void world_loop() {
 			d_render_offset(0, 0);
 			textbox_draw();
 			d_render_blend_disable();
+			if (d_keys_get().rmb)
+				item_use(ws.inv, 0, 0, 0);
 
 			/* TODO: Render a UI of some sort */
 			d_render_end();
