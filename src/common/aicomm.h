@@ -100,6 +100,9 @@ struct character_entry {
 	void			*state;
 	struct character_save	save;
 	char			ai[32];
+
+	struct item_reply_element	*item_reply;
+	int			item_replies;
 };
 
 #endif

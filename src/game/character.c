@@ -521,6 +521,8 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	ce->stat = NULL;
 	ce->stats = 0;
 	ce->state = NULL;
+	ce->item_reply = NULL;
+	ce->item_replies = 0;
 	*((unsigned int *) (&ce->special_action)) = 0;
 
 	d_sprite_activate(ce->sprite, 0);

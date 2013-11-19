@@ -90,6 +90,22 @@ void item_use(struct inventory *inv, int item, int char_src, int char_dst) {
 		return;
 	ir = ws.item.type[ii].handler(ws.item.type[ii].datavalue, ws.char_data->entry[char_src], ws.char_data->entry[char_dst]);
 
+
+	/* Source */
+	ii = ws.char_data->entry[char_src]->item_replies;
+	ws.char_data->entry[char_src]->item_reply = realloc(ws.char_data->entry[char_src]->item_reply, ii + ir.srcs);
+	for (i = 0; i < ir.srcs; i++)
+		ws.char_data->entry[char_src]->item_reply[i + ii] = ir.src[i];
+	ws.char_data->entry[char_src]->item_replies += ir.srcs;
+
+	/* Destination */
+	ii = ws.char_data->entry[char_dst]->item_replies;
+	ws.char_data->entry[char_dst]->item_reply = realloc(ws.char_data->entry[char_dst]->item_reply, ii + ir.srcs);
+	for (i = 0; i < ir.dsts; i++)
+		ws.char_data->entry[char_dst]->item_reply[i + ii] = ir.dst[i];
+	ws.char_data->entry[char_dst]->item_replies += ir.dsts;
+		
+
 	/* Just testing */
 	fprintf(stderr, "*** Source diff ***\n");
 	for (i = 0; i < ir.srcs; i++)
