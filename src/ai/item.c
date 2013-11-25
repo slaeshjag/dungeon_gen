@@ -48,5 +48,9 @@ struct item_reply morot(int dataval, struct character_entry *src, struct charact
 	ir.dst[0].diff = dataval * -50;
 	ir.dst[0].turns = -1;
 
+	ir.inventory_change = -1;
+	ir.animation_battle = "morot_use_battle";
+	ir.animation_overworld = "morot_use_overworld";
+
 	return ir;
 }

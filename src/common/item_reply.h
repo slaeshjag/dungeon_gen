@@ -29,6 +29,9 @@ struct item_reply {
 	int				dstn;
 	
 	int				inventory_change;
+
+	const char			*animation_battle;
+	const char			*animation_overworld;
 };
 
 #endif
