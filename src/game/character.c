@@ -523,6 +523,8 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	ce->state = NULL;
 	ce->item_reply = NULL;
 	ce->item_replies = 0;
+	ce->char_preload = NULL;
+	ce->char_preloads = 0;
 	*((unsigned int *) (&ce->special_action)) = 0;
 
 	d_sprite_activate(ce->sprite, 0);
@@ -659,5 +661,37 @@ void character_render_layer(int hits, int layer) {
 		d_sprite_draw(ws.char_data->entry[e]->sprite);
 	}
 
+	return;
+}
+
+
+void *character_preload_load(const char *resource, enum character_resource type, int tile_w, int tile_h) {
+	
+	switch (type) {
+		case CHARACTER_RES_TILESHEET:
+			return d_render_tilesheet_load(resource, tile_w, tile_h, DARNIT_PFORMAT_RGB5A1);
+		case CHARACTER_RES_ANIMATION:
+			return d_mtsprite_load(resource);
+		default:
+			fprintf(stderr, "UNIMPLEMENTED RESOURCE TYPE %i\n", type);
+			return NULL;
+	}
+}
+	
+
+
+void character_preload_free(struct char_preload *cr) {
+	switch (cr->cr) {
+		case CHARACTER_RES_TILESHEET:
+			d_render_tilesheet_free(cr->resource);
+			break;
+		case CHARACTER_RES_ANIMATION:
+			d_mtsprite_free(cr->resource);
+			break;
+		default:
+			fprintf(stderr, "UNIMPLEMENTED RESOURCE TYPE %i\n", cr->cr);
+	}
+		
+	free(cr->name);
 	return;
 }

@@ -3,6 +3,7 @@
 
 #include <darnit/darnit.h>
 
+
 enum aicomm_msg {
 	AICOMM_MSG_INIT,	/* Initialize! */
 	AICOMM_MSG_LOOP,	/* Frame update */
@@ -36,6 +37,12 @@ enum aicomm_msg {
 };
 
 
+enum character_resource {
+	CHARACTER_RES_TILESHEET,
+	CHARACTER_RES_ANIMATION,
+};
+
+
 struct aicomm_struct {
 	enum aicomm_msg		msg;
 	int			arg[8];
@@ -64,6 +71,13 @@ struct stat_list {
 	const char		*name;
 	unsigned int		cur;
 	unsigned int		max;
+};
+
+
+struct char_preload {
+	void			*resource;
+	char			*name;
+	enum character_resource	cr;
 };
 
 
@@ -100,6 +114,8 @@ struct character_entry {
 	void			*state;
 	struct character_save	save;
 	char			ai[32];
+	struct char_preload	*char_preload;
+	int			char_preloads;
 
 	struct item_reply_element	*item_reply;
 	int			item_replies;
