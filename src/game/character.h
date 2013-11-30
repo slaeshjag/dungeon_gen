@@ -44,7 +44,7 @@ void character_loop();
 void character_render_layer(int hits, int layer);
 
 void *character_preload_load(const char *resource, enum character_resource type, int tile_w, int tile_h);
-void character_preload_free(struct char_preload *cr);
+void character_preload_free(struct character_entry *ce, const char *resource);
 
 
 #endif

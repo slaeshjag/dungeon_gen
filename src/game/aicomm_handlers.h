@@ -21,6 +21,8 @@ static struct aicomm_struct(*aihandle[AICOMM_MSG_END])(struct aicomm_struct) = {
 	[AICOMM_MSG_TBOX] = aicomm_f_tbox,
 	[AICOMM_MSG_TPME] = aicomm_f_tpme,
 	[AICOMM_MSG_TXTE] = aicomm_f_txte,
+	[AICOMM_MSG_PREL] = aicomm_f_prel,
+	[AICOMM_MSG_UNLO] = aicomm_f_unlo,
 };
 
 

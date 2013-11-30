@@ -18,6 +18,7 @@ struct aicomm_struct aicomm_f_tbox(struct aicomm_struct ac);
 struct aicomm_struct aicomm_f_invm(struct aicomm_struct ac);
 struct aicomm_struct aicomm_f_txte(struct aicomm_struct ac);
 struct aicomm_struct aicomm_f_prel(struct aicomm_struct ac);
+struct aicomm_struct aicomm_f_unlo(struct aicomm_struct ac);
 
 
 #endif

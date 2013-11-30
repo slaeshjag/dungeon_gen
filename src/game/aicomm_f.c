@@ -1,5 +1,6 @@
 #include "character.h"
 #include "aicomm_f.h"
+#include "aicomm.h"
 #include "savefile.h"
 #include "textbox.h"
 #include "world.h"
@@ -163,6 +164,37 @@ struct aicomm_struct aicomm_f_txte(struct aicomm_struct ac) {
 	ac.from = -1;
 	ac.msg = AICOMM_MSG_TXTE;
 
+	return ac;
+}
+
+
+struct aicomm_struct aicomm_f_prel(struct aicomm_struct ac) {
+	struct character_entry *ce;
+	void *resource;
+
+	ce = ac.ce[ac.from];
+	ac.self = ac.from;
+	ac.from = -1;
+	if (!(resource = character_preload_load(ac.argp, ac.arg[0], ac.arg[1], ac.arg[2]))) {
+		ac.arg[0] = 0;
+		return ac;
+	}
+
+	ce->char_preload = realloc(ce->char_preload, ce->char_preloads + 1);
+	ce->char_preload[ce->char_preloads].name = strdup(ac.argp);
+	ce->char_preload[ce->char_preloads].resource = resource;
+	ce->char_preload[ce->char_preloads].cr = ac.arg[0];
+
+	ce->char_preloads++;
+	ac.arg[0] = 1;
+	return ac;
+}
+
+
+struct aicomm_struct aicomm_f_unlo(struct aicomm_struct ac) {
+	ac.self = ac.from;
+	ac.from = -1;
+	character_preload_free(ac.ce[ac.self], ac.argp);
 	return ac;
 }
 

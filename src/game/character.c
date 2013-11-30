@@ -600,6 +600,7 @@ void character_loop() {
 void character_despawn(int entry) {
 	struct character_entry *ce;
 	struct aicomm_struct ac;
+	int i;
 
 	if (entry < 0 || entry >= ws.char_data->max_entries)
 		return;
@@ -612,6 +613,9 @@ void character_despawn(int entry) {
 	ac.from = -1;
 	ac.self = entry;
 	character_message_loop(ac);
+
+	for (i = 0; i < ce->char_preloads; i++)
+		character_preload_free(ce, ce->char_preload[i].name);
 	
 	d_sprite_free(ce->sprite);
 	free(ce);
@@ -680,7 +684,16 @@ void *character_preload_load(const char *resource, enum character_resource type,
 	
 
 
-void character_preload_free(struct char_preload *cr) {
+void character_preload_free(struct character_entry *ce, const char *resource) {
+	int i;
+	struct char_preload *cr;
+
+	for (i = 0; i < ce->char_preloads; i++)
+		if (!strcmp(ce->char_preload[i].name, resource))
+			break;
+	if (i == ce->char_preloads)
+		return;
+	cr = &ce->char_preload[i];
 	switch (cr->cr) {
 		case CHARACTER_RES_TILESHEET:
 			d_render_tilesheet_free(cr->resource);
@@ -693,5 +706,20 @@ void character_preload_free(struct char_preload *cr) {
 	}
 		
 	free(cr->name);
+
+	ce->char_preloads--;
+	for (; i < ce->char_preloads; i++)
+		ce->char_preload[i] = ce->char_preload[i + 1];
+
 	return;
+}
+
+
+void *character_preload_get(struct character_entry *ce, const char *resource) {
+	int i;
+
+	for (i = 0; i < ce->char_preloads; i++)
+		if (!strcmp(ce->char_preload[i].name, resource))
+			return ce->char_preload[i].resource;
+	return NULL;
 }

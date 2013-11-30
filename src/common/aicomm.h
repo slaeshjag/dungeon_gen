@@ -31,6 +31,8 @@ enum aicomm_msg {
 	AICOMM_MSG_TBOX,	/* Spawn a textbox */
 	AICOMM_MSG_TXTE,	/* Add text scrolling */
 	AICOMM_MSG_STAT,	/* Status changed */
+	AICOMM_MSG_PREL,	/* Preload resource */
+	AICOMM_MSG_UNLO,	/* Unload preloaded resource */
 	AICOMM_MSG_DESTROY,	/* Time to die! */
 
 	AICOMM_MSG_END		/* END OF LIST */

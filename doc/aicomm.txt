@@ -89,7 +89,22 @@ ac.from - Who caused this status change
 
 ======
 
+AICOMM_MSG_PREL - Acknowledge of resource preload
+
+ac.argp - The file name of the requested resource
+ac.arg0 - 0 if fail, 1 if success
+
+======
+
+AICOMM_MSG_UNLO - Acknowledge of resource unload
+
+ac.argp = The file name of the resource that was unloaded
+
+===============================================
+
 *** Messages that can be sent by AI handler ***
+
+===============================================
 
 Note: When sending a message, ac.self needs to be the reciever, and ac.from
 should be set to sender's character ID.
@@ -216,5 +231,15 @@ arg3 - Line length
 arg4 - R color channel (0..255)
 arg5 - G color channel (0..255)
 arg6 - B color channel (0..255)
+
+======
+
+AICOMM_MSG_PREL - Preload a resource to avoid stutter when starting to use it
+
+ac.from - Who you are
+argp - File name of the resource
+arg0 - Resource type (see enum character_resource)
+arg1 - Tile width (where applicable)
+arg2 - Tile height (where applicable)
 
 ======
