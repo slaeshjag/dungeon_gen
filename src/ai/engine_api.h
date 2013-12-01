@@ -20,6 +20,8 @@ void engine_api_request_faced(struct ai_msgbuf *buf, int me);
 void engine_api_camera_jump(struct ai_msgbuf *buf, int me);
 void engine_api_text_effect(struct ai_msgbuf *buf, int me, int time, int x, int y, int linel, int r, int g, int b, const char *str);
 void engine_api_textbox(struct ai_msgbuf *buf, struct textbox_properties *tbp, int from, int face);
+void engine_api_request_preload(struct ai_msgbuf *buf, const char *fname, enum character_resource type, int tile_w, int tile_h, int from);
+void engine_api_preload_unload(struct ai_msgbuf *buf, const char *fname, int from);
 
 
 #endif

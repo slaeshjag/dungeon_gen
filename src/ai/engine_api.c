@@ -188,3 +188,28 @@ void engine_api_textbox(struct ai_msgbuf *buf, struct textbox_properties *tbp, i
 	return;
 }
 
+void engine_api_request_preload(struct ai_msgbuf *buf, const char *fname, enum character_resource type, int tile_w, int tile_h, int from) {
+	struct aicomm_struct ac;
+
+	ac.msg = AICOMM_MSG_PREL;
+	ac.from = from;
+	ac.argp = (char *) fname;
+	ac.arg[0] = type;
+	ac.arg[1] = tile_w;
+	ac.arg[2] = tile_h;
+
+	aicom_msgbuf_push(buf, ac);
+	return;
+}
+
+
+void engine_api_preload_unload(struct ai_msgbuf *buf, const char *fname, int from) {
+	struct aicomm_struct ac;
+
+	ac.msg = AICOMM_MSG_UNLO;
+	ac.from = from;
+	ac.argp = (char *) fname;
+
+	aicom_msgbuf_push(buf, ac);
+	return;
+}

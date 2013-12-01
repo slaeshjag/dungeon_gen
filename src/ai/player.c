@@ -27,6 +27,8 @@ static void player_init(struct aicomm_struct ac, struct player_state *ps) {
 	ps->tbp.message = "Räksmörgås!\x01\x03  сыр вкуснее!\x01\x0F\x02\x10\nDet var allt.\x03\nFast egentligen inte, jag har mycket mer saker att säga, så här kommer du få jobba lite! Du vet, typ trycka vänster ALT några gånger i bland medans all den här jobbiga texten scrollar. Det här fungerar va? Annars blir jag ledsen i ögat.. :'(";
 	ps->tbp.question = NULL;
 	engine_api_textbox(ps->msg, &ps->tbp, self, 0);
+	engine_api_request_preload(ps->msg, "res/testsprite.mts", CHARACTER_RES_ANIMATION, 0, 0, self);
+	engine_api_preload_unload(ps->msg, "res/testsprite.mts", self);
 
 	ac.ce[ac.self]->stat = malloc(sizeof(*ac.ce[ac.self]->stat) * CHAR_STAT_TOTAL);
 	ac.ce[ac.self]->stats = CHAR_STAT_TOTAL - 1;
@@ -119,6 +121,8 @@ static void player_loop(struct aicomm_struct ac, struct player_state *ps) {
 
 	if (keys.x) 
 		engine_api_replace_sprite(ps->msg, ac.self, 2);
+	if (keys.a)
+		
 
 	if (keys.BUTTON_ACCEPT) {
 		engine_api_request_faced(ps->msg, ac.self);
