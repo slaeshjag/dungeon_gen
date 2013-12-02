@@ -172,7 +172,7 @@ struct aicomm_struct aicomm_f_prel(struct aicomm_struct ac) {
 	struct character_entry *ce;
 	void *resource;
 
-	ce = ws.char_data->entry[ac.self];
+	ce = ws.char_data->entry[ac.from];
 	ac.self = ac.from;
 	ac.from = -1;
 	if (!(resource = character_preload_load(ac.argp, ac.arg[0], ac.arg[1], ac.arg[2]))) {
@@ -180,7 +180,7 @@ struct aicomm_struct aicomm_f_prel(struct aicomm_struct ac) {
 		return ac;
 	}
 
-	ce->char_preload = realloc(ce->char_preload, ce->char_preloads + 1);
+	ce->char_preload = realloc(ce->char_preload, sizeof(*ce->char_preload) * (ce->char_preloads + 1));
 	ce->char_preload[ce->char_preloads].name = strdup(ac.argp);
 	ce->char_preload[ce->char_preloads].resource = resource;
 	ce->char_preload[ce->char_preloads].cr = ac.arg[0];
@@ -202,3 +202,4 @@ struct aicomm_struct aicomm_f_unlo(struct aicomm_struct ac) {
 struct aicomm_struct aicomm_f_dummy(struct aicomm_struct ac) {
 	return ac;
 }
+
