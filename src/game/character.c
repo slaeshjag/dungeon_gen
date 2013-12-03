@@ -525,6 +525,8 @@ int character_spawn_entry(unsigned int slot, const char *ai, int x, int y, int l
 	ce->item_replies = 0;
 	ce->char_preload = NULL;
 	ce->char_preloads = 0;
+	ce->char_effect = NULL;
+	ce->char_effects = 0;
 	*((unsigned int *) (&ce->special_action)) = 0;
 
 	d_sprite_activate(ce->sprite, 0);
@@ -616,6 +618,8 @@ void character_despawn(int entry) {
 
 	for (i = 0; i < ce->char_preloads; i++)
 		character_preload_free(ce, ce->char_preload[i].name);
+	for (i = ce->char_effects - 1; i >= 0; i--)
+		character_effect_free(ce, i);
 	
 	d_sprite_free(ce->sprite);
 	free(ce);
@@ -722,4 +726,30 @@ void *character_preload_get(struct character_entry *ce, const char *resource) {
 		if (!strcmp(ce->char_preload[i].name, resource))
 			return ce->char_preload[i].resource;
 	return NULL;
+}
+
+
+void character_effect_new(struct character_entry *ce, char *fname, enum character_effect_t e, int loop) {
+	/* TODO: Implement */
+
+	return;
+}
+
+
+void character_effect_free(struct character_entry *ce, int index) {
+	switch (ce->char_effect[index].cet) {
+		case CHARACTER_EFFECT_ANIMATION:
+			d_mtsprite_free(ce->char_effect[index].resource);
+			break;
+		case CHARACTER_EFFECT_PARTICLE:
+			d_particle_free(ce->char_effect[index].resource);
+			break;
+		default:
+			break;
+	}
+
+	memmove(&ce->char_effect[index], &ce->char_effect[ce->char_effects - 1], ce->char_effects - 1 - index);
+	ce->char_effects--;
+
+	return;
 }

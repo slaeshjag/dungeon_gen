@@ -45,6 +45,12 @@ enum character_resource {
 };
 
 
+enum character_effect_t {
+	CHARACTER_EFFECT_ANIMATION,
+	CHARACTER_EFFECT_PARTICLE,
+};
+
+
 struct aicomm_struct {
 	enum aicomm_msg		msg;
 	int			arg[8];
@@ -83,6 +89,13 @@ struct char_preload {
 };
 
 
+struct char_effect {
+	void			*resource;
+	enum character_effect_t	cet;
+	int			loop;
+};
+
+
 struct character_entry {
 	struct aicomm_struct	(*loop)(struct aicomm_struct ac);
 	/* X and Y is fix-point 24.8 */
@@ -118,6 +131,8 @@ struct character_entry {
 	char			ai[32];
 	struct char_preload	*char_preload;
 	int			char_preloads;
+	struct char_effect	*char_effect;
+	int			char_effects;
 
 	struct item_reply_element	*item_reply;
 	int			item_replies;
