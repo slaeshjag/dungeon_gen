@@ -729,17 +729,43 @@ void *character_preload_get(struct character_entry *ce, const char *resource) {
 }
 
 
-void character_effect_new(struct character_entry *ce, char *fname, enum character_effect_t e, int loop) {
+int character_preload_do(struct character_entry *ce, char *fname, enum character_resource type, int loop) {
+	int i;
+
+	i = ce->char_preloads;
+	ce->char_preloads++;
+	ce->char_preload = realloc(ce->char_preload, sizeof(*ce->char_preload) * ce->char_preloads);
+	ce->char_preload[i].resource = character_preload_load(fname, type, 0, 0);
+	ce->char_preload[i].name = strdup(fname);
+	ce->char_preload[i].cr = type;
+
+	return i;
+}
+
+
+int character_effect_new(struct character_entry *ce, char *fname, enum character_effect_t e, int loop) {
+	int i;
+	void *res;
+	enum character_resource type;
+
+	switch (e) {
+		case CHARACTER_EFFECT_ANIMATION:
+			if (!(res = character_preload_get(ce, fname)))
+				character_preload_do(ce, fname, CHARACTER_RES_ANIMATION, loop);
+				res = character_preload_get(ce, fname);
+			break;
+	}
 	/* TODO: Implement */
 
-	return;
+	/* FIXME: Should return effect ID */
+	return 0;
 }
 
 
 void character_effect_free(struct character_entry *ce, int index) {
 	switch (ce->char_effect[index].cet) {
 		case CHARACTER_EFFECT_ANIMATION:
-			d_mtsprite_free(ce->char_effect[index].resource);
+			/* Do nothing, this is allocated by preload */
 			break;
 		case CHARACTER_EFFECT_PARTICLE:
 			d_particle_free(ce->char_effect[index].resource);
