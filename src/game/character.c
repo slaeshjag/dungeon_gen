@@ -750,15 +750,29 @@ int character_effect_new(struct character_entry *ce, char *fname, enum character
 
 	switch (e) {
 		case CHARACTER_EFFECT_ANIMATION:
-			if (!(res = character_preload_get(ce, fname)))
-				character_preload_do(ce, fname, CHARACTER_RES_ANIMATION, loop);
+			type = CHARACTER_RES_ANIMATION;
+			if (!(res = character_preload_get(ce, fname))) {
+				character_preload_do(ce, fname, res, loop);
 				res = character_preload_get(ce, fname);
+			}
+
 			break;
 	}
-	/* TODO: Implement */
+
+	for (i = 0; i < ce->char_effects; i++)
+		if (!ce->char_effect[i].resource)
+			break;
+	if (i == ce->char_effects) {
+		ce->char_effects++;
+		ce->char_effect = realloc(ce->char_effect, ce->char_effects * sizeof(*ce->char_effect));
+	}
+	
+	ce->char_effect[i].loop = loop;
+	ce->char_effect[i].cet = type;
+	ce->char_effect[i].resource = res;
 
 	/* FIXME: Should return effect ID */
-	return 0;
+	return i;
 }
 
 
@@ -774,8 +788,7 @@ void character_effect_free(struct character_entry *ce, int index) {
 			break;
 	}
 
-	memmove(&ce->char_effect[index], &ce->char_effect[ce->char_effects - 1], ce->char_effects - 1 - index);
-	ce->char_effects--;
+	ce->char_effect[index].resource = NULL;
 
 	return;
 }
