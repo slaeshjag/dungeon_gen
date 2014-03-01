@@ -26,6 +26,7 @@ void world_init() {
 
 	ws.font = d_font_load("res/mainfont.ttf", MAIN_FONT_SIZE, 512, 512);
 	ws.te.font = d_font_load("res/mainfont.ttf", TEXTEFFECT_FONT_SIZE, 256, 256);
+	ambiance_init();
 }
 
 

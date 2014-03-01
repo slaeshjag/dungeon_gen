@@ -6,6 +6,7 @@
 #include "aicomm_f.h"
 #include "aicomm_handlers.h"
 
+
 void character_expand_entries();
 void character_update_sprite(int entry);
 
@@ -752,7 +753,7 @@ int character_effect_new(struct character_entry *ce, char *fname, enum character
 		case CHARACTER_EFFECT_ANIMATION:
 			type = CHARACTER_RES_ANIMATION;
 			if (!(res = character_preload_get(ce, fname))) {
-				character_preload_do(ce, fname, res, loop);
+				character_preload_do(ce, fname, e, loop);
 				res = character_preload_get(ce, fname);
 			}
 
@@ -771,7 +772,6 @@ int character_effect_new(struct character_entry *ce, char *fname, enum character
 	ce->char_effect[i].cet = type;
 	ce->char_effect[i].resource = res;
 
-	/* FIXME: Should return effect ID */
 	return i;
 }
 

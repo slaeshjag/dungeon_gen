@@ -93,6 +93,9 @@ struct char_effect {
 	void			*resource;
 	enum character_effect_t	cet;
 	int			loop;
+	int			offset_x;
+	int			offset_y;
+	int			layer;
 };
 
 

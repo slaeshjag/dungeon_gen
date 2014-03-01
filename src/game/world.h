@@ -7,6 +7,7 @@
 #include "textbox.h"
 #include "texteffects.h"
 #include "item.h"
+#include "ambiance.h"
 
 #define	WORLD_FADE_TIME			500
 #define	MAIN_FONT_SIZE			24
@@ -29,6 +30,7 @@ struct world_state {
 	struct textbox			*textbox;
 	struct texteffect		te;
 	struct item			item;
+	struct ambiance			ambiance;
 	int				loading_from_save;
 
 
